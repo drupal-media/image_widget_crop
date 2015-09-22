@@ -1,0 +1,269 @@
+<?php
+
+/**
+ * @file
+ * Contains image_widget_crop.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Render\Element;
+use Drupal\image_widget_crop\ImageWidgetCrop;
+use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
+
+/**
+ * Implements hook_help().
+ */
+function image_widget_crop_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.image_widget_crop':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Implement CROP API into the fields image');
+      $output .= '</dl>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_field_widget_info_alter().
+ */
+function image_widget_cropfield_widget_info_alter(array &$info) {
+  // Let a new field type re-use an existing widget.
+  $info['image_image']['field_types'][] = 'ftvisi_image_crop';
+}
+
+/**
+ * Implements hook_theme().
+ */
+function image_widget_crop_theme() {
+  return [
+    'crop_container' => [
+      'render element' => 'element',
+    ],
+    'crop_image_container' => [
+      'render element' => 'element',
+    ],
+    'crop_sidebar' => [
+      'render element' => 'element',
+    ],
+    'crop_list_items' => [
+      'render element' => 'element'
+    ]
+  ];
+}
+
+/**
+ * Prepares variables for crop_list_items templates.
+ *
+ * Default template: crop-list-items.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ */
+function template_preprocess_crop_list_items(&$variables) {
+  $variables['has_parent'] = FALSE;
+  $element = $variables['element'];
+  // Ensure #attributes is set.
+  $element += array('#attributes' => array());
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    $variables['has_parent'] = TRUE;
+  }
+
+  // Get variables into elements and pass it to twig template.
+  foreach ($element['#variables'] as $variable_key => $var) {
+        $variables[$variable_key] = $var;
+    }
+
+  $variables['attributes'] = $element['#attributes'];
+}
+
+/**
+ * Prepares variables for crop_container templates.
+ *
+ * Default template: crop-container.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ */
+function template_preprocess_crop_container(&$variables) {
+  $variables['has_parent'] = FALSE;
+  $element = $variables['element'];
+  // Ensure #attributes is set.
+  $element += array('#attributes' => array());
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    $variables['has_parent'] = TRUE;
+  }
+
+  // Get variables into elements and pass it to twig template.
+  foreach ($element['#variables'] as $variable_key => $var) {
+    $variables[$variable_key] = $var;
+  }
+
+  // Determine whether there are any child elements in the element that are not
+  // fully-specified render arrays. If there are any, then the child
+  // elements present nested lists and we automatically inherit the render
+  // array properties of the current list to them.
+  foreach (Element::children($element) as $key) {
+    $items[] = $element[$key];
+    foreach ($items as $child_key => $child_value) {
+      if (!isset($items['#type']) && !isset($items['#theme']) && !isset($items['#markup'])) {
+        if (!isset($items['#items'])) {
+          $items['#items'][$child_key] = $child_value;
+        }
+      }
+    }
+  }
+
+  $variables['items'] = $items;
+  $variables['attributes'] = $element['#attributes'];
+  $variables['element_type'] = $element['#element_type'];
+}
+
+/**
+ * Prepares variables for crop_sidebar templates.
+ *
+ * Default template: crop-sidebar.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ */
+function template_preprocess_crop_sidebar(&$variables) {
+  $variables['has_parent'] = FALSE;
+  $element = $variables['element'];
+  // Ensure #attributes is set.
+  $element += array('#attributes' => array());
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    $variables['has_parent'] = TRUE;
+  }
+
+  // Get all child elements into sidebar.
+  foreach (Element::children($element) as $key) {
+    $child = &$element[$key];
+    $items[] = $child;
+  }
+
+  // Get the type of wrapper element.
+  $variables['element_type'] = $element['#element_type'];
+
+  // Add attributes to wrapper element.
+  $variables['attributes'] = $element['#attributes'];
+
+  // Send to twig all items into sidebar element.
+  $variables['items'] = $items;
+}
+
+/**
+ * Prepares variables for container templates.
+ *
+ * Default template: crop-sidebar.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ */
+function template_preprocess_crop_image_container(&$variables) {
+  $variables['has_parent'] = FALSE;
+  $element = $variables['element'];
+  // Ensure #attributes is set.
+  $element += array('#attributes' => array());
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    $variables['has_parent'] = TRUE;
+  }
+
+  foreach ($element['#variables'] as $variable_key => $var) {
+    $variables[$variable_key] = $var;
+  }
+
+  foreach (Element::children($element) as $key) {
+    $child = &$element[$key];
+    $items[] = $child;
+  }
+
+  // Send to twig all items into sidebar element.
+  $variables['items'] = $items;
+  $variables['attributes'] = $element['#attributes'];
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
+  if (isset($entity) && method_exists($entity, 'getFields')) {
+    foreach ($entity->getFields() as $entity_fields) {
+      if ($entity_fields instanceof FileFieldItemList && isset($entity_fields->crop_preview_wrapper)) {
+
+        // Get the route params attributes.
+        $route_params = \Drupal::requestStack()
+          ->getCurrentRequest()->attributes->get('_route_params');
+
+        /** @var \Drupal\image_widget_crop\ImageWidgetCrop $crop */
+        $crop = new ImageWidgetCrop();
+
+        // Verify if the current form is an edit.
+        if (isset($route_params['_entity_form']) && preg_match('/.edit/', $route_params['_entity_form'])) {
+          $edit = TRUE;
+        }
+
+        // Parse the value of a crop_preview_wrapper element and get,
+        // the properties associate with her image style.
+        foreach ($entity_fields->crop_preview_wrapper['container'] as $image_style_name => $properties) {
+          // Save the entity if it has not already been saved by some other code.
+          if (isset($properties['values']) && !empty($properties['values']['crop-w']) && !empty($properties['values']['crop-h'])) {
+            $crop->cropByImageStyle($properties['values'], $entity_fields->getValue()['0'], $image_style_name, $edit);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_css_alter().
+ */
+function image_widget_crop_css_alter(&$css) {
+  $theme_path = drupal_get_path('module', 'image_widget_crop');
+
+  // Add FontAwesome.
+  $fontawesome = '//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.min.css';
+  $css[$fontawesome] = array(
+    'data' => $fontawesome,
+    'type' => 'external',
+    'every_page' => TRUE,
+    'media' => 'all',
+    'preprocess' => FALSE,
+    'group' => CSS_AGGREGATE_THEME,
+    'browsers' => array('IE' => TRUE, '!IE' => TRUE),
+    'weight' => -2,
+  );
+}

@@ -1,0 +1,10 @@
+name: ImageWidget Crop
+type: module
+description: ...
+core: 8.x
+package: Media
+dependencies:
+  - node
+  - crop
+  - image
+  - user
