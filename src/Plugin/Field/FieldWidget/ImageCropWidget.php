@@ -44,8 +44,6 @@ class ImageCropWidget extends ImageWidget {
    * This method is assigned as a #process callback in formElement() method.
    */
   public static function process($element, FormStateInterface $form_state, $form) {
-    $item = $element['#value'];
-    $item['fids'] = $element['fids']['#value'];
     $edit = FALSE;
     $route_params = \Drupal::requestStack()
       ->getCurrentRequest()->attributes->get('_route_params');
