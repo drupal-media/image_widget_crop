@@ -171,7 +171,7 @@ class ImageCropWidget extends ImageWidget {
               'crop-w' => ['label' => t('crop size width'), 'value' => NULL],
               'crop-h' => ['label' => t('crop size height'), 'value' => NULL],
               'thumb-w' => ['label' => t('Thumbnail Width'), 'value' => NULL],
-              'thumb-h' => ['label' => t('Thumbnail Height'), 'value' => NULL]
+              'thumb-h' => ['label' => t('Thumbnail Height'), 'value' => NULL],
             ];
 
             if ($edit) {
@@ -227,9 +227,15 @@ class ImageCropWidget extends ImageWidget {
               $element['crop_preview_wrapper']['container'][$machine_name]['values'][$crop_elements_name] = [
                 '#type' => 'hidden',
                 '#attributes' => ['class' => ["crop-$crop_elements_name"]],
-                '#value' => !empty($edit) ? $crop_elements_value['value'] : 0,
+                '#value' => !empty($edit) ? $crop_elements_value['value'] : NULL,
               ];
             }
+
+            $element['crop_preview_wrapper']['container'][$machine_name]['delete-crop'] = [
+              '#type' => 'hidden',
+              '#attributes' => ['class' => ["delete-crop"]],
+              '#value' => 0,
+            ];
 
             // Stock Original File Values.
             $element['file-uri'] = [

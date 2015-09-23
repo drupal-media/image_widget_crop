@@ -238,9 +238,17 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
         // Parse the value of a crop_preview_wrapper element and get,
         // the properties associate with her image style.
         foreach ($entity_fields->crop_preview_wrapper['container'] as $image_style_name => $properties) {
+
+          /** @var \Drupal\image\Entity\ImageStyle $image_style */
+          $image_style = \Drupal::entityManager()
+            ->getStorage('image_style')
+            ->load($image_style_name);
+
           // Save the entity if it has not already been saved by some other code.
-          if (isset($properties['values']) && !empty($properties['values']['crop-w']) && !empty($properties['values']['crop-h'])) {
-            $crop->cropByImageStyle($properties['values'], $entity_fields->getValue()['0'], $image_style_name, $edit);
+          if (isset($properties['values']) && (!empty($properties['values']['crop-w']) && !empty($properties['values']['crop-h']))) {
+            $crop->cropByImageStyle($properties['values'], $entity_fields->getValue()['0'], $image_style, $edit);
+          } elseif($properties['delete-crop'] == '1') {
+            $crop->deleteCrop($entity_fields->getValue()['0']['file-uri'], $image_style);
           }
         }
       }

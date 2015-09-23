@@ -83,6 +83,8 @@
                             var saved_width = $(item).find($cropThumbW);
                             var saved_height = $(item).find($cropThumbH);
 
+                            var dataRatioName = $(item).data('name');
+
                             $(saved_img).imgAreaSelect({
                                 aspectRatio: $(item).data('ratio'),
                                 handles: true,
@@ -106,6 +108,7 @@
                                     $(saved_width).val(saved_img.width);
                                     $(saved_height).val(saved_img.height);
 
+                                    $('#'+dataRatioName).find('input.delete-crop').val('0');
                                 },
                                 x1: saved_posx1.val(),
                                 y1: saved_posy1.val(),
@@ -121,6 +124,8 @@
 
                     // Create an crop instance.
                     var crop = $(img).imgAreaSelect({ instance: true });
+
+                    var dataRatioName = $(this).data('name');
 
                     // Set options.
                     crop.setOptions({
@@ -146,6 +151,8 @@
                             $(width).val(img.width);
                             $(height).val(img.height);
 
+                            $('#'+dataRatioName).find('input.delete-crop').val('0');
+
                             // When user have crop the selection mark saved.
                             $(listElement).addClass('saved');
                         }
@@ -159,7 +166,8 @@
 
                 $(this).parents('li').removeClass('saved active');
                 var dataRatioName = $(this).parents('li').data('name');
-                $('#'+dataRatioName).find('.crop-preview-wrapper-value input').val('0');
+                $('#'+dataRatioName).find('.crop-preview-wrapper-value input').removeAttr('value');
+                $('#'+dataRatioName).find('input.delete-crop').val('1');
                 $('#'+dataRatioName).hide();
 
                 // Create an crop instance.

@@ -175,22 +175,17 @@ class ImageWidgetCrop {
    *   and the size of thumbnail image.
    * @param array|mixed $field_value
    *   An array of values for the contained properties of image_crop widget.
-   * @param string $image_style_name
+   * @param \Drupal\image\Entity\ImageStyle $image_style
    *   The machine name of ImageStyle.
    * @param bool $edit
    *   The action form.
    * @param ImageWidgetCrop $image_crop
    *   Instance of ImageWidgetCrop.
    */
-  public function cropByImageStyle(array $properties, $field_value, $image_style_name, $edit) {
+  public function cropByImageStyle(array $properties, $field_value, $image_style, $edit) {
 
     $crop_properties = $this->getCropOriginalDimension($field_value['height'], $properties);
-
-    // Load the style image corresponding to the crop previously.
-    /** @var \Drupal\image\Entity\ImageStyle $image_style */
-    $image_style = \Drupal::entityManager()
-      ->getStorage('image_style')
-      ->load($image_style_name);
+    $image_style_name = $image_style->getName();
 
     // Get crop type for current ImageStyle.
     $crop_type = $this->getCropType($image_style);
@@ -277,6 +272,35 @@ class ImageWidgetCrop {
     }
     else {
       drupal_set_message(t("The type of crop does not exist, please check the configuration of the ImageStyle ('@imageStyle')", ['@imageStyle' => $image_style_name]), 'error');
+    }
+  }
+
+  /**
+   * Delete the crop when user delete it.
+   *
+   * @param string $file_uri
+   *   Uri of image uploaded by user.
+   * @param \Drupal\image\Entity\ImageStyle $image_style
+   *   The ImageStyle object.
+   */
+  public function deleteCrop($file_uri, ImageStyle $image_style) {
+    // Get crop type for current ImageStyle.
+    $crop_type = $this->getCropType($image_style);
+
+    /** @var \Drupal\crop\CropInterface $crop */
+    $crop = \Drupal::service('entity.manager')
+      ->getStorage('crop')->loadByProperties([
+        'type' => $crop_type,
+        'uri' => $file_uri,
+        'image_style' => $image_style->getName(),
+      ]);
+
+    if (isset($crop)) {
+      /** @var \Drupal\crop\CropInterface $crop */
+      $crop = \Drupal::entityManager()->getStorage('crop')->delete($crop);
+
+      // Flush the cache of this ImageStyle.
+      $image_style->flush($file_uri);
     }
   }
 
