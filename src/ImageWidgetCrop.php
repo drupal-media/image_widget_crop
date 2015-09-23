@@ -297,8 +297,9 @@ class ImageWidgetCrop {
 
     if (isset($crop)) {
       /** @var \Drupal\crop\CropInterface $crop */
-      $crop = \Drupal::entityManager()->getStorage('crop')->delete($crop);
-
+      $cropStorage = \Drupal::entityManager()->getStorage('crop');
+      $cropStorage->delete($crop);
+      
       // Flush the cache of this ImageStyle.
       $image_style->flush($file_uri);
     }
