@@ -170,7 +170,7 @@
         $('#' + dataRatioName).hide();
 
         // Create an crop instance.
-        var crop = $('#' + dataRatioName).find('img').imgAreaSelect({hide: true});
+        $('#' + dataRatioName).find('img').imgAreaSelect({hide: true});
       });
     }
   };
