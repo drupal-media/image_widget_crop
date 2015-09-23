@@ -1,10 +1,10 @@
 drupal.image_widget_crop.admin:
   version: VERSION
   js:
-    js/imgareaselect/scripts/jquery.imgareaselect.min.js: {}
+    //cdnjs.cloudflare.com/ajax/libs/imgareaselect/0.9.10/js/jquery.imgareaselect.min.js: {}
   css:
     theme:
-      js/imgareaselect/css/imgareaselect-default.css: {}
+      //cdnjs.cloudflare.com/ajax/libs/imgareaselect/0.9.10/css/imgareaselect-default.css: {}
   dependencies:
     - core/jquery
     - core/drupal
