@@ -68,8 +68,8 @@ class ImageCropWidget extends ImageWidget {
         'file_id' => $file->id(),
       );
 
-      /** @var \Drupal\image_widget_crop\ImageWidgetCrop $ImageWidgetCrop */
-      $ImageWidgetCrop = new ImageWidgetCrop();
+      /** @var \Drupal\image_widget_crop\ImageWidgetCrop $image_widgetcrop */
+      $image_widgetcrop = new ImageWidgetCrop();
 
       // Determine image dimensions.
       if (isset($element['#value']['width']) && isset($element['#value']['height'])) {
@@ -123,7 +123,7 @@ class ImageCropWidget extends ImageWidget {
           $machine_name = $image_style->getName();
           $label = $image_style->label();
           if (in_array($machine_name, $element['#crop_list'])) {
-            $ratio = $ImageWidgetCrop->getSizeRatio($image_style);
+            $ratio = $image_widgetcrop->getSizeRatio($image_style);
 
             $element['crop_preview_wrapper']['list'][$machine_name] = [
               '#type' => 'crop_list_items',
@@ -177,7 +177,7 @@ class ImageCropWidget extends ImageWidget {
             if ($edit) {
               $crop = \Drupal::service('entity.manager')
                 ->getStorage('crop')->loadByProperties([
-                  'type' => $ImageWidgetCrop->getCropType($image_style),
+                  'type' => $image_widgetcrop->getCropType($image_style),
                   'uri' => $variables['uri'],
                   'image_style' => $machine_name
                 ]);
@@ -193,7 +193,8 @@ class ImageCropWidget extends ImageWidget {
                   ];
                 }
 
-                // Add "saved" class if the crop already exist (in list & img container element).
+                // Add "saved" class if the crop already exist,
+                // (in list & img container element).
                 $element['crop_preview_wrapper']['list'][$machine_name]['#attributes']['class'][] = 'saved';
                 $element['crop_preview_wrapper']['container'][$machine_name]['#attributes']['class'][] = 'saved';
 
@@ -279,19 +280,27 @@ class ImageCropWidget extends ImageWidget {
     // Verify the configuration of ImageStyle and get the data width.
     $effect = $image_styles[$preview]->getEffects()->getConfiguration();
 
-    // Get Width of this image.
+    // Get the real sizes of uploaded image.
+    list($width, $height) = getimagesize($uri);
+
+    // Get max Width of this imageStyle.
     $thumbnail_width = $effect[array_keys($effect)[0]]['data']['width'];
 
-    list($width, $height) = getimagesize($uri);
+    // Special case when the width of image is less,
+    // than maximum width of thumbnail.
+    if ($thumbnail_width > $width) {
+      $thumbnail_width = $width;
+    }
 
     // Calculate Thumbnail height
     // (Original Height x Thumbnail Width / Original Width = Thumbnail Height).
     $thumbnail_height = round(($height * $thumbnail_width) / $width);
 
     // Get the delta between Original Height divide by Thumbnail Height.
-    $delta = $height / $thumbnail_height;
+    $delta = number_format($height / $thumbnail_height, 2, '.', '');
 
-    // Get the Crop selection Size (into Uploaded image) & calculate selection for Thumbnail.
+    // Get the Crop selection Size (into Uploaded image) &,
+    // calculate selection for Thumbnail.
     $crop_thumbnail_properties['crop-h'] = round($original_crop_properties['size']['height'] / $delta);
     $crop_thumbnail_properties['crop-w'] = round($original_crop_properties['size']['width'] / $delta);
 

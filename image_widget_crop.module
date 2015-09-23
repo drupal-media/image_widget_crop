@@ -62,40 +62,7 @@ function image_widget_crop_theme() {
  *   - element: An associative array containing the properties of the element.
  *     Properties used: #id, #attributes, #children.
  */
-function template_preprocess_crop_list_items(&$variables) {
-  $variables['has_parent'] = FALSE;
-  $element = $variables['element'];
-  // Ensure #attributes is set.
-  $element += array('#attributes' => array());
-
-  // Special handling for form elements.
-  if (isset($element['#array_parents'])) {
-    // Assign an html ID.
-    if (!isset($element['#attributes']['id'])) {
-      $element['#attributes']['id'] = $element['#id'];
-    }
-    $variables['has_parent'] = TRUE;
-  }
-
-  // Get variables into elements and pass it to twig template.
-  foreach ($element['#variables'] as $variable_key => $var) {
-        $variables[$variable_key] = $var;
-    }
-
-  $variables['attributes'] = $element['#attributes'];
-}
-
-/**
- * Prepares variables for crop_container templates.
- *
- * Default template: crop-container.html.twig.
- *
- * @param array $variables
- *   An associative array containing:
- *   - element: An associative array containing the properties of the element.
- *     Properties used: #id, #attributes, #children.
- */
-function template_preprocess_crop_container(&$variables) {
+function template_preprocess_crop_list_items(array &$variables) {
   $variables['has_parent'] = FALSE;
   $element = $variables['element'];
   // Ensure #attributes is set.
@@ -115,6 +82,33 @@ function template_preprocess_crop_container(&$variables) {
     $variables[$variable_key] = $var;
   }
 
+  $variables['attributes'] = $element['#attributes'];
+}
+
+/**
+ * Prepares variables for crop_container templates.
+ *
+ * Default template: crop-container.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ */
+function template_preprocess_crop_container(array &$variables) {
+  $variables['has_parent'] = FALSE;
+  $element = $variables['element'];
+  // Ensure #attributes is set.
+  $element += array('#attributes' => array());
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    $variables['has_parent'] = TRUE;
+  }
   // Determine whether there are any child elements in the element that are not
   // fully-specified render arrays. If there are any, then the child
   // elements present nested lists and we automatically inherit the render
@@ -145,7 +139,7 @@ function template_preprocess_crop_container(&$variables) {
  *   - element: An associative array containing the properties of the element.
  *     Properties used: #id, #attributes, #children.
  */
-function template_preprocess_crop_sidebar(&$variables) {
+function template_preprocess_crop_sidebar(array &$variables) {
   $variables['has_parent'] = FALSE;
   $element = $variables['element'];
   // Ensure #attributes is set.
@@ -186,7 +180,7 @@ function template_preprocess_crop_sidebar(&$variables) {
  *   - element: An associative array containing the properties of the element.
  *     Properties used: #id, #attributes, #children.
  */
-function template_preprocess_crop_image_container(&$variables) {
+function template_preprocess_crop_image_container(array &$variables) {
   $variables['has_parent'] = FALSE;
   $element = $variables['element'];
   // Ensure #attributes is set.
@@ -244,10 +238,11 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
             ->getStorage('image_style')
             ->load($image_style_name);
 
-          // Save the entity if it has not already been saved by some other code.
+          // Save the entity if has not already been saved by some other code.
           if (isset($properties['values']) && (!empty($properties['values']['crop-w']) && !empty($properties['values']['crop-h']))) {
             $crop->cropByImageStyle($properties['values'], $entity_fields->getValue()['0'], $image_style, $edit);
-          } elseif($properties['delete-crop'] == '1') {
+          }
+          elseif ($properties['delete-crop'] == '1') {
             $crop->deleteCrop($entity_fields->getValue()['0']['file-uri'], $image_style);
           }
         }

@@ -62,16 +62,15 @@
                 // Get image to crop it.
                 var img = $wrapperCropContainer.find($wrapperRatioName).find($img);
 
-
                 $('section.preview-wrapper-crop div.crop-preview-wrapper-list').hide();
 
-                // initialize plugin.
+                // Initialize plugin.
                 image_container.show();
 
                 if (edit > -1 && $(this).hasClass('saved')) {
                     var savedElements = $('div.js-form-managed-file section.preview-wrapper-crop > .crop-preview-wrapper-list');
                     savedElements.each(function (i, item) {
-                        if($(item).hasClass('saved')){
+                        if ($(item).hasClass('saved')) {
                             var saved_posx1 = $(item).find($cropX1);
                             var saved_posy1 = $(item).find($cropY1);
                             var saved_posx2 = $(item).find($cropX2);
@@ -108,7 +107,7 @@
                                     $(saved_width).val(saved_img.width);
                                     $(saved_height).val(saved_img.height);
 
-                                    $('#'+dataRatioName).find('input.delete-crop').val('0');
+                                    $('#' + dataRatioName).find('input.delete-crop').val('0');
                                 },
                                 x1: saved_posx1.val(),
                                 y1: saved_posy1.val(),
@@ -123,7 +122,7 @@
                     var listElement = $(this);
 
                     // Create an crop instance.
-                    var crop = $(img).imgAreaSelect({ instance: true });
+                    var crop = $(img).imgAreaSelect({instance: true});
 
                     var dataRatioName = $(this).data('name');
 
@@ -151,7 +150,7 @@
                             $(width).val(img.width);
                             $(height).val(img.height);
 
-                            $('#'+dataRatioName).find('input.delete-crop').val('0');
+                            $('#' + dataRatioName).find('input.delete-crop').val('0');
 
                             // When user have crop the selection mark saved.
                             $(listElement).addClass('saved');
@@ -166,12 +165,12 @@
 
                 $(this).parents('li').removeClass('saved active');
                 var dataRatioName = $(this).parents('li').data('name');
-                $('#'+dataRatioName).find('.crop-preview-wrapper-value input').removeAttr('value');
-                $('#'+dataRatioName).find('input.delete-crop').val('1');
-                $('#'+dataRatioName).hide();
+                $('#' + dataRatioName).find('.crop-preview-wrapper-value input').removeAttr('value');
+                $('#' + dataRatioName).find('input.delete-crop').val('1');
+                $('#' + dataRatioName).hide();
 
                 // Create an crop instance.
-                var crop = $('#'+dataRatioName).find('img').imgAreaSelect({ hide: true });
+                var crop = $('#' + dataRatioName).find('img').imgAreaSelect({hide: true});
             });
         }
     };

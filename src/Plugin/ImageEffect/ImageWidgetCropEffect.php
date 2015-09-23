@@ -31,8 +31,6 @@ class ImageWidgetCropEffect extends CropEffect {
     }
 
     if ($crop = $this->getCrop($image)) {
-      // Use position instead of anchor(),
-      // ImageWidgetCrop already set coordinates by center
       $anchor = $crop->position();
       $size = $crop->size();
 

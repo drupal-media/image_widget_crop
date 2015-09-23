@@ -10,6 +10,9 @@ namespace Drupal\image_widget_crop;
 use Drupal\Core\Render\Element;
 use Drupal\image\Entity\ImageStyle;
 
+/**
+ * ImageWidgetCrop calculation class.
+ */
 class ImageWidgetCrop {
 
   /**
@@ -31,8 +34,10 @@ class ImageWidgetCrop {
       if (!empty($gcd) && $gcd != '1') {
         return round($properties['width'] / $gcd) . ':' . round($properties['height'] / $gcd);
       }
+      // When you have a non-standard size ratio,
+      // is not displayed the lowest common denominator.
       elseif (!empty($gcd)) {
-        return $gcd . ':' . $gcd;
+        return $properties['width'] . ':' . $properties['height'];
       }
       else {
         return NULL;
@@ -65,7 +70,68 @@ class ImageWidgetCrop {
   }
 
   /**
-   * Get the size and position of the crop since the properties of the thumbnail.
+   * Get original size of a thumbnail image.
+   *
+   * @param array $properties
+   *   All properties returned by the crop plugin (js),
+   *   and the size of thumbnail image.
+   * @param array|mixed $field_value
+   *   An array of values for the contained properties of image_crop widget.
+   * @param \Drupal\image\Entity\ImageStyle $image_style
+   *   The machine name of ImageStyle.
+   * @param bool $edit
+   *   The action form.
+   */
+  public function cropByImageStyle(array $properties, $field_value, ImageStyle $image_style, $edit) {
+
+    $crop_properties = $this->getCropOriginalDimension($field_value['height'], $properties);
+    $image_style_name = $image_style->getName();
+
+    // Get crop type for current ImageStyle.
+    $crop_type = $this->getCropType($image_style);
+
+    if (isset($edit)) {
+      $crop = \Drupal::service('entity.manager')
+        ->getStorage('crop')->loadByProperties([
+          'type' => $crop_type,
+          'uri' => $field_value['file-uri'],
+          'image_style' => $image_style_name
+        ]);
+
+      if (!empty($crop)) {
+        /** @var \Drupal\crop\Entity\Crop $crop_entity */
+        foreach ($crop as $crop_id => $crop_entity) {
+          $crop_position = $crop_entity->position();
+          $crop_size = $crop_entity->size();
+          $old_crop = array_merge($crop_position, $crop_size);
+          // Verify if the crop (dimensions / positions) have changed.
+          if (($crop_properties['x'] == $old_crop['x'] && $crop_properties['width'] == $old_crop['width']) && ($crop_properties['y'] == $old_crop['y'] && $crop_properties['height'] == $old_crop['height'])) {
+            return;
+          }
+          else {
+            // Parse all properties if this crop have changed.
+            foreach ($crop_properties as $crop_coordinate => $value) {
+              // Edit the crop properties if he have changed.
+              $crop[$crop_id]->set($crop_coordinate, $value, $notify = TRUE)
+                ->save();
+            }
+
+            // Flush the cache of this ImageStyle.
+            $image_style->flush($field_value['file-uri']);
+          }
+        }
+      }
+      else {
+        $this->saveCrop($crop_properties, $field_value, $image_style, $crop_type);
+      }
+    }
+    else {
+      $this->saveCrop($crop_properties, $field_value, $image_style, $crop_type);
+    }
+  }
+
+  /**
+   * Get the size and position of the crop.
    *
    * @param int $original_height
    *   The original height of image.
@@ -149,7 +215,7 @@ class ImageWidgetCrop {
     // what was saved.
     $uuids = array();
 
-    /** @var  \Drupal\image\ImageEffectInterface $effect */
+    /* @var  \Drupal\image\ImageEffectInterface $effect */
     foreach ($image_style->getEffects() as $uuid => $effect) {
       // Store the uuid for later use.
       $uuids[$effect->getPluginId()] = $uuid;
@@ -164,70 +230,6 @@ class ImageWidgetCrop {
     }
 
     return $crop_type;
-  }
-
-
-  /**
-   * Get original size of a thumbnail image.
-   *
-   * @param array $properties
-   *   All properties returned by the crop plugin (js),
-   *   and the size of thumbnail image.
-   * @param array|mixed $field_value
-   *   An array of values for the contained properties of image_crop widget.
-   * @param \Drupal\image\Entity\ImageStyle $image_style
-   *   The machine name of ImageStyle.
-   * @param bool $edit
-   *   The action form.
-   * @param ImageWidgetCrop $image_crop
-   *   Instance of ImageWidgetCrop.
-   */
-  public function cropByImageStyle(array $properties, $field_value, $image_style, $edit) {
-
-    $crop_properties = $this->getCropOriginalDimension($field_value['height'], $properties);
-    $image_style_name = $image_style->getName();
-
-    // Get crop type for current ImageStyle.
-    $crop_type = $this->getCropType($image_style);
-
-    if (isset($edit)) {
-      $crop = \Drupal::service('entity.manager')
-        ->getStorage('crop')->loadByProperties([
-          'type' => $crop_type,
-          'uri' => $field_value['file-uri'],
-          'image_style' => $image_style_name
-        ]);
-
-      if (!empty($crop)) {
-        /** @var \Drupal\crop\Entity\Crop $crop_entity */
-        foreach ($crop as $crop_id => $crop_entity) {
-          $crop_position = $crop_entity->position();
-          $crop_size = $crop_entity->size();
-          $old_crop = array_merge($crop_position, $crop_size);
-          // Verify if the crop (dimensions / positions) have changed.
-          if (($crop_properties['x'] == $old_crop['x'] && $crop_properties['width'] == $old_crop['width']) && ($crop_properties['y'] == $old_crop['y'] && $crop_properties['height'] == $old_crop['height'])) {
-            return;
-          }
-          else {
-            // Parse all properties if this crop have changed.
-            foreach ($crop_properties as $crop_coordinate => $value) {
-              // Edit the crop properties if he have changed.
-              $crop[$crop_id]->set($crop_coordinate, $value, $notify = TRUE)
-                ->save();
-            }
-
-            // Flush the cache of this ImageStyle.
-            $image_style->flush($field_value['file-uri']);
-          }
-        }
-      }
-      else {
-        $this->saveCrop($crop_properties, $field_value, $image_style, $crop_type);
-      }
-    }
-    else {
-      $this->saveCrop($crop_properties, $field_value, $image_style, $crop_type);
-    }
   }
 
   /**
@@ -297,9 +299,9 @@ class ImageWidgetCrop {
 
     if (isset($crop)) {
       /** @var \Drupal\crop\CropInterface $crop */
-      $cropStorage = \Drupal::entityManager()->getStorage('crop');
-      $cropStorage->delete($crop);
-      
+      $crop_storage = \Drupal::entityManager()->getStorage('crop');
+      $crop_storage->delete($crop);
+
       // Flush the cache of this ImageStyle.
       $image_style->flush($file_uri);
     }
