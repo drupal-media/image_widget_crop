@@ -55,7 +55,7 @@ class ImageWidgetCrop {
    *   The data dimensions (width & height) into this ImageStyle.
    */
   public function getImageStyleSizes(ImageStyle $image_style) {
-    foreach ($image_style->getEffects() as $uuid => $effect) {
+    foreach ($image_style->getEffects() as $effect) {
       /** @var \Drupal\image\ImageEffectInterface $effect */
       if ($effect->getPluginId() != 'image_widget_crop_crop') {
         $data = $effect->getConfiguration()['data'];
@@ -112,7 +112,7 @@ class ImageWidgetCrop {
             // Parse all properties if this crop have changed.
             foreach ($crop_properties as $crop_coordinate => $value) {
               // Edit the crop properties if he have changed.
-              $crop[$crop_id]->set($crop_coordinate, $value, $notify = TRUE)
+              $crop[$crop_id]->set($crop_coordinate, $value, TRUE)
                 ->save();
             }
 
@@ -273,7 +273,7 @@ class ImageWidgetCrop {
       $image_style->flush($field_value['file-uri']);
     }
     else {
-      drupal_set_message(t("The type of crop does not exist, please check the configuration of the ImageStyle ('@imageStyle')", ['@imageStyle' => $image_style_name]), 'error');
+      drupal_set_message(t("The type of crop does not exist, please check the configuration of the ImageStyle ('@imageStyle')", ['@imageStyle' => $image_style->getName()]), 'error');
     }
   }
 

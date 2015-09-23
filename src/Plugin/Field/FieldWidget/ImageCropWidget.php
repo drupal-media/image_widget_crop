@@ -186,7 +186,7 @@ class ImageCropWidget extends ImageWidget {
               // all cordinates values.
               if (!empty($crop)) {
                 /** @var \Drupal\crop\Entity\Crop $crop_entity */
-                foreach ($crop as $crop_id => $crop_entity) {
+                foreach ($crop as $crop_entity) {
                   $crop_properties = [
                     'anchor' => $crop_entity->position(),
                     'size' => $crop_entity->size()
@@ -381,9 +381,6 @@ class ImageCropWidget extends ImageWidget {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-
-    $field_settings = $this->getFieldSettings();
-
     // Add properties needed by process() method.
     $element['#crop_list'] = $this->getSetting('crop_list');
     $element['#crop_preview_image_style'] = $this->getSetting('crop_preview_image_style');

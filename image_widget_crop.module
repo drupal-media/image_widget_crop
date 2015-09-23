@@ -255,8 +255,6 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
  * Implements hook_css_alter().
  */
 function image_widget_crop_css_alter(&$css) {
-  $theme_path = drupal_get_path('module', 'image_widget_crop');
-
   // Add FontAwesome.
   $fontawesome = '//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.min.css';
   $css[$fontawesome] = array(
