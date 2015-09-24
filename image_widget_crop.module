@@ -216,7 +216,9 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
   if (isset($entity) && method_exists($entity, 'getFields')) {
     foreach ($entity->getFields() as $entity_fields) {
       if ($entity_fields instanceof FileFieldItemList && isset($entity_fields->crop_preview_wrapper)) {
-
+        // Set edit state to False by default.
+        $edit = FALSE;
+        
         // Get the route params attributes.
         $route_params = \Drupal::requestStack()
           ->getCurrentRequest()->attributes->get('_route_params');
