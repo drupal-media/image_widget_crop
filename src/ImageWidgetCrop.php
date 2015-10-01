@@ -7,7 +7,6 @@
 
 namespace Drupal\image_widget_crop;
 
-use Drupal\Core\Render\Element;
 use Drupal\image\Entity\ImageStyle;
 
 /**
@@ -21,7 +20,7 @@ class ImageWidgetCrop {
    * @param \Drupal\image\Entity\ImageStyle $image_style
    *   The image style.
    *
-   * @return string
+   * @return string|NULL
    *   The ratio to the lowest common denominator.
    */
   public function getSizeRatio(ImageStyle $image_style) {
@@ -51,7 +50,7 @@ class ImageWidgetCrop {
    * @param \Drupal\image\Entity\ImageStyle $image_style
    *   The image style.
    *
-   * @return array
+   * @return array<integer>|NULL
    *   The data dimensions (width & height) into this ImageStyle.
    */
   public function getImageStyleSizes(ImageStyle $image_style) {
@@ -60,10 +59,11 @@ class ImageWidgetCrop {
       if ($effect->getPluginId() != 'image_widget_crop_crop') {
         $data = $effect->getConfiguration()['data'];
         if (isset($data) && (isset($data['width']) && isset($data['height']))) {
-          return [
-            'width' => $data['width'],
-            'height' => $data['height'],
+          $sizes = [
+            'width' => (int) $data['width'],
+            'height' => (int) $data['height']
           ];
+          return $sizes;
         }
       }
     }
@@ -138,19 +138,20 @@ class ImageWidgetCrop {
    * @param array $properties
    *   The original height of image.
    *
-   * @return array
+   * @return array<double>
    *   The data dimensions (width & height) into this ImageStyle.
    */
   public function getCropOriginalDimension($original_height, array $properties) {
     $delta = $original_height / $properties['thumb-h'];
-    $crop_position = $this->getCalculatePosition($properties, $delta);
-    $crop_size = $this->getCalculateCropSize($properties, $delta);
+
+    $crop_position = $this->getCoordinates(['x' => $properties['x1'], 'y' => $properties['y1']], $delta);
+    $crop_size = $this->getCoordinates(['width' => $properties['crop-w'], 'height' => $properties['crop-h']], $delta);
 
     return array_merge($crop_size, $crop_position);
   }
 
   /**
-   * Get the left-corner position of crop selection.
+   * Get the left-corner coordinates of crop selection.
    *
    * @param array $properties
    *   All properties returned by the crop plugin (js),
@@ -159,46 +160,18 @@ class ImageWidgetCrop {
    *   The calculated difference between original height and thumbnail height.
    *
    * @return array
-   *   Coordinate (x & y) of crop position.
+   *   Coordinates (x & y or width & height) of crop.
    */
-  public function getCalculatePosition(array $properties, $delta) {
+  public function getCoordinates(array $properties, $delta) {
+    $original_coordinates = [];
+
     foreach ($properties as $key => $coordinate) {
       if (isset($coordinate) && $coordinate >= 0) {
-        $original_coordinates[$key] = $coordinate * $delta;
+        $original_coordinates[$key] = round($coordinate * $delta);
       }
     }
 
-    return [
-      'x' => round($original_coordinates['x1']),
-      'y' => round($original_coordinates['y1']),
-    ];
-  }
-
-  /**
-   * Get size of the crop selection.
-   *
-   * @param array $properties
-   *   All properties returned by the crop plugin (js),
-   *   and the size of thumbnail image.
-   * @param int $delta
-   *   The calculated difference between original height and thumbnail height.
-   *
-   * @return array
-   *   Size of crop selection in (width & height).
-   */
-  public function getCalculateCropSize(array $properties, $delta) {
-
-    // Parse the properties of image_crop element,
-    // and calculate original sizes of crop selection.
-    foreach ($properties as $key => $coordinate) {
-      if (isset($coordinate) && $coordinate >= 0) {
-        $original_coordinates[$key] = $coordinate * $delta;
-      }
-    }
-    return [
-      'width' => round($original_coordinates['crop-w']),
-      'height' => round($original_coordinates['crop-h']),
-    ];
+    return $original_coordinates;
   }
 
   /**
@@ -235,7 +208,7 @@ class ImageWidgetCrop {
   /**
    * Save the crop when this crop not exist.
    *
-   * @param array $crop_properties
+   * @param double[] $crop_properties
    *   The properties of the crop applied to the original image (dimensions).
    * @param array|mixed $field_value
    *   An array of values for the contained properties of image_crop widget.
