@@ -144,14 +144,43 @@ class ImageWidgetCrop {
   public function getCropOriginalDimension($original_height, array $properties) {
     $delta = $original_height / $properties['thumb-h'];
 
-    $crop_position = $this->getCoordinates(['x' => $properties['x1'], 'y' => $properties['y1']], $delta);
-    $crop_size = $this->getCoordinates(['width' => $properties['crop-w'], 'height' => $properties['crop-h']], $delta);
+    // Get Center coordinate of crop zone.
+    $axis_coordinate = $this->getAxisCoordinates(
+      ['x' => $properties['x1'], 'y' => $properties['y1']],
+      ['width' => $properties['crop-w'], 'height' => $properties['crop-h']]
+    );
 
-    return array_merge($crop_size, $crop_position);
+    // Calculate coordinates (position & sizes) of crop zone.
+    $crop_coordinates = $this->getCoordinates([
+      'width' => $properties['crop-w'],
+      'height' => $properties['crop-h'],
+      'x' => $axis_coordinate['x'],
+      'y' => $axis_coordinate['y'],
+    ], $delta);
+
+    return $crop_coordinates;
   }
 
   /**
-   * Get the left-corner coordinates of crop selection.
+   * Get center of crop selection.
+   *
+   * @param int[] $axis
+   *   Coordinates of x-axis & y-axis.
+   * @param array $crop_selection
+   *   Coordinates of crop selection (width & height).
+   *
+   * @return array<double>
+   *   Coordinates (x-axis & y-axis) of crop selection zone.
+   */
+  public function getAxisCoordinates(array $axis, array $crop_selection) {
+    return [
+      'x' => $axis['x'] + ($crop_selection['width'] / 2),
+      'y' => $axis['y'] + ($crop_selection['height'] / 2),
+    ];
+  }
+
+  /**
+   * Calculate all coordinates for apply crop into original picture.
    *
    * @param array $properties
    *   All properties returned by the crop plugin (js),
@@ -194,8 +223,8 @@ class ImageWidgetCrop {
       $uuids[$effect->getPluginId()] = $uuid;
     }
 
-    if (isset($uuids['image_widget_crop_crop'])) {
-      $crop_type = $image_style->getEffect($uuids['image_widget_crop_crop'])
+    if (isset($uuids['crop_crop'])) {
+      $crop_type = $image_style->getEffect($uuids['crop_crop'])
         ->getConfiguration()['data']['crop_type'];
     }
     else {

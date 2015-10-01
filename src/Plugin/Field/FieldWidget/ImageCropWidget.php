@@ -189,7 +189,7 @@ class ImageCropWidget extends ImageWidget {
                 /** @var \Drupal\crop\Entity\Crop $crop_entity */
                 foreach ($crop as $crop_entity) {
                   $crop_properties = [
-                    'anchor' => $crop_entity->position(),
+                    'anchor' => $crop_entity->anchor(),
                     'size' => $crop_entity->size()
                   ];
                 }
