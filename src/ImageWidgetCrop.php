@@ -13,7 +13,6 @@ use Drupal\image\Entity\ImageStyle;
  * ImageWidgetCrop calculation class.
  */
 class ImageWidgetCrop {
-
   /**
    * Gets crop's size.
    *
@@ -27,8 +26,7 @@ class ImageWidgetCrop {
     // Get the properties of this ImageStyle.
     $properties = $this->getImageStyleSizes($image_style);
     if (isset($properties) && (!empty($properties['width']) || !empty($properties['height']))) {
-      $gcd_object = gmp_gcd($properties['width'], $properties['height']);
-      $gcd = gmp_intval($gcd_object);
+      $gcd = $this->calculateGCD($properties['width'], $properties['height']);
 
       if (!empty($gcd) && $gcd != '1') {
         return round($properties['width'] / $gcd) . ':' . round($properties['height'] / $gcd);
@@ -294,6 +292,38 @@ class ImageWidgetCrop {
       // Flush the cache of this ImageStyle.
       $image_style->flush($file_uri);
     }
+  }
+
+  /**
+   * Calculate the greatest common denominator of two numbers.
+   *
+   * @param int $a
+   *   First number to check.
+   * @param int $b
+   *   Second number to check.
+   *
+   * @return integer|null
+   *  Greatest common denominator of $a and $b.
+   */
+  private static function calculateGCD($a, $b) {
+    if (extension_loaded('gmp_gcd')) {
+      $gcd = gmp_intval(gmp_gcd($a, $b));
+    }
+    else {
+      if ($b > $a) {
+        $gcd = self::calculateGCD($b, $a);
+      }
+      else {
+        while ($b > 0) {
+          $t = $b;
+          $b = $a % $b;
+          $a = $t;
+        }
+        $gcd = $a;
+      }
+    }
+
+    return $gcd;
   }
 
 }

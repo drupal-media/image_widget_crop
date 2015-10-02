@@ -5,11 +5,6 @@ Provides an interface for using the features of the [Crop API]. Module is still
 under heavy development.
 
 [Crop API]: https://github.com/drupal-media/crop
- 
-Requirements
-------------
-
-* GMP extension.
 
 Configuration
 -------------
@@ -28,36 +23,3 @@ Configuration
       image styles applied to the image
 * Set the display formatter Image and choose your image style.
 * Go add an image with your widget and crop your picture.
-
-Technical details
------------------
-
-### Installation of the GMP extension
-#### Linux (Debian / Ubuntu / Mint)
-
-* Just use the standard packaging commands 
- 
-        bash
-        sudo apt-get install libgmp-dev
-        sudo apt-get install php5-gmp
-        sudo service apache2 reload
-
-#### MacOS X
-
-* Run `php --version` to check which version of PHP you have.
-* Download the sources for that version
-* `phpize` & compile it
-
-        bash
-        cd php-5.5.21/ext/gmp
-        phpize
-        ./configure
-        make
-        make install
-
-* Add the following to your php.ini
-
-        bash
-        extension="gmp.so"
-
-* Restart Apache
