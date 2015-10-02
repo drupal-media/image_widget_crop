@@ -26,7 +26,7 @@ class ImageWidgetCrop {
     // Get the properties of this ImageStyle.
     $properties = $this->getImageStyleSizes($image_style);
     if (isset($properties) && (!empty($properties['width']) || !empty($properties['height']))) {
-      $gcd = $this->calculateGCD($properties['width'], $properties['height']);
+      $gcd = $this->calculateGcd($properties['width'], $properties['height']);
 
       if (!empty($gcd) && $gcd != '1') {
         return round($properties['width'] / $gcd) . ':' . round($properties['height'] / $gcd);
@@ -302,16 +302,16 @@ class ImageWidgetCrop {
    * @param int $b
    *   Second number to check.
    *
-   * @return integer|null
-   *  Greatest common denominator of $a and $b.
+   * @return int|null
+   *   Greatest common denominator of $a and $b.
    */
-  private static function calculateGCD($a, $b) {
+  private static function calculateGcd($a, $b) {
     if (extension_loaded('gmp_gcd')) {
       $gcd = gmp_intval(gmp_gcd($a, $b));
     }
     else {
       if ($b > $a) {
-        $gcd = self::calculateGCD($b, $a);
+        $gcd = self::calculateGcd($b, $a);
       }
       else {
         while ($b > 0) {
