@@ -268,7 +268,7 @@ class ImageCropWidget extends ImageWidget {
    * @param string $preview
    *   An array of values for the contained properties of image_crop widget.
    *
-   * @return array
+   * @return array<double>
    *   All properties (x1, x2, y1, y2, crop height, crop width,
    *   thumbnail height, thumbnail width), to apply the real crop
    *   into thumbnail preview.

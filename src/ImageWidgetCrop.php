@@ -35,12 +35,12 @@ class ImageWidgetCrop {
       }
       // When you have a non-standard size ratio,
       // is not displayed the lowest common denominator.
-      elseif (!empty($gcd)) {
+      if (!empty($gcd)) {
         return $properties['width'] . ':' . $properties['height'];
       }
-      else {
-        return NULL;
-      }
+
+      // If you not have an available ratio return an free aspect ratio.
+      return '0:0';
     }
   }
 
@@ -82,13 +82,10 @@ class ImageWidgetCrop {
    * @param bool $edit
    *   The action form.
    */
-  public function cropByImageStyle(array $properties, $field_value, ImageStyle $image_style, $edit) {
+  public function cropByImageStyle(array $properties, $field_value, ImageStyle $image_style, $edit, $crop_type) {
 
     $crop_properties = $this->getCropOriginalDimension($field_value['height'], $properties);
     $image_style_name = $image_style->getName();
-
-    // Get crop type for current ImageStyle.
-    $crop_type = $this->getCropType($image_style);
 
     if (isset($edit)) {
       $crop = \Drupal::service('entity.manager')
@@ -169,13 +166,13 @@ class ImageWidgetCrop {
    * @param array $crop_selection
    *   Coordinates of crop selection (width & height).
    *
-   * @return array<double>
+   * @return array<integer>
    *   Coordinates (x-axis & y-axis) of crop selection zone.
    */
   public function getAxisCoordinates(array $axis, array $crop_selection) {
     return [
-      'x' => $axis['x'] + ($crop_selection['width'] / 2),
-      'y' => $axis['y'] + ($crop_selection['height'] / 2),
+      'x' => (int) $axis['x'] + ($crop_selection['width'] / 2),
+      'y' => (int) $axis['y'] + ($crop_selection['height'] / 2),
     ];
   }
 
@@ -188,7 +185,7 @@ class ImageWidgetCrop {
    * @param int $delta
    *   The calculated difference between original height and thumbnail height.
    *
-   * @return array
+   * @return array<double>
    *   Coordinates (x & y or width & height) of crop.
    */
   public function getCoordinates(array $properties, $delta) {
@@ -209,13 +206,13 @@ class ImageWidgetCrop {
    * @param \Drupal\image\Entity\ImageStyle $image_style
    *   The properties of the crop applied to the original image (dimensions).
    *
-   * @return string $crop_type
-   *   The name of Crop type.
+   * @return string
+   *   The name of Crop type set in current image_style.
    */
   public function getCropType(ImageStyle $image_style) {
     // Confirm that all effects on the image style have settings that match
     // what was saved.
-    $uuids = array();
+    $uuids = [];
 
     /* @var  \Drupal\image\ImageEffectInterface $effect */
     foreach ($image_style->getEffects() as $uuid => $effect) {
@@ -224,14 +221,9 @@ class ImageWidgetCrop {
     }
 
     if (isset($uuids['crop_crop'])) {
-      $crop_type = $image_style->getEffect($uuids['crop_crop'])
+      return $image_style->getEffect($uuids['crop_crop'])
         ->getConfiguration()['data']['crop_type'];
     }
-    else {
-      $crop_type = FALSE;
-    }
-
-    return $crop_type;
   }
 
   /**
@@ -247,36 +239,31 @@ class ImageWidgetCrop {
    *   The name of Crop type.
    */
   public function saveCrop(array $crop_properties, $field_value, ImageStyle $image_style, $crop_type) {
-    if ($crop_type) {
-      $values = [
-        'type' => $crop_type,
-        'entity_id' => $field_value['file-id'],
-        'entity_type' => 'file',
-        'uri' => $field_value['file-uri'],
-        'x' => $crop_properties['x'],
-        'y' => $crop_properties['y'],
-        'width' => $crop_properties['width'],
-        'height' => $crop_properties['height'],
-        'image_style' => $image_style->getName(),
-      ];
+    $values = [
+      'type' => $crop_type,
+      'entity_id' => $field_value['file-id'],
+      'entity_type' => 'file',
+      'uri' => $field_value['file-uri'],
+      'x' => $crop_properties['x'],
+      'y' => $crop_properties['y'],
+      'width' => $crop_properties['width'],
+      'height' => $crop_properties['height'],
+      'image_style' => $image_style->getName(),
+    ];
 
-      // Save crop with previous values.
-      /** @var \Drupal\crop\CropInterface $crop */
-      $crop = \Drupal::entityManager()->getStorage('crop')->create($values);
-      $crop->save();
+    // Save crop with previous values.
+    /** @var \Drupal\crop\CropInterface $crop */
+    $crop = \Drupal::entityManager()->getStorage('crop')->create($values);
+    $crop->save();
 
-      // Generate the image derivate uri.
-      $destination_uri = $image_style->buildUri($field_value['file-uri']);
+    // Generate the image derivate uri.
+    $destination_uri = $image_style->buildUri($field_value['file-uri']);
 
-      // Create a derivate of the original image with a good uri.
-      $image_style->createDerivative($field_value['file-uri'], $destination_uri);
+    // Create a derivate of the original image with a good uri.
+    $image_style->createDerivative($field_value['file-uri'], $destination_uri);
 
-      // Flush the cache of this ImageStyle.
-      $image_style->flush($field_value['file-uri']);
-    }
-    else {
-      drupal_set_message(t("The type of crop does not exist, please check the configuration of the ImageStyle ('@imageStyle')", ['@imageStyle' => $image_style->getName()]), 'error');
-    }
+    // Flush the cache of this ImageStyle.
+    $image_style->flush($field_value['file-uri']);
   }
 
   /**

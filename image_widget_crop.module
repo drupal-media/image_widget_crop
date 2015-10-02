@@ -238,14 +238,31 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
           /** @var \Drupal\image\Entity\ImageStyle $image_style */
           $image_style = \Drupal::entityManager()
             ->getStorage('image_style')
-            ->load($image_style_name);
+            ->loadByProperties(['name' => $image_style_name, 'status' => TRUE]);
 
-          // Save the entity if has not already been saved by some other code.
-          if (isset($properties['values']) && (!empty($properties['values']['crop-w']) && !empty($properties['values']['crop-h']))) {
-            $crop->cropByImageStyle($properties['values'], $entity_fields->getValue()['0'], $image_style, $edit);
+          // Dans le cas ou l'image style a ete desactiver ou supprimer,
+          // on préviens pour changer la configuration de l'image style ou,
+          // du formater display-form.
+          if (!isset($image_style[$image_style_name]) || empty($image_style[$image_style_name])) {
+            drupal_set_message(t("The image style ('@imageStyle') is not active or not defined. Please verify configuration of image style or ImageWidgetCrop formatter configuration", ['@imageStyle' => $image_style_name]), 'error');
+            return;
           }
-          elseif ($properties['delete-crop'] == '1') {
-            $crop->deleteCrop($entity_fields->getValue()['0']['file-uri'], $image_style);
+
+          // If this crop is availables to create an crop entity.
+          if ($properties['delete-crop'] == '0' && isset($properties['values']) && (!empty($properties['values']['crop-w']) && !empty($properties['values']['crop-h']))) {
+            // Get crop type for current ImageStyle.
+            $crop_type = $crop->getCropType($image_style[$image_style_name]);
+            if (!isset($crop_type) && empty($crop_type)) {
+              drupal_set_message(t("The type of crop does not exist, please check the configuration of the ImageStyle ('@imageStyle')", ['@imageStyle' => $image_style->getName()]), 'error');
+              return;
+            }
+
+            $crop->cropByImageStyle($properties['values'], $entity_fields->getValue()['0'], $image_style[$image_style_name], $edit, $crop_type);
+          }
+
+          // If you need to delete existing crop when you edit this entity.
+          if ($edit && $properties['delete-crop'] == '1') {
+            $crop->deleteCrop($entity_fields->getValue()['0']['file-uri'], $image_style[$image_style_name]);
           }
         }
       }
