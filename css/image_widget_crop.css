@@ -282,6 +282,7 @@
 
 .crop-wrapper .preview-wrapper-crop .crop-preview-wrapper-list {
   display: none;
+  position: relative;
 }
 
 .crop-wrapper .preview-wrapper-crop .crop-preview-wrapper-list .content-crop-img {

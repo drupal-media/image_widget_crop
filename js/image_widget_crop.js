@@ -22,6 +22,7 @@
       var edit = path.search('edit');
 
       $('section.ratio-list ul li').on('click', function (event) {
+      //$('.responsive-enabled tr').on('click', '.ratio-list ul li', function (event) {
         event.preventDefault();
 
         // Get elements.
@@ -34,9 +35,8 @@
         // Active only this li.
         $(this).addClass('active');
 
-        var $wrapperCropContainer = $('.preview-wrapper-crop');
-        var $wrapperRatioName = document.getElementById(ElementName);
-        var $img = document.getElementsByTagName('img');
+        var $wrapperCropContainer = $(this).closest('.crop-wrapper').find('.preview-wrapper-crop');
+        var $wrapperRatioName = $wrapperCropContainer.find('#' + ElementName);
         var $cropX1 = $('.crop-x1');
         var $cropY1 = $('.crop-y1');
         var $cropX2 = $('.crop-x2');
@@ -60,9 +60,9 @@
         var height = $wrapperCropContainer.find($wrapperRatioName).find($cropThumbH);
 
         // Get image to crop it.
-        var img = $wrapperCropContainer.find($wrapperRatioName).find($img);
+        var img = $wrapperCropContainer.find('#' + ElementName + ' img');
 
-        $('section.preview-wrapper-crop div.crop-preview-wrapper-list').hide();
+        $(this).closest('.crop-wrapper').find('section.preview-wrapper-crop div.crop-preview-wrapper-list').hide();
 
         // Initialize plugin.
         image_container.show();
