@@ -22,7 +22,6 @@
       var edit = path.search('edit');
 
       $('section.ratio-list ul li').on('click', function (event) {
-      //$('.responsive-enabled tr').on('click', '.ratio-list ul li', function (event) {
         event.preventDefault();
 
         // Get elements.
@@ -77,7 +76,7 @@
               var saved_posy2 = $(item).find($cropY2);
               var saved_cropw = $(item).find($cropW);
               var saved_croph = $(item).find($cropH);
-              var saved_img = $(item).find($img);
+              var saved_img = $(item).find('img');
 
               var saved_width = $(item).find($cropThumbW);
               var saved_height = $(item).find($cropThumbH);
