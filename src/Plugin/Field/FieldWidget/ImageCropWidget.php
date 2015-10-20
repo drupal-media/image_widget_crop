@@ -428,7 +428,7 @@ class ImageCropWidget extends ImageWidget {
    * Verify if the crop is used by a ImageStyle.
    *
    * @param array $crop_list
-   *   The list of existant Crop Type.
+   *   The list of existent Crop Type.
    *
    * @return array<integer>
    *   The list of Crop Type filtred.
@@ -450,7 +450,7 @@ class ImageCropWidget extends ImageWidget {
    * @param array $element
    *   A form element array containing basic properties for the widget.
    * @param array $variables
-   *   An array with all existant variables for render.
+   *   An array with all existent variables for render.
    *
    * @return array<string,array>
    *   The variables with width & height image informations.
