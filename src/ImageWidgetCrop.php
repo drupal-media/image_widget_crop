@@ -308,7 +308,7 @@ class ImageWidgetCrop {
   }
 
   /**
-   * Update existant crop entity properties.
+   * Update existent crop entity properties.
    *
    * @param \Drupal\crop\Entity\Crop $crop
    *   The crop object loaded.
