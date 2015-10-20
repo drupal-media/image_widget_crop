@@ -418,7 +418,8 @@ class ImageCropWidget extends ImageWidget {
       $style_loaded = $this->imageStyleStorage->loadByProperties(['name' => $style_id]);
       /** @var \Drupal\image\Entity\ImageStyle $image_style */
       $image_style = $style_loaded[$style_id];
-      if (!empty($this->imageWidgetCrop->getEffectData($image_style, 'width'))) {
+      $effect_data = $this->imageWidgetCrop->getEffectData($image_style, 'width');
+      if (!empty($effect_data)) {
         $available_styles[$style_id] = $style_label;
       }
     }
@@ -438,7 +439,8 @@ class ImageCropWidget extends ImageWidget {
   public function getAvailableCropType(array $crop_list) {
     $available_crop = [];
     foreach ($crop_list as $crop_machine_name => $crop_label) {
-      if (!empty($this->imageWidgetCrop->getImageStylesByCrop($crop_machine_name))) {
+      $image_styles = $this->imageWidgetCrop->getImageStylesByCrop($crop_machine_name);
+      if (!empty($image_styles)) {
         $available_crop[$crop_machine_name] = $crop_label;
       }
     }
@@ -564,3 +566,4 @@ class ImageCropWidget extends ImageWidget {
   }
 
 }
+
