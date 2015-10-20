@@ -158,7 +158,9 @@ class ImageCropWidget extends ImageWidget {
           $label = $crop_type->label();
           if (in_array($crop_type_id, $element['#crop_list'])) {
             $thumb_properties = [];
-            $ratio = !empty($crop_type->getAspectRatio()) ? $crop_type->getAspectRatio() : t('None');
+            // Add compatibility to PHP 5.3.
+            $has_ratio = $crop_type->getAspectRatio();
+            $ratio = !empty($has_ratio) ? $has_ratio : t('None');
 
             $element['crop_preview_wrapper']['list'][$crop_type_id] = [
               '#type' => 'crop_list_items',
