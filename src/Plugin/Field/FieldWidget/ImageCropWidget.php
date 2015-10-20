@@ -566,4 +566,3 @@ class ImageCropWidget extends ImageWidget {
   }
 
 }
-
