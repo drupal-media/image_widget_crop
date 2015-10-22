@@ -15,6 +15,7 @@ use Drupal\Core\Render\ElementInfoManagerInterface;
 use Drupal\image\Plugin\Field\FieldWidget\ImageWidget;
 use Drupal\image_widget_crop\ImageWidgetCrop;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\crop\Entity\CropType;
 
 /**
  * Plugin implementation of the 'image_widget_crop' widget.
@@ -498,12 +499,12 @@ class ImageCropWidget extends ImageWidget {
     $element['crop_list'] = [
       '#title' => t('Crop Type'),
       '#type' => 'select',
-      '#options' => $this->getAvailableCropType(crop_type_get_names()),
+      '#options' => $this->getAvailableCropType(CropType::getCropTypeNames()),
       '#empty_option' => t('<@no-preview>', ['@no-preview' => t('no preview')]),
       '#default_value' => $this->getSetting('crop_list'),
       '#multiple' => TRUE,
       '#required' => TRUE,
-      '#description' => t('The type of crop to apply to your image.'),
+      '#description' => t('The type of crop to apply to your image. If your Crop Type not appear here, set an image style use your Crop Type'),
       '#weight' => 16,
     ];
 
