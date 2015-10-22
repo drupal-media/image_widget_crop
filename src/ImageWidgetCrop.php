@@ -247,11 +247,9 @@ class ImageWidgetCrop {
     $data = NULL;
     /* @var  \Drupal\image\ImageEffectInterface $effect */
     foreach ($image_style->getEffects() as $uuid => $effect) {
-      if ($image_style->getEffect($uuid)
-        ->getConfiguration()['data'][$data_type]
-      ) {
-        $data = $image_style->getEffect($uuid)
-          ->getConfiguration()['data'][$data_type];
+      $data_effect = $image_style->getEffect($uuid)->getConfiguration()['data'];
+      if (isset($data_effect[$data_type])) {
+        $data = $data_effect[$data_type];
       }
     }
 

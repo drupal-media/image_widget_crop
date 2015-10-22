@@ -97,6 +97,9 @@ class ImageCropWidget extends ImageWidget {
    * Expands the image_image type to include the alt and title fields.
    *
    * This method is assigned as a #process callback in formElement() method.
+   *
+   * @return array
+   *   The elements with parents fields.
    */
   public static function process($element, FormStateInterface $form_state, $form) {
     $edit = FALSE;
