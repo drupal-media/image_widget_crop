@@ -97,19 +97,8 @@ class ImageCropWidget extends ImageWidget {
    * Expands the image_image type to include the alt and title fields.
    *
    * This method is assigned as a #process callback in formElement() method.
-   *
-   * @param array $element
-   *   A form element array containing basic properties for the widget.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
-   * @param array $form
-   *   The form structure where widgets are being attached to. This might be a
-   *   full form structure, or a sub-element of a larger form.
-   *
-   * @return array
-   *   The elements with parents fields.
    */
-  public static function process(array $element, FormStateInterface $form_state, array $form) {
+  public static function process($element, FormStateInterface $form_state, $form) {
     $edit = FALSE;
     $crop_types_list = $element['#crop_types_list'];
     $route_params = \Drupal::requestStack()
