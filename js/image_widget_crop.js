@@ -163,13 +163,14 @@
         event.stopPropagation();
 
         $(this).parents('li').removeClass('saved active');
-        var dataRatioName = $(this).parents('li').data('name');
-        $('#' + dataRatioName).find('.crop-preview-wrapper-value input').removeAttr('value');
-        $('#' + dataRatioName).find('input.delete-crop').val('1');
-        $('#' + dataRatioName).hide();
+        var dataRatioName = $(this).closest('.crop-preview-wrapper').data('name');
+
+        $(this).closest('.crop-wrapper').find('#' + dataRatioName + ' .crop-preview-wrapper-value input').removeAttr('value');
+        $(this).closest('.crop-wrapper').find('#' + dataRatioName + ' input.delete-crop').val('1');
+        $(this).closest('.crop-wrapper').find('#' + dataRatioName).hide();
 
         // Create an crop instance.
-        $('#' + dataRatioName).find('img').imgAreaSelect({hide: true});
+        $(this).closest('.crop-wrapper').find('#' + dataRatioName + ' img').imgAreaSelect({hide: true});
       });
     }
   };

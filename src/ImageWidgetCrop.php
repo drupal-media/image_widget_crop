@@ -32,6 +32,13 @@ class ImageWidgetCrop {
   protected $imageStyleStorage;
 
   /**
+   * The File storage.
+   *
+   * @var \Drupal\Core\Config\Entity\ConfigEntityStorage.
+   */
+  protected $fileStorage;
+
+  /**
    * Constructs a ImageWidgetCrop.
    *
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
@@ -40,6 +47,7 @@ class ImageWidgetCrop {
   public function __construct(EntityManagerInterface $entity_manager) {
     $this->cropStorage = $entity_manager->getStorage('crop');
     $this->imageStyleStorage = $entity_manager->getStorage('image_style');
+    $this->fileStorage = $entity_manager->getStorage('file');
   }
 
   /**
@@ -99,7 +107,7 @@ class ImageWidgetCrop {
 
       $this->updateCropProperties($crop, $crop_properties);
       $this->imageStylesOperations($image_styles, $field_value['file-uri']);
-      drupal_set_message(t('The crop "@cropType" are successfully updated', ['@cropType' => $crop_type->label()]));
+      drupal_set_message(t('The crop "@cropType" are successfully updated for image "@filename"', ['@cropType' => $crop_type->label(), '@filename' => $this->fileStorage->load($field_value['file-id'])->getFilename()]));
     }
   }
 
@@ -136,7 +144,7 @@ class ImageWidgetCrop {
       $crop->save();
     }
     $this->imageStylesOperations($image_styles, $field_value['file-uri'], TRUE);
-    drupal_set_message(t('The crop "@cropType" are successfully added', ['@cropType' => $crop_type->label()]));
+    drupal_set_message(t('The crop "@cropType" are successfully added for image "@filename"', ['@cropType' => $crop_type->label(), '@filename' => $this->fileStorage->load($field_value['file-id'])->getFilename()]));
   }
 
   /**
@@ -146,8 +154,10 @@ class ImageWidgetCrop {
    *   Uri of image uploaded by user.
    * @param \Drupal\crop\Entity\CropType $crop_type
    *   The CropType object.
+   * @param int $file_id
+   *   Id of image uploaded by user.
    */
-  public function deleteCrop($file_uri, CropType $crop_type) {
+  public function deleteCrop($file_uri, CropType $crop_type, $file_id) {
     $image_styles = $this->getImageStylesByCrop($crop_type->id());
     /** @var \Drupal\image\Entity\ImageStyle $image_style */
     foreach ($image_styles as $image_style) {
@@ -159,7 +169,7 @@ class ImageWidgetCrop {
       $this->cropStorage->delete($crop);
     }
     $this->imageStylesOperations($image_styles, $file_uri);
-    drupal_set_message(t('The crop "@cropType" are successfully delete', ['@cropType' => $crop_type->label()]));
+    drupal_set_message(t('The crop "@cropType" are successfully delete for image "@filename"', ['@cropType' => $crop_type->label(), '@filename' => $this->fileStorage->load($file_id)->getFilename()]));
   }
 
   /**
