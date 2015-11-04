@@ -9,7 +9,7 @@ namespace Drupal\image_widget_crop\Element;
 use Drupal\Core\Render\Element\RenderElement;
 
 /**
- * Provides a container specific to ImageCropWidget.
+ * Provides a specific container to ImageCropWidget.
  *
  * @RenderElement("crop_container")
  */

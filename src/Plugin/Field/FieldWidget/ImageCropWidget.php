@@ -88,6 +88,7 @@ class ImageCropWidget extends ImageWidget {
     return [
       'crop_preview_image_style' => 'crop_thumbnail',
       'crop_list' => NULL,
+      'crop_help_text' => 'Select an image size to crop'
     ] + parent::defaultSettings();
   }
 
@@ -166,6 +167,13 @@ class ImageCropWidget extends ImageWidget {
               '#type' => 'crop_image_container',
               '#attributes' => ['class' => ['crop-preview-wrapper-list'], 'id' => [$crop_type_id], 'data-ratio' => [$ratio]],
               '#variables' => ['label' => $label, 'ratio' => $ratio],
+              '#weight' => -10,
+            ];
+
+            $element['crop_preview_wrapper']['container']['crop_help'] = [
+              '#type' => 'crop_help',
+              '#attributes' => ['class' => ['crop-preview-wrapper-list'], 'id' => ['crop-help']],
+              '#text' => $element['#crop_help_text'],
               '#weight' => -10,
             ];
 
@@ -318,7 +326,7 @@ class ImageCropWidget extends ImageWidget {
         '#attributes' => [
           'class' => ["crop-$property"]
         ],
-        '#value' => !empty($edit) ? $value['value'] : NULL,
+        '#value' => (!empty($edit) && !empty($value['value'])) ? $value['value'] : $element['#value']['crop_preview_wrapper']['container'][$crop_type]['values'][$property],
       ];
     }
 
@@ -500,6 +508,14 @@ class ImageCropWidget extends ImageWidget {
       '#weight' => 16,
     ];
 
+    $element['crop_help_text'] = [
+      '#title' => t('Crop default help text'),
+      '#type' => 'textfield',
+      '#default_value' => $this->getSetting('crop_help_text'),
+      '#description' => t('Help text in the form for first slide after upload an image to crop.'),
+      '#weight' => 16,
+    ];
+
     return $element;
   }
 
@@ -521,6 +537,7 @@ class ImageCropWidget extends ImageWidget {
     $image_style_setting = $image_styles[$this->getSetting('preview_image_style')];
     $crop_preview = $image_styles[$this->getSetting('crop_preview_image_style')];
     $crop_list = $this->getSetting('crop_list');
+    $crop_help_text = $this->getSetting('crop_help_text');
 
     if (isset($image_style_setting)) {
       $preview[] = t('Preview image style: @style', ['@style' => $image_style_setting]);
@@ -530,11 +547,15 @@ class ImageCropWidget extends ImageWidget {
     }
 
     if (isset($crop_preview)) {
-      $preview[] = t('Crop zone preview image style: @style', ['@style' => $crop_preview]);
+      $preview[] = t('Preview crop zone image style: @style', ['@style' => $crop_preview]);
     }
 
     if (!empty($crop_list)) {
-      $preview[] = t('Crop image style active: @list', ['@list' => implode(", ", $crop_list)]);
+      $preview[] = t('Crop Type used: @list', ['@list' => implode(", ", $crop_list)]);
+    }
+
+    if (!empty($crop_help_text)) {
+      $preview[] = t('Default help text: @text', ['@text' => $crop_help_text]);
     }
 
     return $preview;
@@ -551,7 +572,7 @@ class ImageCropWidget extends ImageWidget {
     $element['#crop_list'] = $this->getSetting('crop_list');
     $element['#crop_preview_image_style'] = $this->getSetting('crop_preview_image_style');
     $element['#crop_types_list'] = $this->cropTypeStorage->loadMultiple();
-
+    $element['#crop_help_text'] = $this->getSetting('crop_help_text');
     // Set an custom upload_location.
     $element['#upload_location'] = 'public://crop/pictures/';
 

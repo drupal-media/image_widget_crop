@@ -38,6 +38,9 @@ function image_widget_cropfield_widget_info_alter(array &$info) {
  */
 function image_widget_crop_theme() {
   return [
+    'crop_help' => [
+      'render element' => 'element',
+    ],
     'crop_container' => [
       'render element' => 'element',
     ],
@@ -51,6 +54,37 @@ function image_widget_crop_theme() {
       'render element' => 'element'
     ]
   ];
+}
+
+/**
+ * Prepares variables for crop_help templates.
+ *
+ * Default template: crop-help.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ */
+function template_preprocess_crop_help(array &$variables) {
+  $variables['has_parent'] = FALSE;
+  $element = $variables['element'];
+  // Ensure #attributes is set.
+  $element += ['#attributes' => []];
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    $variables['has_parent'] = TRUE;
+  }
+
+  $variables['text'] = $element['#text'];
+  $variables['img_location'] = '/' . drupal_get_path('module', 'image_widget_crop') . '/image/down_right.png';
+  $variables['attributes'] = $element['#attributes'];
+  $variables['element_type'] = $element['#element_type'];
 }
 
 /**
@@ -111,6 +145,7 @@ function template_preprocess_crop_container(array &$variables) {
     }
     $variables['has_parent'] = TRUE;
   }
+
   // Determine whether there are any child elements in the element that are not
   // fully-specified render arrays. If there are any, then the child
   // elements present nested lists and we automatically inherit the render

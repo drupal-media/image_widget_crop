@@ -16,3 +16,6 @@ field.widget.settings.image_widget_crop:
     crop_list:
       type: mapping
       label: 'The preview image will be cropped'
+    crop_help_text:
+      type: string
+      label: 'Default help text slide'

@@ -10,14 +10,14 @@
  * - element_type: Get the capabilities to choice the type of list (ol, ul) ul by default.
  * - items: The rendered child elements of the container.
  *
- * @see template_preprocess_crop_container()
+ * @see template_preprocess_crop_help()
  */
 #}
 {% set classes = [
 has_parent ? 'js-form-wrapper',
 has_parent ? 'form-wrapper',
 ] %}
-<{{ element_type }} {{ attributes.addClass(classes) }}>
-    {{ items }}
-    {{ crop_help }}
-</{{ element_type }}>
+<div {{ attributes.addClass(classes) }}>
+    <img src="{{ img_location }}" title="Crop list" alt="Arrow help" />
+    <p id="crop-help-text">{{ text }}</p>
+</div>
