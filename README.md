@@ -11,13 +11,6 @@ Try me
 You can Test ImageWidgetCrop in action directly with the sub-module,
 "ImageWidgetCrop example" to test differents usecase of this module.
 
-Informations
--------------
-Use branch 8.x-1.x with [CROP API FORK] ATM. @see [pull request].
-
-[CROP API FORK]: https://github.com/woprrr/crop
-[pull request]: https://github.com/drupal-media/crop/pull/12
-
 Configuration
 -------------
 
