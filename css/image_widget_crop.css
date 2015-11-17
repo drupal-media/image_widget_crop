@@ -303,14 +303,14 @@
   margin-top: 21px;
 }
 
-.crop-wrapper .preview-wrapper-crop .crop-preview-wrapper-list#crop-help img{
+.crop-wrapper .preview-wrapper-crop .crop-preview-wrapper-list#crop-help img {
   float: right;
   text-align: center;
   margin: 0;
   padding-bottom: 25px;
 }
 
-.crop-wrapper .preview-wrapper-crop .crop-preview-wrapper-list#crop-help #crop-help-text{
+.crop-wrapper .preview-wrapper-crop .crop-preview-wrapper-list#crop-help #crop-help-text {
   clear: both;
   margin: 0;
   line-height: 30px;

@@ -84,7 +84,7 @@ function template_preprocess_crop_help(array &$variables) {
   $variables['text'] = $element['#text'];
   $variables['img_location'] = '/' . drupal_get_path('module', 'image_widget_crop') . '/image/down_right.png';
   $variables['attributes'] = $element['#attributes'];
-  $variables['element_type'] = $element['#element_type'];
+  $variables['element_type'] = isset($element['#element_type']) ? $element['#element_type'] : NULL;
 }
 
 /**
@@ -290,7 +290,8 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
               $crop->applyCrop($properties['values'], $crop_element, $crop_type[$crop_type_name]);
             }
 
-            // If the entity already exist & is not deleted by user update $crop_type_name crop entity.
+            // If the entity already exist & is not deleted by,
+            // user update $crop_type_name crop entity.
             if ((!$entity->isNew() && $properties['delete-crop'] == '0') && isset($properties['values']) && (!empty($properties['values']['crop-w']) && !empty($properties['values']['crop-h']))) {
               $crop->updateCrop($properties['values'], $crop_element, $crop_type[$crop_type_name]);
             }

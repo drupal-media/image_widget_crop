@@ -145,6 +145,13 @@ class ImageCropWidget extends ImageWidget {
         '#weight' => 100,
       ];
 
+      // Increase Human lisibility.
+      $container = &$element['crop_preview_wrapper']['container'];
+      if (!empty($edit)) {
+        /** @var \Drupal\crop\CropStorage $crop_storage */
+        $crop_storage = \Drupal::service('entity.manager')->getStorage('crop');
+      }
+
       if (!empty($crop_types_list)) {
         foreach ($crop_types_list as $crop_type) {
           /** @var \Drupal\crop\Entity\CropType $crop_type */
@@ -163,21 +170,21 @@ class ImageCropWidget extends ImageWidget {
             ];
 
             // Generation of html List with image & crop informations.
-            $element['crop_preview_wrapper']['container'][$crop_type_id] = [
+            $container[$crop_type_id] = [
               '#type' => 'crop_image_container',
               '#attributes' => ['class' => ['crop-preview-wrapper-list'], 'id' => [$crop_type_id], 'data-ratio' => [$ratio]],
               '#variables' => ['label' => $label, 'ratio' => $ratio],
               '#weight' => -10,
             ];
 
-            $element['crop_preview_wrapper']['container']['crop_help'] = [
+            $container['crop_help'] = [
               '#type' => 'crop_help',
               '#attributes' => ['class' => ['crop-preview-wrapper-list'], 'id' => ['crop-help']],
               '#text' => $element['#crop_help_text'],
               '#weight' => -10,
             ];
 
-            $element['crop_preview_wrapper']['container'][$crop_type_id]['image'] = [
+            $container[$crop_type_id]['image'] = [
               '#theme' => 'image_style',
               '#style_name' => $element['#crop_preview_image_style'],
               '#attributes' => ['data-ratio' => [$ratio], 'data-name' => [$crop_type_id]],
@@ -185,18 +192,16 @@ class ImageCropWidget extends ImageWidget {
               '#weight' => -10,
             ];
 
-            if ($edit) {
-              $crops = \Drupal::service('entity.manager')
-                ->getStorage('crop')
-                ->loadByProperties(['type' => $crop_type_id, 'uri' => $variables['uri']]);
-              // Only if the crop already exist pre-populate,
-              // all cordinates values.
+            if ($edit && !empty($crop_storage)) {
+              $crops = $crop_storage->loadByProperties(['type' => $crop_type_id, 'uri' => $variables['uri']]);
               if (!empty($crops)) {
+                // Only if the crop already exist pre-populate,
+                // all cordinates values.
                 $crop_properties = self::getCropProperties($crops);
                 // Add "saved" class if the crop already exist,
                 // (in list & img container element).
                 $element['crop_preview_wrapper']['list'][$crop_type_id]['#attributes']['class'][] = 'saved';
-                $element['crop_preview_wrapper']['container'][$crop_type_id]['#attributes']['class'][] = 'saved';
+                $container[$crop_type_id]['#attributes']['class'][] = 'saved';
 
                 /** @var array $values */
                 $thumb_properties = self::getThumbnailCropProperties($variables['uri'], $crop_properties);
@@ -204,7 +209,7 @@ class ImageCropWidget extends ImageWidget {
             }
 
             // Generation of html List with image & crop informations.
-            $element['crop_preview_wrapper']['container'][$crop_type_id]['values'] = [
+            $container[$crop_type_id]['values'] = [
               '#type' => 'container',
               '#attributes' => ['class' => ['crop-preview-wrapper-value']],
               '#weight' => -9,
@@ -212,7 +217,7 @@ class ImageCropWidget extends ImageWidget {
 
             self::getCropFormElement($element, $thumb_properties, $edit, $crop_type_id);
 
-            $element['crop_preview_wrapper']['container'][$crop_type_id]['delete-crop'] = [
+            $container[$crop_type_id]['delete-crop'] = [
               '#type' => 'hidden',
               '#attributes' => ['class' => ["delete-crop"]],
               '#value' => 0,
@@ -326,7 +331,7 @@ class ImageCropWidget extends ImageWidget {
         '#attributes' => [
           'class' => ["crop-$property"]
         ],
-        '#value' => (!empty($edit) && !empty($value['value'])) ? $value['value'] : $element['#value']['crop_preview_wrapper']['container'][$crop_type]['values'][$property],
+        '#value' => (!empty($edit) && (!empty($value['value']))) ? $value['value'] : $element['crop_preview_wrapper']['container'][$crop_type]['values'][$property],
       ];
     }
 

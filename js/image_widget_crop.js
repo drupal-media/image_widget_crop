@@ -36,8 +36,10 @@
 
       /**
        * Get all needed coordinates to construct crop.
+       *
        * @param {element} The current element wrapper of image to crop.
        * @param {commonCropElements} All positions Coordinates elements.
+       *
        * @return {object} An object with all element used by Plugins.
        */
       function getCropCoordinates(element, commonCropElements) {
@@ -122,7 +124,6 @@
                 });
               }
               else {
-                //var cropSaved = getCropCoordinates(wrapperCropContainer, commonCropElements);
                 // Stick cliked element for add class when user crop picture.
                 var listElement = $(this);
 
