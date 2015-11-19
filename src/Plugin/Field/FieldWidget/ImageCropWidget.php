@@ -110,6 +110,8 @@ class ImageCropWidget extends ImageWidget {
 
     if (isset($route_params['_entity_form']) && preg_match('/.edit/', $route_params['_entity_form'])) {
       $edit = TRUE;
+      /** @var \Drupal\crop\CropStorage $crop_storage */
+      $crop_storage = \Drupal::service('entity.manager')->getStorage('crop');
     }
 
     $element['#theme'] = 'image_widget';
@@ -147,11 +149,6 @@ class ImageCropWidget extends ImageWidget {
 
       // Increase Human lisibility.
       $container = &$element['crop_preview_wrapper']['container'];
-      if (!empty($edit)) {
-        /** @var \Drupal\crop\CropStorage $crop_storage */
-        $crop_storage = \Drupal::service('entity.manager')->getStorage('crop');
-      }
-
       if (!empty($crop_types_list)) {
         foreach ($crop_types_list as $crop_type) {
           /** @var \Drupal\crop\Entity\CropType $crop_type */
@@ -203,7 +200,6 @@ class ImageCropWidget extends ImageWidget {
                 $element['crop_preview_wrapper']['list'][$crop_type_id]['#attributes']['class'][] = 'saved';
                 $container[$crop_type_id]['#attributes']['class'][] = 'saved';
 
-                /** @var array $values */
                 $thumb_properties = self::getThumbnailCropProperties($variables['uri'], $crop_properties);
               }
             }
@@ -318,24 +314,60 @@ class ImageCropWidget extends ImageWidget {
    * @param string $crop_type
    *   The id of the current crop.
    *
-   * @return array<array>
+   * @return array<array>|NULL
    *   Populate all crop elements into the form.
    */
   public static function getCropFormElement(array &$element, array $thumb_properties, $edit, $crop_type) {
-    $crop_properties = self::getCropFormProperties($thumb_properties, $edit);
-    // Generate all cordinates elements into the form when,
-    // process is active.
-    foreach ($crop_properties as $property => $value) {
-      $element['crop_preview_wrapper']['container'][$crop_type]['values'][$property] = [
-        '#type' => 'hidden',
-        '#attributes' => [
-          'class' => ["crop-$property"]
-        ],
-        '#value' => (!empty($edit) && (!empty($value['value']))) ? $value['value'] : $element['crop_preview_wrapper']['container'][$crop_type]['values'][$property],
-      ];
+    if ($crop_type != 'crop_help') {
+      $crop_properties = self::getCropFormProperties($thumb_properties, $edit);
+      // Generate all cordinates elements into the form when,
+      // process is active.
+      foreach ($crop_properties as $property => $value) {
+        $crop_element = &$element['crop_preview_wrapper']['container'][$crop_type]['values'][$property];
+        $value_property = self::getCropFormPropertyValue($element, $crop_type, $edit, $value['value'], $property);
+        $crop_element = [
+          '#type' => 'hidden',
+          '#attributes' => [
+            'class' => ["crop-$property"]
+          ],
+          '#value' => $value_property,
+        ];
+      }
+
+      return $element;
+    }
+    return NULL;
+  }
+
+  /**
+   * Get default value of property elements.
+   *
+   * @param array $element
+   *   All form elements without crop properties.
+   * @param string $crop_type
+   *   The id of the current crop.
+   * @param bool $edit
+   *   Context of this form.
+   * @param bool $value
+   *   The values calculated by getCropFormProperties().
+   * @param string $property
+   *   Name of current property @see setCoordinatesElement().
+   *
+   * @return int|NULL
+   *   Value of this element.
+   */
+  public static function getCropFormPropertyValue(array &$element, $crop_type, $edit, $value, $property) {
+    // Standard case.
+    if (!empty($edit) && !empty($value)) {
+      return $value;
+    }
+    // Populate value when ajax populates values after process.
+    if (isset($element['#value'])) {
+      $ajax_element = &$element['#value']['crop_preview_wrapper']['container'][$crop_type]['values'];
+      return (isset($ajax_element[$property]) && !empty($ajax_element[$property])) ? $ajax_element[$property] : NULL;
     }
 
-    return $element;
+    return NULL;
   }
 
   /**
