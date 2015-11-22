@@ -37,8 +37,8 @@
       /**
        * Get all needed coordinates to construct crop.
        *
-       * @param {element} The current element wrapper of image to crop.
-       * @param {commonCropElements} All positions Coordinates elements.
+       * @param {object} element - The current element wrapper of image to crop.
+       * @param {object} commonCropElements - All positions Coordinates elements.
        *
        * @return {object} An object with all element used by Plugins.
        */
@@ -63,11 +63,11 @@
           event.preventDefault();
 
           // Get elements.
-          var ElementRatio = $(this).data('ratio'),
-              ElementName = $(this).data('name'),
-              wrapperCropContainer = $(this).closest('.crop-wrapper').find('.preview-wrapper-crop #' + ElementName),
-              defaultValues = getCropCoordinates(wrapperCropContainer, commonCropElements),
-              img = wrapperCropContainer.find('img');
+          var ElementRatio = $(this).data('ratio');
+          var ElementName = $(this).data('name');
+          var wrapperCropContainer = $(this).closest('.crop-wrapper').find('.preview-wrapper-crop #' + ElementName);
+          var defaultValues = getCropCoordinates(wrapperCropContainer, commonCropElements);
+          var img = wrapperCropContainer.find('img');
 
           // On click delete all active class.
           $('.ratio-list ul li').removeClass('active');
@@ -181,44 +181,44 @@
             // Create an crop instance.
             var cropInstance = $(img).imgAreaSelect({instance: true, keys: true});
 
-                // Set options.
-                cropInstance.setOptions({
-                  aspectRatio: ElementRatio,
-                  parent: wrapperCropContainer,
-                  handles: true,
-                  movable: true,
-                  minWidth: 50,
-                  minHeight: 50,
-                  onSelectEnd: function (img, selection) {
+            // Set options.
+            cropInstance.setOptions({
+              aspectRatio: ElementRatio,
+              parent: wrapperCropContainer,
+              handles: true,
+              movable: true,
+              minWidth: 50,
+              minHeight: 50,
+              onSelectEnd: function (img, selection) {
 
-                    // Calculate X1 / Y1 position of crop zone.
-                    $(defaultValues.posx1).val(selection.x1);
-                    $(defaultValues.posy1).val(selection.y1);
+                // Calculate X1 / Y1 position of crop zone.
+                $(defaultValues.posx1).val(selection.x1);
+                $(defaultValues.posy1).val(selection.y1);
 
-                    // Calculate X2 / Y2 position of crop zone.
-                    $(defaultValues.posx2).val(selection.x2);
-                    $(defaultValues.posy2).val(selection.y2);
+                // Calculate X2 / Y2 position of crop zone.
+                $(defaultValues.posx2).val(selection.x2);
+                $(defaultValues.posy2).val(selection.y2);
 
-                    // Calculate width / height size of crop zone.
-                    $(defaultValues.cropw).val(selection.width);
-                    $(defaultValues.croph).val(selection.height);
+                // Calculate width / height size of crop zone.
+                $(defaultValues.cropw).val(selection.width);
+                $(defaultValues.croph).val(selection.height);
 
-                    // Get size of thumbnail in UI.
-                    $(defaultValues.w).val(img.width);
-                    $(defaultValues.h).val(img.height);
-                    // If user clic in crop zone not save it.
-                    if (selection.width > 0 || selection.height > 0) {
-                      $('#' + defaultValues.dataRatioName).find('input.delete-crop').val('0');
+                // Get size of thumbnail in UI.
+                $(defaultValues.w).val(img.width);
+                $(defaultValues.h).val(img.height);
+                // If user clic in crop zone not save it.
+                if (selection.width > 0 || selection.height > 0) {
+                  $('#' + defaultValues.dataRatioName).find('input.delete-crop').val('0');
 
-                      // When user have crop the selection mark saved.
-                      $(listElement).addClass('saved');
-                    }
-                  },
-                  x1: defaultValues.posx1.val(),
-                  y1: defaultValues.posy1.val(),
-                  x2: defaultValues.posx2.val(),
-                  y2: defaultValues.posy2.val()
-                });
+                  // When user have crop the selection mark saved.
+                  $(listElement).addClass('saved');
+                }
+              },
+              x1: defaultValues.posx1.val(),
+              y1: defaultValues.posy1.val(),
+              x2: defaultValues.posx2.val(),
+              y2: defaultValues.posy2.val()
+            });
           }
         });
       });
