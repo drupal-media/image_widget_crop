@@ -67,7 +67,7 @@ class ImageWidgetCrop {
     // Get all imagesStyle used this crop_type.
     $image_styles = $this->getImageStylesByCrop($crop_type->id());
 
-    $this->saveCrop($crop_properties, $field_value, $image_styles, $crop_type);
+    $this->saveCrop($crop_properties, $field_value, $image_styles, $crop_type, FALSE);
   }
 
   /**
@@ -122,8 +122,10 @@ class ImageWidgetCrop {
    *   The list of imagesStyle available for this crop.
    * @param CropType $crop_type
    *   The entity CropType.
+   * @param bool $notify
+   *   Show notification after actions (default TRUE).
    */
-  public function saveCrop(array $crop_properties, $field_value, array $image_styles, CropType $crop_type) {
+  public function saveCrop(array $crop_properties, $field_value, array $image_styles, CropType $crop_type, $notify = TRUE) {
     /** @var \Drupal\image\Entity\ImageStyle $image_style */
     foreach ($image_styles as $image_style) {
       $values = [
@@ -144,7 +146,10 @@ class ImageWidgetCrop {
       $crop->save();
     }
     $this->imageStylesOperations($image_styles, $field_value['file-uri'], TRUE);
-    drupal_set_message(t('The crop "@cropType" are successfully added for image "@filename"', ['@cropType' => $crop_type->label(), '@filename' => $this->fileStorage->load($field_value['file-id'])->getFilename()]));
+
+    if ($notify) {
+      drupal_set_message(t('The crop "@cropType" are successfully added for image "@filename"', ['@cropType' => $crop_type->label(), '@filename' => $this->fileStorage->load($field_value['file-id'])->getFilename()]));
+    }
   }
 
   /**
