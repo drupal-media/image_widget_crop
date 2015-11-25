@@ -7,6 +7,7 @@
 
 namespace Drupal\image_widget_crop\Plugin\Field\FieldWidget;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\Entity\ConfigEntityStorage;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -52,13 +53,26 @@ class ImageCropWidget extends ImageWidget {
   protected $cropTypeStorage;
 
   /**
+   * The config factory.
+   *
+   * Subclasses should use the self::config() method, which may be overridden to
+   * address specific needs when loading config, rather than this property
+   * directly. See \Drupal\Core\Form\ConfigFormBase::config() for an example of
+   * this.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, ElementInfoManagerInterface $element_info, ImageWidgetCrop $image_widget_crop, ConfigEntityStorage $image_style_storage, ConfigEntityStorage $crop_type_storage) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, ElementInfoManagerInterface $element_info, ImageWidgetCrop $image_widget_crop, ConfigEntityStorage $image_style_storage, ConfigEntityStorage $crop_type_storage, ConfigFactoryInterface $config_factory) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings, $element_info);
     $this->imageWidgetCrop = $image_widget_crop;
     $this->imageStyleStorage = $image_style_storage;
     $this->cropTypeStorage = $crop_type_storage;
+    $this->configFactory = $config_factory;
   }
 
   /**
@@ -74,7 +88,8 @@ class ImageCropWidget extends ImageWidget {
       $container->get('element_info'),
       $container->get('image_widget_crop.manager'),
       $container->get('entity.manager')->getStorage('image_style'),
-      $container->get('entity.manager')->getStorage('crop_type')
+      $container->get('entity.manager')->getStorage('crop_type'),
+      $container->get('config.factory')
     );
   }
 
@@ -314,7 +329,7 @@ class ImageCropWidget extends ImageWidget {
    * @param string $crop_type
    *   The id of the current crop.
    *
-   * @return array<array>|NULL
+   * @return array|NULL
    *   Populate all crop elements into the form.
    */
   public static function getCropFormElement(array &$element, array $thumb_properties, $edit, $crop_type) {
@@ -353,7 +368,7 @@ class ImageCropWidget extends ImageWidget {
    * @param string $property
    *   Name of current property @see setCoordinatesElement().
    *
-   * @return int|NULL
+   * @return integer|NULL
    *   Value of this element.
    */
   public static function getCropFormPropertyValue(array &$element, $crop_type, $edit, $value, $property) {
@@ -605,13 +620,15 @@ class ImageCropWidget extends ImageWidget {
    *   The form elements for a single widget for this field.
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+    /** @var \Drupal\Core\Config\ImmutableConfig $config */
+    $config = $this->configFactory->get('image_widget_crop.settings');
+
     // Add properties needed by process() method.
     $element['#crop_list'] = $this->getSetting('crop_list');
     $element['#crop_preview_image_style'] = $this->getSetting('crop_preview_image_style');
     $element['#crop_types_list'] = $this->cropTypeStorage->loadMultiple();
     $element['#crop_help_text'] = $this->getSetting('crop_help_text');
-    // Set an custom upload_location.
-    $element['#upload_location'] = 'public://crop/pictures/';
+    $element['#upload_location'] = $config->get('settings.crop_upload_location');
 
     return parent::formElement($items, $delta, $element, $form, $form_state);
   }
