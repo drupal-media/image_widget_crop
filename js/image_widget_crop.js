@@ -223,7 +223,6 @@
         });
       });
 
-
       // Add saved class if the crop have been processed before user has add an item.
       $('section.ratio-list.crop-processed').closest('.crop-wrapper').find('section.preview-wrapper-crop > .crop-preview-wrapper-list:not(#crop-help)').each(function (i, item) {
         var cropSaved = getCropCoordinates(item, commonCropElements);

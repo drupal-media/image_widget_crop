@@ -368,7 +368,7 @@ class ImageCropWidget extends ImageWidget {
    * @param string $property
    *   Name of current property @see setCoordinatesElement().
    *
-   * @return integer|NULL
+   * @return int|NULL
    *   Value of this element.
    */
   public static function getCropFormPropertyValue(array &$element, $crop_type, $edit, $value, $property) {
