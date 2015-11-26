@@ -116,8 +116,8 @@
                     $(cropSaved.croph).val(selection.height);
 
                     // Get size of thumbnail in UI.
-                    $(cropSaved.w).val(cropSaved.saved_img.width);
-                    $(cropSaved.h).val(cropSaved.saved_img.height);
+                    $(cropSaved.w).val(cropSaved.saved_img.width());
+                    $(cropSaved.h).val(cropSaved.saved_img.height());
 
                     $('#' + cropSaved.dataRatioName).find('input.delete-crop').val('0');
                   }
@@ -222,6 +222,7 @@
           }
         });
       });
+
 
       // Add saved class if the crop have been processed before user has add an item.
       $('section.ratio-list.crop-processed').closest('.crop-wrapper').find('section.preview-wrapper-crop > .crop-preview-wrapper-list:not(#crop-help)').each(function (i, item) {

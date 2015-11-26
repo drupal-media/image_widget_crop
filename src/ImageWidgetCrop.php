@@ -84,6 +84,7 @@ class ImageWidgetCrop {
   public function updateCrop(array $properties, $field_value, CropType $crop_type) {
     // Get Original sizes and position of crop zone.
     $crop_properties = $this->getCropOriginalDimension($field_value['height'], $properties);
+
     // Get all imagesStyle used this crop_type.
     $image_styles = $this->getImageStylesByCrop($crop_type->id());
 

@@ -376,8 +376,9 @@ class ImageCropWidget extends ImageWidget {
     if (!empty($edit) && !empty($value)) {
       return $value;
     }
+
     // Populate value when ajax populates values after process.
-    if (isset($element['#value'])) {
+    if (isset($element['#value']) && isset($element['crop_preview_wrapper'])) {
       $ajax_element = &$element['#value']['crop_preview_wrapper']['container'][$crop_type]['values'];
       return (isset($ajax_element[$property]) && !empty($ajax_element[$property])) ? $ajax_element[$property] : NULL;
     }
