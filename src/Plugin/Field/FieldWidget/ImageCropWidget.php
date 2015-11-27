@@ -374,7 +374,7 @@ class ImageCropWidget extends ImageWidget {
    *   The id of the current crop.
    * @param bool $edit
    *   Context of this form.
-   * @param integer|null $value
+   * @param int|NULL $value
    *   The values calculated by getCropFormProperties().
    * @param string $property
    *   Name of current property @see setCoordinatesElement().
