@@ -58,6 +58,14 @@
       }
 
       $('section.ratio-list:not(.crop-processed)').addClass('crop-processed').each(function () {
+        var cropButton = $(this).closest('.image-widget-data').find('.crop-button');
+        if (cropButton.length === 1) {
+          $(this).closest('.crop-wrapper').hide();
+          cropButton.on('click', function () {
+            $(this).closest('.image-widget-data').find('.crop-wrapper').toggle();
+          });
+        }
+
         // On click in list element.
         $(this).find('ul li').on('click', function (event) {
           event.preventDefault();

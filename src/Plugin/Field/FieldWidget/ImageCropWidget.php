@@ -103,7 +103,8 @@ class ImageCropWidget extends ImageWidget {
     return [
       'crop_preview_image_style' => 'crop_thumbnail',
       'crop_list' => NULL,
-      'crop_help_text' => 'Select an image size to crop'
+      'crop_help_text' => 'Select an image size to crop',
+      'show_crop_area' => FALSE,
     ] + parent::defaultSettings();
   }
 
@@ -140,6 +141,16 @@ class ImageCropWidget extends ImageWidget {
       $variables = ['style_name' => $element['#preview_image_style'], 'uri' => $file->getFileUri(), 'file_id' => $file->id()];
       // Verify if user have uploaded an image.
       self::getFileImageVariables($element, $variables);
+
+      $element['crop_button'] = [
+        '#type' => 'crop_button',
+        '#value' => t('Crop image'),
+        '#attributes' => ['class' => ['crop-button']],
+        '#button_type' => 'primary',
+      ];
+
+      // Check settings of widget if user need to hide crop area by default.
+      !($element['#show_crop_area']) ? $element['crop_button']['#access'] = TRUE : $element['crop_button']['#access'] = FALSE;
 
       $element['crop_preview_wrapper'] = [
         '#type' => 'container',
@@ -569,6 +580,12 @@ class ImageCropWidget extends ImageWidget {
       '#weight' => 16,
     ];
 
+    $element['show_crop_area'] = [
+      '#title' => t('Always expand crop area'),
+      '#type' => 'checkbox',
+      '#default_value' => $this->getSetting('show_crop_area'),
+    ];
+
     return $element;
   }
 
@@ -591,6 +608,9 @@ class ImageCropWidget extends ImageWidget {
     $crop_preview = $image_styles[$this->getSetting('crop_preview_image_style')];
     $crop_list = $this->getSetting('crop_list');
     $crop_help_text = $this->getSetting('crop_help_text');
+    $crop_show_button = $this->getSetting('show_crop_area');
+
+    $preview[] = t('Always expand crop area: @bool', ['@bool' => ($crop_show_button) ? 'Yes' : 'No']);
 
     if (isset($image_style_setting)) {
       $preview[] = t('Preview image style: @style', ['@style' => $image_style_setting]);
@@ -630,6 +650,7 @@ class ImageCropWidget extends ImageWidget {
     $element['#crop_types_list'] = $this->cropTypeStorage->loadMultiple();
     $element['#crop_help_text'] = $this->getSetting('crop_help_text');
     $element['#upload_location'] = $config->get('settings.crop_upload_location');
+    $element['#show_crop_area'] = $this->getSetting('show_crop_area');
 
     return parent::formElement($items, $delta, $element, $form, $form_state);
   }

@@ -69,8 +69,13 @@
 }
 
 .crop-wrapper .ratio-list ul li.saved a {
-  background-color: #61cc86;
+  background-color: #0071b8;
+  background-image: -webkit-linear-gradient(top, #007bc6, #0071b8);
+  background-image: linear-gradient(to bottom, #007bc6, #0071b8);
   transition: all 0.25s ease;
+  text-shadow: 0 1px hsla(0, 0%, 0%, 0.5);
+  color: #fff;
+  box-shadow: 0 1px 2px hsla(203, 10%, 10%, 0.25);
 }
 
 .crop-wrapper .ratio-list ul li.saved a:after {
@@ -92,7 +97,9 @@
 
 .crop-wrapper .ratio-list ul li.saved a:hover {
   transition: all 0.5s ease;
-  background-color: #000 !important;
+  background-color: #2369a6;
+  background-image: -webkit-linear-gradient(top, #0c97ed, #1f86c7);
+  background-image: linear-gradient(to bottom, #0c97ed, #1f86c7);
   color: #fff;
 }
 

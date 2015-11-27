@@ -19,3 +19,6 @@ field.widget.settings.image_widget_crop:
     crop_help_text:
       type: string
       label: 'Default help text slide'
+    show_crop_area:
+      type: boolean
+      label: 'Always expand crop area'
