@@ -64,13 +64,13 @@ class CropWidgetForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['crop_upload_location'] = array(
+    $form['crop_upload_location'] = [
       '#type' => 'textfield',
       '#title' => t('Image upload location path'),
       '#default_value' => $this->settings->get('settings.crop_upload_location'),
       '#maxlength' => 255,
       '#description' => t("A local file system path where croped images files will be stored. Spécify the location of files instead of 'sites/default/files/' folder"),
-    );
+    ];
 
     return parent::buildForm($form, $form_state);
   }

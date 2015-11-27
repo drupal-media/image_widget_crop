@@ -96,7 +96,7 @@ class ImageCropWidget extends ImageWidget {
   /**
    * {@inheritdoc}
    *
-   * @return array<string,string|null>
+   * @return array<string,string|null|false>
    *   The array of settings.
    */
   public static function defaultSettings() {
@@ -374,7 +374,7 @@ class ImageCropWidget extends ImageWidget {
    *   The id of the current crop.
    * @param bool $edit
    *   Context of this form.
-   * @param bool $value
+   * @param integer|null $value
    *   The values calculated by getCropFormProperties().
    * @param string $property
    *   Name of current property @see setCoordinatesElement().
