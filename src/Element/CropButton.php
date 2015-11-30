@@ -45,7 +45,7 @@ class CropButton extends Button {
    * @return array
    *   The $element with prepared variables ready for input.html.twig.
    */
-  public static function preRenderButton(array $element) {
+  public static function preRenderButton($element) {
     $element = parent::preRenderButton($element);
     $element['#attributes']['type'] = 'button';
     return $element;
