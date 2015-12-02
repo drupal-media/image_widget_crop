@@ -165,17 +165,16 @@ class ImageWidgetCrop {
    */
   public function deleteCrop($file_uri, CropType $crop_type, $file_id) {
     $image_styles = $this->getImageStylesByCrop($crop_type->id());
-    /** @var \Drupal\image\Entity\ImageStyle $image_style */
-    foreach ($image_styles as $image_style) {
-      $crop = $this->cropStorage->loadByProperties([
-        'type' => $crop_type->id(),
-        'uri' => $file_uri,
-        'image_style' => $image_style->getName(),
-      ]);
-      $this->cropStorage->delete($crop);
-    }
+    $crop = $this->cropStorage->loadByProperties([
+      'type' => $crop_type->id(),
+      'uri' => $file_uri
+    ]);
+    $this->cropStorage->delete($crop);
     $this->imageStylesOperations($image_styles, $file_uri);
-    drupal_set_message(t('The crop "@cropType" are successfully delete for image "@filename"', ['@cropType' => $crop_type->label(), '@filename' => $this->fileStorage->load($file_id)->getFilename()]));
+    drupal_set_message(t('The crop "@cropType" are successfully delete for image "@filename"', [
+      '@cropType' => $crop_type->label(),
+      '@filename' => $this->fileStorage->load($file_id)->getFilename()
+    ]));
   }
 
   /**
