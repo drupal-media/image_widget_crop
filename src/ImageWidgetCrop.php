@@ -355,7 +355,7 @@ class ImageWidgetCrop {
     $crops = [];
     /** @var \Drupal\image\Entity\ImageStyle $image_style */
     foreach ($image_styles as $image_style) {
-      $crop_entities = $this->cropStorage->loadByProperties(['type' => $crop_type->id(), 'uri' => $file_uri, 'image_style' => $image_style->id()]);
+      $crop_entities = $this->cropStorage->loadByProperties(['type' => $crop_type->id(), 'uri' => $file_uri]);
       if (!empty($crop_entities)) {
         $crops[$image_style->id()] = $crop_entities;
       }
