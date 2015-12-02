@@ -226,7 +226,13 @@ class ImageCropWidget extends ImageWidget {
                 $element['crop_preview_wrapper']['list'][$crop_type_id]['#attributes']['class'][] = 'saved';
                 $container[$crop_type_id]['#attributes']['class'][] = 'saved';
 
-                $thumb_properties = self::getThumbnailCropProperties($variables['uri'], $crop_properties);
+                /** @var \Drupal\Core\Image\Image $image */
+                $image = \Drupal::service('image.factory')->get($file->getFileUri());
+                if (!$image->isValid()) {
+                  throw new \RuntimeException('This image file is nos valid');
+                }
+
+                $thumb_properties = self::getThumbnailCropProperties($image, $crop_properties);
               }
             }
 
@@ -400,8 +406,8 @@ class ImageCropWidget extends ImageWidget {
   /**
    * Calculate properties of thumbnail preview.
    *
-   * @param string $uri
-   *   The uri of uploaded image.
+   * @param \Drupal\Core\Image\Image $image
+   *   Image object to represent uploaded image file.
    * @param array $original_crop
    *   All properties returned by the crop plugin (js),
    *   and the size of thumbnail image.
@@ -413,7 +419,7 @@ class ImageCropWidget extends ImageWidget {
    *   thumbnail height, thumbnail width), to apply the real crop
    *   into thumbnail preview.
    */
-  public static function getThumbnailCropProperties($uri, array $original_crop, $preview = 'crop_thumbnail') {
+  public static function getThumbnailCropProperties($image, array $original_crop, $preview = 'crop_thumbnail') {
     $crop_thumbnail = [];
 
     $image_styles = \Drupal::service('entity.manager')
@@ -425,8 +431,8 @@ class ImageCropWidget extends ImageWidget {
     $image_style = $image_styles[$preview];
     $effect = $image_style->getEffects()->getConfiguration();
 
-    // Get the real sizes of uploaded image.
-    list($width, $height) = getimagesize($uri);
+    $width = $image->getWidth();
+    $height = $image->getHeight();
 
     // Get max Width of this imageStyle.
     $thumbnail_width = $effect[array_keys($effect)[0]]['data']['width'];
