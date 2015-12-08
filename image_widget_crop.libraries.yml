@@ -1,23 +1,19 @@
-drupal.image_widget_crop.admin:
-  version: VERSION
-  js:
-    //cdnjs.cloudflare.com/ajax/libs/imgareaselect/0.9.10/js/jquery.imgareaselect.min.js: {}
-  css:
-    theme:
-      //cdnjs.cloudflare.com/ajax/libs/imgareaselect/0.9.10/css/imgareaselect-default.css: {}
+cropper:
+  title: 'Cropper'
+  js: {}
+  css: {}
   dependencies:
     - core/jquery
-    - core/drupal
-    - core/jquery.once
 
-drupal.image_widget_crop.upload.admin:
-  version: VERSION
+cropper.integration:
+  version: 1.0
   js:
-    js/image_widget_crop.js: {}
+    js/imageWidgetCrop.js: {}
   css:
     theme:
       css/image_widget_crop.css: {}
   dependencies:
     - core/jquery
     - core/drupal
-    - core/jquery.once
+    - core/drupalSettings
+    - image_widget_crop/cropper
