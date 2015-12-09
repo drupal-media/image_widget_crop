@@ -34,6 +34,221 @@ function image_widget_cropfield_widget_info_alter(array &$info) {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function image_widget_crop_theme() {
+  return [
+    'crop_help' => [
+      'render element' => 'element',
+    ],
+    'crop_container' => [
+      'render element' => 'element',
+    ],
+    'crop_image_container' => [
+      'render element' => 'element',
+    ],
+    'crop_sidebar' => [
+      'render element' => 'element',
+    ],
+    'crop_list_items' => [
+      'render element' => 'element'
+    ]
+  ];
+}
+
+/**
+ * Prepares variables for crop_help templates.
+ *
+ * Default template: crop-help.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ */
+function template_preprocess_crop_help(array &$variables) {
+  $variables['has_parent'] = FALSE;
+  $element = $variables['element'];
+  // Ensure #attributes is set.
+  $element += ['#attributes' => []];
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    $variables['has_parent'] = TRUE;
+  }
+
+  $variables['text'] = $element['#text'];
+  $variables['img_location'] = '/' . drupal_get_path('module', 'image_widget_crop') . '/image/down_right.png';
+  $variables['attributes'] = $element['#attributes'];
+  $variables['element_type'] = isset($element['#element_type']) ? $element['#element_type'] : NULL;
+}
+
+/**
+ * Prepares variables for crop_list_items templates.
+ *
+ * Default template: crop-list-items.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ */
+function template_preprocess_crop_list_items(array &$variables) {
+  $variables['has_parent'] = FALSE;
+  $element = $variables['element'];
+  // Ensure #attributes is set.
+  $element += ['#attributes' => []];
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    $variables['has_parent'] = TRUE;
+  }
+
+  // Get variables into elements and pass it to twig template.
+  foreach ($element['#variables'] as $variable_key => $var) {
+    $variables[$variable_key] = $var;
+  }
+
+  $variables['attributes'] = $element['#attributes'];
+}
+
+/**
+ * Prepares variables for crop_container templates.
+ *
+ * Default template: crop-container.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ */
+function template_preprocess_crop_container(array &$variables) {
+  $items = [];
+  $variables['has_parent'] = FALSE;
+  $element = $variables['element'];
+  // Ensure #attributes is set.
+  $element += ['#attributes' => []];
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    $variables['has_parent'] = TRUE;
+  }
+
+  // Determine whether there are any child elements in the element that are not
+  // fully-specified render arrays. If there are any, then the child
+  // elements present nested lists and we automatically inherit the render
+  // array properties of the current list to them.
+  foreach (Element::children($element) as $key) {
+    $items[] = $element[$key];
+    foreach ($items as $child_key => $child_value) {
+      if (!isset($items['#type']) && !isset($items['#theme']) && !isset($items['#markup'])) {
+        if (!isset($items['#items'])) {
+          $items['#items'][$child_key] = $child_value;
+        }
+      }
+    }
+  }
+
+  $variables['items'] = $items;
+  $variables['attributes'] = $element['#attributes'];
+  $variables['element_type'] = $element['#element_type'];
+}
+
+/**
+ * Prepares variables for crop_sidebar templates.
+ *
+ * Default template: crop-sidebar.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ */
+function template_preprocess_crop_sidebar(array &$variables) {
+  $items = [];
+  $variables['has_parent'] = FALSE;
+  $element = $variables['element'];
+  // Ensure #attributes is set.
+  $element += ['#attributes' => []];
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    $variables['has_parent'] = TRUE;
+  }
+
+  // Get all child elements into sidebar.
+  foreach (Element::children($element) as $key) {
+    $child = &$element[$key];
+    $items[] = $child;
+  }
+
+  // Get the type of wrapper element.
+  $variables['element_type'] = $element['#element_type'];
+
+  // Add attributes to wrapper element.
+  $variables['attributes'] = $element['#attributes'];
+
+  // Send to twig all items into sidebar element.
+  $variables['items'] = $items;
+}
+
+/**
+ * Prepares variables for container templates.
+ *
+ * Default template: crop-sidebar.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ */
+function template_preprocess_crop_image_container(array &$variables) {
+  $items = [];
+  $variables['has_parent'] = FALSE;
+  $element = $variables['element'];
+  // Ensure #attributes is set.
+  $element += ['#attributes' => []];
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    $variables['has_parent'] = TRUE;
+  }
+
+  foreach ($element['#variables'] as $variable_key => $var) {
+    $variables[$variable_key] = $var;
+  }
+
+  foreach (Element::children($element) as $key) {
+    $child = &$element[$key];
+    $items[] = $child;
+  }
+
+  // Send to twig all items into sidebar element.
+  $variables['items'] = $items;
+  $variables['attributes'] = $element['#attributes'];
+}
+
+/**
  * Implements hook_entity_presave().
  */
 function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
@@ -51,13 +266,12 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
         foreach ($entity_fields->getValue() as $crop_element) {
           /* Parse all value of a crop_preview_wrapper element and get,
           properties associate with her CropType. */
-          foreach ($crop_element['crop_preview_wrapper'] as $crop_type_name => $properties) {
+          foreach ($crop_element['crop_preview_wrapper']['container'] as $crop_type_name => $properties) {
+
             /** @var \Drupal\crop\Entity\CropType $crop_type */
             $crop_type = \Drupal::entityManager()
               ->getStorage('crop_type')
               ->loadByProperties(['id' => $crop_type_name]);
-
-            $properties['values'] = &$properties['crop_container']['values'];
 
             // If the crop type needed is disabled or delete.
             if (!isset($crop_type[$crop_type_name]) || empty($crop_type[$crop_type_name])) {
@@ -66,30 +280,25 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
             }
 
             // If this crop is availables to create an crop entity.
-            if ($entity->isNew()) {
-              if ($properties['values']['crop_applied'] == '1' && isset($properties['values']) && (!empty($properties['values']['width']) && !empty($properties['values']['height']))) {
-                // Get crop type for current cropType.
-                if (!isset($crop_type) && empty($crop_type)) {
-                  drupal_set_message(t("The type of crop does not exist, please check the configuration of the CropType ('@cropType')", ['@cropType' => $crop_type->label()]), 'error');
-                  return;
-                }
+            if (($entity->isNew() && $properties['delete-crop'] == '0') && isset($properties['values']) && (!empty($properties['values']['crop-w']) && !empty($properties['values']['crop-h']))) {
+              // Get crop type for current cropType.
+              if (!isset($crop_type) && empty($crop_type)) {
+                drupal_set_message(t("The type of crop does not exist, please check the configuration of the CropType ('@cropType')", ['@cropType' => $crop_type->label()]), 'error');
+                return;
+              }
 
-                $crop->applyCrop($properties['values'], $crop_element, $crop_type[$crop_type_name]);
-              }
+              $crop->applyCrop($properties['values'], $crop_element, $crop_type[$crop_type_name]);
             }
-            else {
-              // Get all imagesStyle used this crop_type.
-              $image_styles = $crop->getImageStylesByCrop($crop_type_name);
-              $crops = $crop->loadImageStyleByCrop($image_styles, $crop_type[$crop_type_name], $crop_element['file-uri']);
-              // If the entity already exist & is not deleted by,
-              // user update $crop_type_name crop entity.
-              // If you need to delete existing crop when you edit this entity.
-              if ($properties['values']['crop_applied'] == '0' && !empty($crops)) {
-                $crop->deleteCrop($crop_element['file-uri'], $crop_type[$crop_type_name], $crop_element['file-id']);
-              }
-              elseif (isset($properties['values']) && (!empty($properties['values']['width']) && !empty($properties['values']['height']))) {
-                $crop->updateCrop($properties['values'], $crop_element, $crop_type[$crop_type_name]);
-              }
+
+            // If the entity already exist & is not deleted by,
+            // user update $crop_type_name crop entity.
+            if ((!$entity->isNew() && $properties['delete-crop'] == '0') && isset($properties['values']) && (!empty($properties['values']['crop-w']) && !empty($properties['values']['crop-h']))) {
+              $crop->updateCrop($properties['values'], $crop_element, $crop_type[$crop_type_name]);
+            }
+
+            // If you need to delete existing crop when you edit this entity.
+            if (!$entity->isNew() && $properties['delete-crop'] == '1') {
+              $crop->deleteCrop($crop_element['file-uri'], $crop_type[$crop_type_name], $crop_element['file-id']);
             }
           }
         }
@@ -114,110 +323,4 @@ function image_widget_crop_css_alter(&$css) {
     'browsers' => ['IE' => TRUE, '!IE' => TRUE],
     'weight' => -2,
   ];
-}
-
-/**
- * Implements hook_libraries_info().
- */
-function image_widget_crop_libraries_info() {
-  $libraries = array(
-    'cropper' => array(
-      'name' => 'cropper',
-      'vendor url' => 'https://github.com/fengyuanchen/cropper',
-      'download url' => 'https://cdnjs.com/libraries/cropper',
-      'version arguments' => array(
-        'file' => 'cropper.min.js',
-        'pattern' => '/Cropper v(.*)/',
-        'lines' => 2,
-      ),
-      'files' => array(
-        'js' => array(
-          'cropper.min.js' => array(),
-        ),
-        'css' => array(
-          'cropper.min.css' => array(),
-        ),
-      ),
-    ),
-  );
-  return $libraries;
-}
-
-/**
- * Implements hook_library_info_alter().
- */
-function image_widget_crop_library_info_alter(&$libraries, $extension) {
-  if ($extension != 'image_widget_crop') {
-    return;
-  }
-
-  $config = \Drupal::config('image_widget_crop.settings');
-  if (!\Drupal::moduleHandler()->moduleExists('libraries') && !$config->get('settings.library_url') && !$config->get('settings.css_url')
-  ) {
-    $libraries['cropper.integration']['js'] = array();
-  }
-
-  // Get the correct path of the Cropper js file (the user needs to manually
-  // put the jquery.cropper.min.js in libraries/cropper folder or set the url
-  // in the settings).
-  if ($library_url = $config->get('settings.library_url')) {
-    // Cloud hosted library, use external JavaScript.
-    $libraries['cropper']['js'][$library_url] = array(
-      'type' => 'external',
-      'minified' => TRUE,
-    );
-  }
-  elseif (\Drupal::moduleHandler()->moduleExists('libraries')) {
-    $info = libraries_detect('cropper');
-    $libraries['cropper'] += array(
-      'version' => $info['installed'] ? $info['version'] : 'web-hosted',
-    );
-    if ($info['installed']) {
-      // Because the library is self hosted, use files from library definition.
-      if (!empty($info['files']['js'])) {
-        foreach ($info['files']['js'] as $data => $option) {
-
-          if (is_numeric($data)) {
-            $option = "/{$info['library path']}/{$option}";
-          }
-          elseif (empty($option['type']) || $option['type'] == 'file') {
-            $data = "/{$info['library path']}/{$data}";
-          }
-
-          $libraries['cropper']['js'][$data] = $option;
-        }
-      }
-    }
-  }
-
-  // Add the local CSS to the libraries.
-  if ($css_url = $config->get('settings.css_url')) {
-    // Cloud hosted library, use external CSS.
-    $libraries['cropper']['css']['component'][$css_url] = array(
-      'type' => 'external',
-      'minified' => TRUE,
-    );
-  }
-  elseif (\Drupal::moduleHandler()->moduleExists('libraries')) {
-    $info = libraries_detect('cropper');
-    $libraries['cropper'] += array(
-      'version' => $info['installed'] ? $info['version'] : 'web-hosted',
-    );
-    if ($info['installed']) {
-      // Because the library is self hosted, use files from library definition.
-      if (!empty($info['files']['css'])) {
-        foreach ($info['files']['css'] as $data => $option) {
-
-          if (is_numeric($data)) {
-            $option = "/{$info['library path']}/{$option}";
-          }
-          elseif (empty($option['type']) || $option['type'] == 'file') {
-            $data = "/{$info['library path']}/{$data}";
-          }
-
-          $libraries['cropper']['css']['theme'][$data] = $option;
-        }
-      }
-    }
-  }
 }

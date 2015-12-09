@@ -12,7 +12,6 @@ use Drupal\Core\Config\Entity\ConfigEntityStorage;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Image\Image;
 use Drupal\Core\Render\ElementInfoManagerInterface;
 use Drupal\image\Plugin\Field\FieldWidget\ImageWidget;
 use Drupal\image_widget_crop\ImageWidgetCrop;
@@ -104,6 +103,7 @@ class ImageCropWidget extends ImageWidget {
     return [
       'crop_preview_image_style' => 'crop_thumbnail',
       'crop_list' => NULL,
+      'crop_help_text' => 'Select an image size to crop',
       'show_crop_area' => FALSE,
     ] + parent::defaultSettings();
   }
@@ -124,23 +124,6 @@ class ImageCropWidget extends ImageWidget {
     $route_params = \Drupal::requestStack()
       ->getCurrentRequest()->attributes->get('_route_params');
 
-    // Display an error message if the local/remote library and CSS are not set.
-    // @TODO Find a better solution to display the error message.
-    $config = \Drupal::config('image_widget_crop.settings');
-    $js_library = $config->get('settings.library_url');
-    $css_library = $config->get('settings.css_url');
-    if (!\Drupal::moduleHandler()->moduleExists('libraries')) {
-      if ((empty($js_library) || empty($css_library)) || (empty($js_library) && empty($css_library))) {
-        $element['message'] = array(
-          '#type' => 'container',
-          '#markup' => t('Either set the library locally (in /libraries/cropper) and enable the libraries module or enter the remote URL on <a href="/admin/config/media/crop-widget">Image Crop Widget settings</a>.'),
-          '#attributes' => array(
-            'class' => array('messages messages--error'),
-          ),
-        );
-      }
-    }
-
     if (isset($route_params['_entity_form']) && preg_match('/.edit/', $route_params['_entity_form'])) {
       $edit = TRUE;
       /** @var \Drupal\crop\CropStorage $crop_storage */
@@ -149,7 +132,8 @@ class ImageCropWidget extends ImageWidget {
 
     $element['#theme'] = 'image_widget';
     $element['#attached']['library'][] = 'image/form';
-    $element['#attached']['library'][] = 'image_widget_crop/cropper.integration';
+    $element['#attached']['library'][] = 'image_widget_crop/drupal.image_widget_crop.admin';
+    $element['#attached']['library'][] = 'image_widget_crop/drupal.image_widget_crop.upload.admin';
 
     // Add the image preview.
     if (!empty($element['#files']) && $element['#preview_image_style']) {
@@ -158,28 +142,39 @@ class ImageCropWidget extends ImageWidget {
       // Verify if user have uploaded an image.
       self::getFileImageVariables($element, $variables);
 
-      // @TODO: $element['#delta'] is not unique. We need to find something unique.
-      $list_id = 'crop_list_' . $element['#field_name'] . '_' . $element['#delta'];
-      // Standardize the name of wrapper elements.
-      $element_wrapper_name = 'crop_container';
+      $element['crop_button'] = [
+        '#type' => 'crop_button',
+        '#value' => t('Crop image'),
+        '#attributes' => ['class' => ['crop-button']],
+        '#button_type' => 'primary',
+      ];
 
-      // We need to wrap all elements to identify the widget elements.
+      // Check settings of widget if user need to hide crop area by default.
+      !($element['#show_crop_area']) ? $element['crop_button']['#access'] = TRUE : $element['crop_button']['#access'] = FALSE;
+
       $element['crop_preview_wrapper'] = [
-        '#type' => 'details',
-        '#title' => t('Crop image'),
+        '#type' => 'container',
         '#attributes' => ['class' => ['crop-wrapper']],
-        '#weight' => 100
+        '#weight' => 100,
       ];
 
-      $container = &$element['crop_preview_wrapper'];
-      $container[$list_id] = [
-        '#type' => 'vertical_tabs',
-        '#default_tab' => '',
-        '#theme_wrappers' => array('vertical_tabs'),
-        '#tree' => TRUE,
-        '#parents' => array($list_id),
+      // List crop_type container.
+      $element['crop_preview_wrapper']['list'] = [
+        '#type' => 'crop_sidebar',
+        '#attributes' => ['class' => ['ratio-list']],
+        '#element_type' => 'ul',
+        '#weight' => -10,
       ];
 
+      // Wrap crop elements.
+      $element['crop_preview_wrapper']['container'] = [
+        '#type' => 'crop_container',
+        '#attributes' => ['class' => ['preview-wrapper-crop']],
+        '#weight' => 100,
+      ];
+
+      // Increase Human lisibility.
+      $container = &$element['crop_preview_wrapper']['container'];
       if (!empty($crop_types_list)) {
         foreach ($crop_types_list as $crop_type) {
           /** @var \Drupal\crop\Entity\CropType $crop_type */
@@ -189,49 +184,35 @@ class ImageCropWidget extends ImageWidget {
             $thumb_properties = [];
             // Add compatibility to PHP 5.3.
             $has_ratio = $crop_type->getAspectRatio();
-            $ratio = !empty($has_ratio) ? $has_ratio : t('NaN');
-            $ratio = str_replace(':', '/', $ratio);
+            $ratio = !empty($has_ratio) ? $has_ratio : t('None');
 
-            $container[$crop_type_id] = [
-              '#type' => 'details',
-              '#title' => $label,
-              '#group' => $list_id,
+            $element['crop_preview_wrapper']['list'][$crop_type_id] = [
+              '#type' => 'crop_list_items',
+              '#attributes' => ['class' => ['crop-preview-wrapper', 'item'], 'data-ratio' => [$ratio], 'data-name' => [$crop_type_id]],
+              '#variables' => ['anchor' => "#$crop_type_id", 'ratio' => $ratio, 'label' => $label]
             ];
 
             // Generation of html List with image & crop informations.
-            $container[$crop_type_id][$element_wrapper_name] = [
-              '#type' => 'container',
-              '#attributes' => ['class' => ['crop-preview-wrapper', $list_id], 'id' => [$crop_type_id], 'data-ratio' => [$ratio]],
+            $container[$crop_type_id] = [
+              '#type' => 'crop_image_container',
+              '#attributes' => ['class' => ['crop-preview-wrapper-list'], 'id' => [$crop_type_id], 'data-ratio' => [$ratio]],
+              '#variables' => ['label' => $label, 'ratio' => $ratio],
               '#weight' => -10,
             ];
 
-            $container[$crop_type_id][$element_wrapper_name]['image'] = [
+            $container['crop_help'] = [
+              '#type' => 'crop_help',
+              '#attributes' => ['class' => ['crop-preview-wrapper-list'], 'id' => ['crop-help']],
+              '#text' => $element['#crop_help_text'],
+              '#weight' => -10,
+            ];
+
+            $container[$crop_type_id]['image'] = [
               '#theme' => 'image_style',
               '#style_name' => $element['#crop_preview_image_style'],
               '#attributes' => ['data-ratio' => [$ratio], 'data-name' => [$crop_type_id]],
               '#uri' => $variables['uri'],
               '#weight' => -10,
-            ];
-
-            $container[$crop_type_id][$element_wrapper_name]['reset'] = [
-              '#type' => 'button',
-              '#value' => t('Reset crop'),
-              '#attributes' => ['class' => ['crop-reset']],
-              '#weight' => -10,
-            ];
-
-            // Generation of html List with image & crop informations.
-            $container[$crop_type_id][$element_wrapper_name]['values'] = [
-              '#type' => 'container',
-              '#attributes' => ['class' => ['crop-preview-wrapper-value']],
-              '#weight' => -9,
-            ];
-
-            // Element to track whether cropping is applied or not.
-            $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied'] = [
-              '#type' => 'hidden',
-              '#attributes' => ['class' => ["crop-applied"]],
-              '#value' => 0,
             ];
 
             if ($edit && !empty($crop_storage)) {
@@ -240,6 +221,10 @@ class ImageCropWidget extends ImageWidget {
                 // Only if the crop already exist pre-populate,
                 // all cordinates values.
                 $crop_properties = self::getCropProperties($crops);
+                // Add "saved" class if the crop already exist,
+                // (in list & img container element).
+                $element['crop_preview_wrapper']['list'][$crop_type_id]['#attributes']['class'][] = 'saved';
+                $container[$crop_type_id]['#attributes']['class'][] = 'saved';
 
                 /** @var \Drupal\Core\Image\Image $image */
                 $image = \Drupal::service('image.factory')->get($file->getFileUri());
@@ -248,13 +233,23 @@ class ImageCropWidget extends ImageWidget {
                 }
 
                 $thumb_properties = self::getThumbnailCropProperties($image, $crop_properties);
-
-                // Element to track whether cropping is applied or not.
-                $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
               }
             }
 
-            self::getCropFormElement($element, $element_wrapper_name, $thumb_properties, $edit, $crop_type_id);
+            // Generation of html List with image & crop informations.
+            $container[$crop_type_id]['values'] = [
+              '#type' => 'container',
+              '#attributes' => ['class' => ['crop-preview-wrapper-value']],
+              '#weight' => -9,
+            ];
+
+            self::getCropFormElement($element, $thumb_properties, $edit, $crop_type_id);
+
+            $container[$crop_type_id]['delete-crop'] = [
+              '#type' => 'hidden',
+              '#attributes' => ['class' => ["delete-crop"]],
+              '#value' => 0,
+            ];
 
             // Stock Original File Values.
             $element['file-uri'] = [
@@ -282,10 +277,12 @@ class ImageCropWidget extends ImageWidget {
    */
   public static function setCoordinatesElement() {
     return [
-      'x' => ['label' => t('X coordinate'), 'value' => NULL],
-      'y' => ['label' => t('Y coordinate'), 'value' => NULL],
-      'width' => ['label' => t('Width'), 'value' => NULL],
-      'height' => ['label' => t('Height'), 'value' => NULL],
+      'x1' => ['label' => t('Crop x1'), 'value' => NULL],
+      'x2' => ['label' => t('Crop x2'), 'value' => NULL],
+      'y1' => ['label' => t('Crop y1'), 'value' => NULL],
+      'y2' => ['label' => t('Crop y2'), 'value' => NULL],
+      'crop-w' => ['label' => t('Crop size width'), 'value' => NULL],
+      'crop-h' => ['label' => t('Crop size height'), 'value' => NULL],
       'thumb-w' => ['label' => t('Thumbnail Width'), 'value' => NULL],
       'thumb-h' => ['label' => t('Thumbnail Height'), 'value' => NULL],
     ];
@@ -341,36 +338,37 @@ class ImageCropWidget extends ImageWidget {
    *
    * @param array $element
    *   All form elements without crop properties.
-   * @param string $element_wrapper_name
-   *   Name of element contains values properties.
    * @param array $thumb_properties
    *   All properties calculate for apply to,
    *   thumbnail image in UI.
    * @param bool $edit
    *   Context of this form.
-   * @param string $crop_type_id
+   * @param string $crop_type
    *   The id of the current crop.
    *
    * @return array|NULL
    *   Populate all crop elements into the form.
    */
-  public static function getCropFormElement(array &$element, $element_wrapper_name, array $thumb_properties, $edit, $crop_type_id) {
-    $crop_properties = self::getCropFormProperties($thumb_properties, $edit);
-    // Generate all cordinates elements into the form when,
-    // process is active.
-    foreach ($crop_properties as $property => $value) {
-      $crop_element = &$element['crop_preview_wrapper'][$crop_type_id][$element_wrapper_name]['values'][$property];
-      $value_property = self::getCropFormPropertyValue($element, $crop_type_id, $edit, $value['value'], $property);
-      $crop_element = [
-        '#type' => 'hidden',
-        '#attributes' => [
-          'class' => ["crop-$property"]
-        ],
-        '#value' => $value_property,
-      ];
-    }
+  public static function getCropFormElement(array &$element, array $thumb_properties, $edit, $crop_type) {
+    if ($crop_type != 'crop_help') {
+      $crop_properties = self::getCropFormProperties($thumb_properties, $edit);
+      // Generate all cordinates elements into the form when,
+      // process is active.
+      foreach ($crop_properties as $property => $value) {
+        $crop_element = &$element['crop_preview_wrapper']['container'][$crop_type]['values'][$property];
+        $value_property = self::getCropFormPropertyValue($element, $crop_type, $edit, $value['value'], $property);
+        $crop_element = [
+          '#type' => 'hidden',
+          '#attributes' => [
+            'class' => ["crop-$property"]
+          ],
+          '#value' => $value_property,
+        ];
+      }
 
-    return $element;
+      return $element;
+    }
+    return NULL;
   }
 
   /**
@@ -408,7 +406,7 @@ class ImageCropWidget extends ImageWidget {
   /**
    * Calculate properties of thumbnail preview.
    *
-   * @param Image $image
+   * @param \Drupal\Core\Image\Image $image
    *   Image object to represent uploaded image file.
    * @param array $original_crop
    *   All properties returned by the crop plugin (js),
@@ -417,31 +415,61 @@ class ImageCropWidget extends ImageWidget {
    *   An array of values for the contained properties of image_crop widget.
    *
    * @return array<double>
-   *   All properties (x, y, crop height, crop width,
+   *   All properties (x1, x2, y1, y2, crop height, crop width,
    *   thumbnail height, thumbnail width), to apply the real crop
    *   into thumbnail preview.
    */
-  public static function getThumbnailCropProperties(Image $image, array $original_crop, $preview = 'crop_thumbnail') {
+  public static function getThumbnailCropProperties($image, array $original_crop, $preview = 'crop_thumbnail') {
     $crop_thumbnail = [];
 
-    $thumbnail_properties = ImageWidgetCrop::getThumbnailCalculatedProperties($image, $preview);
-    if (!isset($thumbnail_properties) || empty($thumbnail_properties)) {
-      throw new \RuntimeException('Impossible to retrives thumbnail properties');
+    $image_styles = \Drupal::service('entity.manager')
+      ->getStorage('image_style')
+      ->loadByProperties(['status' => TRUE, 'name' => $preview]);
+
+    // Verify the configuration of ImageStyle and get the data width.
+    /** @var \Drupal\image\Entity\ImageStyle $image_style */
+    $image_style = $image_styles[$preview];
+    $effect = $image_style->getEffects()->getConfiguration();
+
+    $width = $image->getWidth();
+    $height = $image->getHeight();
+
+    // Get max Width of this imageStyle.
+    $thumbnail_width = $effect[array_keys($effect)[0]]['data']['width'];
+
+    if (!isset($thumbnail_width) || !is_int($thumbnail_width)) {
+      throw new \RuntimeException('Your crop preview ImageStyle not have "width", add it to have an correct preview.');
     }
 
-    $delta = $thumbnail_properties['delta'];
+    // Special case when the width of image is less,
+    // than maximum width of thumbnail.
+    if ($thumbnail_width > $width) {
+      $thumbnail_width = $width;
+    }
+
+    // Calculate Thumbnail height
+    // (Original Height x Thumbnail Width / Original Width = Thumbnail Height).
+    $thumbnail_height = round(($height * $thumbnail_width) / $width);
+
+    // Get the delta between Original Height divide by Thumbnail Height.
+    $delta = number_format($height / $thumbnail_height, 2, '.', '');
 
     // Get the Crop selection Size (into Uploaded image) &,
     // calculate selection for Thumbnail.
-    $crop_thumbnail['height'] = round($original_crop['size']['height'] / $delta);
-    $crop_thumbnail['width'] = round($original_crop['size']['width'] / $delta);
+    $crop_thumbnail['crop-h'] = round($original_crop['size']['height'] / $delta);
+    $crop_thumbnail['crop-w'] = round($original_crop['size']['width'] / $delta);
 
     // Calculate the Top-Left corner for Thumbnail.
+    $crop_thumbnail['x1'] = round($original_crop['anchor']['x'] / $delta);
+    $crop_thumbnail['y1'] = round($original_crop['anchor']['y'] / $delta);
+
+    // Calculate the Bottom-right position for Thumbnail.
+    $crop_thumbnail['x2'] = $crop_thumbnail['x1'] + $crop_thumbnail['crop-w'];
+    $crop_thumbnail['y2'] = $crop_thumbnail['y1'] + $crop_thumbnail['crop-h'];
+
     // Get the real thumbnail sizes.
-    $crop_thumbnail['thumb-w'] = $thumbnail_properties['thumbnail_width'];
-    $crop_thumbnail['thumb-h'] = $thumbnail_properties['thumbnail_height'];
-    $crop_thumbnail['x'] = round($original_crop['anchor']['x'] / $delta);
-    $crop_thumbnail['y'] = round($original_crop['anchor']['y'] / $delta);
+    $crop_thumbnail['thumb-w'] = $thumbnail_width;
+    $crop_thumbnail['thumb-h'] = $thumbnail_height;
 
     return $crop_thumbnail;
   }
@@ -550,6 +578,14 @@ class ImageCropWidget extends ImageWidget {
       '#weight' => 16,
     ];
 
+    $element['crop_help_text'] = [
+      '#title' => t('Crop default help text'),
+      '#type' => 'textfield',
+      '#default_value' => $this->getSetting('crop_help_text'),
+      '#description' => t('Help text in the form for first slide after upload an image to crop.'),
+      '#weight' => 16,
+    ];
+
     $element['show_crop_area'] = [
       '#title' => t('Always expand crop area'),
       '#type' => 'checkbox',
@@ -577,6 +613,7 @@ class ImageCropWidget extends ImageWidget {
     $image_style_setting = $image_styles[$this->getSetting('preview_image_style')];
     $crop_preview = $image_styles[$this->getSetting('crop_preview_image_style')];
     $crop_list = $this->getSetting('crop_list');
+    $crop_help_text = $this->getSetting('crop_help_text');
     $crop_show_button = $this->getSetting('show_crop_area');
 
     $preview[] = t('Always expand crop area: @bool', ['@bool' => ($crop_show_button) ? 'Yes' : 'No']);
@@ -596,6 +633,10 @@ class ImageCropWidget extends ImageWidget {
       $preview[] = t('Crop Type used: @list', ['@list' => implode(", ", $crop_list)]);
     }
 
+    if (!empty($crop_help_text)) {
+      $preview[] = t('Default help text: @text', ['@text' => $crop_help_text]);
+    }
+
     return $preview;
   }
 
@@ -613,6 +654,7 @@ class ImageCropWidget extends ImageWidget {
     $element['#crop_list'] = $this->getSetting('crop_list');
     $element['#crop_preview_image_style'] = $this->getSetting('crop_preview_image_style');
     $element['#crop_types_list'] = $this->cropTypeStorage->loadMultiple();
+    $element['#crop_help_text'] = $this->getSetting('crop_help_text');
     $element['#upload_location'] = $config->get('settings.crop_upload_location');
     $element['#show_crop_area'] = $this->getSetting('show_crop_area');
 

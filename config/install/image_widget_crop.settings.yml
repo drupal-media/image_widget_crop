@@ -1,4 +1,2 @@
 settings:
   crop_upload_location: 'public://crop/pictures/'
-  library_url: 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.1.0/cropper.min.js'
-  css_url: 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.1.0/cropper.min.css'
