@@ -286,8 +286,6 @@ class ImageCropWidget extends ImageWidget {
       'y' => ['label' => t('Y coordinate'), 'value' => NULL],
       'width' => ['label' => t('Width'), 'value' => NULL],
       'height' => ['label' => t('Height'), 'value' => NULL],
-      'thumb-w' => ['label' => t('Thumbnail Width'), 'value' => NULL],
-      'thumb-h' => ['label' => t('Thumbnail Height'), 'value' => NULL],
     ];
   }
 
@@ -437,9 +435,6 @@ class ImageCropWidget extends ImageWidget {
     $crop_thumbnail['width'] = round($original_crop['size']['width'] / $delta);
 
     // Calculate the Top-Left corner for Thumbnail.
-    // Get the real thumbnail sizes.
-    $crop_thumbnail['thumb-w'] = $thumbnail_properties['thumbnail_width'];
-    $crop_thumbnail['thumb-h'] = $thumbnail_properties['thumbnail_height'];
     $crop_thumbnail['x'] = round($original_crop['anchor']['x'] / $delta);
     $crop_thumbnail['y'] = round($original_crop['anchor']['y'] / $delta);
 
