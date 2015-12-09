@@ -122,13 +122,11 @@
   Drupal.imageWidgetCrop.updateSingleCropSummary = function ($element) {
     var $values = $element.siblings(cropperValuesSelector);
     var croppingApplied = parseInt($values.find('.crop-applied').val());
-    var summaryText = Drupal.t('No cropping applied');
-    if (croppingApplied) {
-      summaryText = Drupal.t('Cropping applied');
-    }
 
     $element.closest('details').drupalSetSummary(function (context) {
-      return summaryText;
+      if (croppingApplied) {
+        return Drupal.t('Cropping applied');
+      }
     });
   };
 
