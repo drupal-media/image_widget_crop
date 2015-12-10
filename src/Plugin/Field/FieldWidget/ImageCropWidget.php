@@ -15,7 +15,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Image\Image;
 use Drupal\Core\Render\ElementInfoManagerInterface;
 use Drupal\image\Plugin\Field\FieldWidget\ImageWidget;
-use Drupal\image_widget_crop\ImageWidgetCrop;
+use Drupal\image_widget_crop\ImageWidgetCropManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\crop\Entity\CropType;
 
@@ -33,9 +33,9 @@ use Drupal\crop\Entity\CropType;
 class ImageCropWidget extends ImageWidget {
 
   /**
-   * Instance of API ImageWidgetCrop.
+   * Instance of API ImageWidgetCropManager.
    *
-   * @var \Drupal\image_widget_crop\ImageWidgetCrop
+   * @var \Drupal\image_widget_crop\ImageWidgetCropManager
    */
   protected $imageWidgetCrop;
 
@@ -68,7 +68,7 @@ class ImageCropWidget extends ImageWidget {
   /**
    * {@inheritdoc}
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, ElementInfoManagerInterface $element_info, ImageWidgetCrop $image_widget_crop, ConfigEntityStorage $image_style_storage, ConfigEntityStorage $crop_type_storage, ConfigFactoryInterface $config_factory) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, ElementInfoManagerInterface $element_info, ImageWidgetCropManager $image_widget_crop, ConfigEntityStorage $image_style_storage, ConfigEntityStorage $crop_type_storage, ConfigFactoryInterface $config_factory) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings, $element_info);
     $this->imageWidgetCrop = $image_widget_crop;
     $this->imageStyleStorage = $image_style_storage;
@@ -286,6 +286,8 @@ class ImageCropWidget extends ImageWidget {
       'y' => ['label' => t('Y coordinate'), 'value' => NULL],
       'width' => ['label' => t('Width'), 'value' => NULL],
       'height' => ['label' => t('Height'), 'value' => NULL],
+      'thumb-w' => ['label' => t('Thumbnail Width'), 'value' => NULL],
+      'thumb-h' => ['label' => t('Thumbnail Height'), 'value' => NULL],
     ];
   }
 
@@ -422,7 +424,7 @@ class ImageCropWidget extends ImageWidget {
   public static function getThumbnailCropProperties(Image $image, array $original_crop, $preview = 'crop_thumbnail') {
     $crop_thumbnail = [];
 
-    $thumbnail_properties = ImageWidgetCrop::getThumbnailCalculatedProperties($image, $preview);
+    $thumbnail_properties = ImageWidgetCropManager::getThumbnailCalculatedProperties($image, $preview);
     if (!isset($thumbnail_properties) || empty($thumbnail_properties)) {
       throw new \RuntimeException('Impossible to retrives thumbnail properties');
     }
@@ -435,6 +437,9 @@ class ImageCropWidget extends ImageWidget {
     $crop_thumbnail['width'] = round($original_crop['size']['width'] / $delta);
 
     // Calculate the Top-Left corner for Thumbnail.
+    // Get the real thumbnail sizes.
+    $crop_thumbnail['thumb-w'] = $thumbnail_properties['thumbnail_width'];
+    $crop_thumbnail['thumb-h'] = $thumbnail_properties['thumbnail_height'];
     $crop_thumbnail['x'] = round($original_crop['anchor']['x'] / $delta);
     $crop_thumbnail['y'] = round($original_crop['anchor']['y'] / $delta);
 

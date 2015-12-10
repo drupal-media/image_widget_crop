@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains of \Drupal\image_widget_crop\ImageWidgetCrop.
+ * Contains of \Drupal\image_widget_crop\ImageWidgetCropManager.
  */
 
 namespace Drupal\image_widget_crop;
@@ -12,12 +12,11 @@ use Drupal\Core\Image\Image;
 use Drupal\crop\Entity\Crop;
 use Drupal\crop\Entity\CropType;
 use Drupal\image\Entity\ImageStyle;
-use Drupal\image_widget_crop\Plugin\Field\FieldWidget\ImageCropWidget;
 
 /**
- * ImageWidgetCrop calculation class.
+ * ImageWidgetCropManager calculation class.
  */
-class ImageWidgetCrop {
+class ImageWidgetCropManager {
 
   /**
    * The crop storage.
@@ -41,7 +40,7 @@ class ImageWidgetCrop {
   protected $fileStorage;
 
   /**
-   * Constructs a ImageWidgetCrop.
+   * Constructs a ImageWidgetCropManager.
    *
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    *   The entity manager.
