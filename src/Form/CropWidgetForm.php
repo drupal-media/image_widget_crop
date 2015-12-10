@@ -7,6 +7,7 @@
 
 namespace Drupal\image_widget_crop\Form;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\ConfigFormBase;
@@ -154,6 +155,11 @@ class CropWidgetForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
+
+    // We need to rebuild the library cache if we switch from remote to local
+    // library or vice-versa.
+    Cache::invalidateTags(['library_info']);
+
     foreach (['crop_upload_location'] as $form_element_name) {
       $value = $form_state->getValue($form_element_name);
       $this->settings->set("settings.$form_element_name", $value);
