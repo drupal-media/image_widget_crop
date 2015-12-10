@@ -110,7 +110,7 @@ class ImageWidgetCrop {
 
       $this->updateCropProperties($crop, $crop_properties);
       $this->imageStylesOperations($image_styles, $field_value['file-uri']);
-      drupal_set_message(t('The crop "@cropType" are successfully updated for image "@filename"', ['@cropType' => $crop_type->label(), '@filename' => $this->fileStorage->load($field_value['file-id'])->getFilename()]));
+      drupal_set_message(t('The crop "@cropType" were successfully updated for image "@filename".', ['@cropType' => $crop_type->label(), '@filename' => $this->fileStorage->load($field_value['file-id'])->getFilename()]));
     }
   }
 
@@ -151,7 +151,7 @@ class ImageWidgetCrop {
     $this->imageStylesOperations($image_styles, $field_value['file-uri'], TRUE);
 
     if ($notify) {
-      drupal_set_message(t('The crop "@cropType" are successfully added for image "@filename"', ['@cropType' => $crop_type->label(), '@filename' => $this->fileStorage->load($field_value['file-id'])->getFilename()]));
+      drupal_set_message(t('The crop "@cropType" was successfully added for image "@filename".', ['@cropType' => $crop_type->label(), '@filename' => $this->fileStorage->load($field_value['file-id'])->getFilename()]));
     }
   }
 
@@ -173,7 +173,7 @@ class ImageWidgetCrop {
     ]);
     $this->cropStorage->delete($crop);
     $this->imageStylesOperations($image_styles, $file_uri);
-    drupal_set_message(t('The crop "@cropType" are successfully delete for image "@filename"', [
+    drupal_set_message(t('The crop "@cropType" was successfully deleted for image "@filename".', [
       '@cropType' => $crop_type->label(),
       '@filename' => $this->fileStorage->load($file_id)->getFilename()
     ]));
@@ -212,7 +212,7 @@ class ImageWidgetCrop {
     /** @var \Drupal\Core\Image\Image $image */
     $image = \Drupal::service('image.factory')->get($field_values['file-uri']);
     if (!$image->isValid()) {
-      throw new \RuntimeException('This image file is nos valid');
+      throw new \RuntimeException('This image file is nos valid.');
     }
     $delta = $this->getThumbnailCalculatedProperties($image)['delta'];
 
