@@ -13,5 +13,5 @@ description: ''
 type: image
 type_configuration:
   source_field: field_image_crop
-  gather_exif: '0'
+  gather_exif: false
 field_map: {  }

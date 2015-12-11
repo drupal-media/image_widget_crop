@@ -14,11 +14,30 @@ field.widget.settings.image_widget_crop:
       type: string
       label: 'Preview crop image style'
     crop_list:
-      type: mapping
+      type: sequence
       label: 'The preview image will be cropped'
+      sequence:
+        type: string
     crop_help_text:
       type: string
       label: 'Default help text slide'
     show_crop_area:
       type: boolean
       label: 'Always expand crop area'
+
+image_widget_crop.settings:
+  type: config_object
+  label: 'Image widget crop settings'
+  mapping:
+    settings:
+      type: mapping
+      mapping:
+        crop_upload_location:
+          type: string
+          lable: 'Crop upload location'
+        library_url:
+          type: string
+          label: 'Library URL'
+        css_url:
+          type: string
+          label: 'CSS URL'

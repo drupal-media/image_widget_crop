@@ -15,6 +15,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Image\Image;
 use Drupal\Core\Render\ElementInfoManagerInterface;
 use Drupal\image\Plugin\Field\FieldWidget\ImageWidget;
+use Drupal\image_widget_crop\ImageWidgetCrop;
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 use Drupal\image_widget_crop\ImageWidgetCropManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\crop\Entity\CropType;
@@ -168,8 +171,25 @@ class ImageCropWidget extends ImageWidget {
         '#type' => 'details',
         '#title' => t('Crop image'),
         '#attributes' => ['class' => ['crop-wrapper']],
-        '#weight' => 100
+        '#weight' => 100,
       ];
+
+      // Warn the user if the crop is used more than once.
+      $usage_counter = 0;
+      $file_usage = \Drupal::service('file.usage')->listUsage($file);
+      foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($file_usage)) as $usage) {
+        $usage_counter += (int) $usage;
+      }
+      if ($usage_counter > 1) {
+        $element['crop_reuse'] = [
+          '#type' => 'container',
+          '#markup' => t('This crop definition affects more usages of this image'),
+          '#attributes' => [
+            'class' => ['messages messages--warning'],
+          ],
+          '#weight' => -10,
+        ];
+      }
 
       $container = &$element['crop_preview_wrapper'];
       $container[$list_id] = [
