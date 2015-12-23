@@ -322,11 +322,11 @@ class ImageCropWidget extends ImageWidget {
    */
   public static function getCropProperties(array $crops) {
     $crop_properties = [];
-    /** @var \Drupal\crop\Entity\Crop $crop_entity */
-    foreach ($crops as $crop_entity) {
+    /** @var \Drupal\crop\Entity\Crop $crop */
+    foreach ($crops as $crop) {
       $crop_properties = [
-        'anchor' => $crop_entity->anchor(),
-        'size' => $crop_entity->size()
+        'anchor' => $crop->anchor(),
+        'size' => $crop->size()
       ];
     }
 
@@ -360,9 +360,9 @@ class ImageCropWidget extends ImageWidget {
    * Inject crop elements into the form widget.
    *
    * @param array $element
-   *   All form elements without crop properties.
+   *   All form elements of widget.
    * @param string $element_wrapper_name
-   *   Name of element contains values properties.
+   *   Name of element contains all crop properties.
    * @param array $thumb_properties
    *   All properties calculate for apply to,
    *   thumbnail image in UI.

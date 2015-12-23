@@ -43,8 +43,8 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
       // If current field is FileField and use imageWidgetCrop.
       if ($entity_fields instanceof FileFieldItemList && isset($entity_fields->crop_preview_wrapper)) {
 
-        /** @var \Drupal\image_widget_crop\ImageWidgetCropManager $crop */
-        $crop = \Drupal::service('image_widget_crop.manager');
+        /** @var \Drupal\image_widget_crop\ImageWidgetCropManager $image_widget_crop_manager */
+        $image_widget_crop_manager = \Drupal::service('image_widget_crop.manager');
 
         /* First loop to get each elements independently in the field values.
         Required if the image field cardinality > 1. */
@@ -74,21 +74,21 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
                   return;
                 }
 
-                $crop->applyCrop($properties['values'], $crop_element, $crop_type[$crop_type_name]);
+                $image_widget_crop_manager->applyCrop($properties['values'], $crop_element, $crop_type[$crop_type_name]);
               }
             }
             else {
               // Get all imagesStyle used this crop_type.
-              $image_styles = $crop->getImageStylesByCrop($crop_type_name);
-              $crops = $crop->loadImageStyleByCrop($image_styles, $crop_type[$crop_type_name], $crop_element['file-uri']);
+              $image_styles = $image_widget_crop_manager->getImageStylesByCrop($crop_type_name);
+              $crops = $image_widget_crop_manager->loadImageStyleByCrop($image_styles, $crop_type[$crop_type_name], $crop_element['file-uri']);
               // If the entity already exist & is not deleted by,
               // user update $crop_type_name crop entity.
               // If you need to delete existing crop when you edit this entity.
               if ($properties['values']['crop_applied'] == '0' && !empty($crops)) {
-                $crop->deleteCrop($crop_element['file-uri'], $crop_type[$crop_type_name], $crop_element['file-id']);
+                $image_widget_crop_manager->deleteCrop($crop_element['file-uri'], $crop_type[$crop_type_name], $crop_element['file-id']);
               }
               elseif (isset($properties['values']) && (!empty($properties['values']['width']) && !empty($properties['values']['height']))) {
-                $crop->updateCrop($properties['values'], $crop_element, $crop_type[$crop_type_name]);
+                $image_widget_crop_manager->updateCrop($properties['values'], $crop_element, $crop_type[$crop_type_name]);
               }
             }
           }
@@ -96,24 +96,6 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
       }
     }
   }
-}
-
-/**
- * Implements hook_css_alter().
- */
-function image_widget_crop_css_alter(&$css) {
-  // Add FontAwesome.
-  $fontawesome = '//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.min.css';
-  $css[$fontawesome] = [
-    'data' => $fontawesome,
-    'type' => 'external',
-    'every_page' => TRUE,
-    'media' => 'all',
-    'preprocess' => FALSE,
-    'group' => CSS_AGGREGATE_THEME,
-    'browsers' => ['IE' => TRUE, '!IE' => TRUE],
-    'weight' => -2,
-  ];
 }
 
 /**
@@ -154,7 +136,7 @@ function image_widget_crop_library_info_alter(&$libraries, $extension) {
   $config = \Drupal::config('image_widget_crop.settings');
   if (!\Drupal::moduleHandler()->moduleExists('libraries') && !$config->get('settings.library_url') && !$config->get('settings.css_url')
   ) {
-    $libraries['cropper.integration']['js'] = array();
+    $libraries['cropper.integration']['js'] = [];
   }
 
   // Get the correct path of the Cropper js file (the user needs to manually
@@ -162,16 +144,16 @@ function image_widget_crop_library_info_alter(&$libraries, $extension) {
   // in the settings).
   if ($library_url = $config->get('settings.library_url')) {
     // Cloud hosted library, use external JavaScript.
-    $libraries['cropper']['js'][$library_url] = array(
+    $libraries['cropper']['js'][$library_url] = [
       'type' => 'external',
       'minified' => TRUE,
-    );
+    ];
   }
   elseif (\Drupal::moduleHandler()->moduleExists('libraries')) {
     $info = libraries_detect('cropper');
-    $libraries['cropper'] += array(
+    $libraries['cropper'] += [
       'version' => $info['installed'] ? $info['version'] : 'web-hosted',
-    );
+    ];
     if ($info['installed']) {
       // Because the library is self hosted, use files from library definition.
       if (!empty($info['files']['js'])) {
@@ -193,16 +175,16 @@ function image_widget_crop_library_info_alter(&$libraries, $extension) {
   // Add the local CSS to the libraries.
   if ($css_url = $config->get('settings.css_url')) {
     // Cloud hosted library, use external CSS.
-    $libraries['cropper']['css']['component'][$css_url] = array(
+    $libraries['cropper']['css']['component'][$css_url] = [
       'type' => 'external',
       'minified' => TRUE,
-    );
+    ];
   }
   elseif (\Drupal::moduleHandler()->moduleExists('libraries')) {
     $info = libraries_detect('cropper');
-    $libraries['cropper'] += array(
+    $libraries['cropper'] += [
       'version' => $info['installed'] ? $info['version'] : 'web-hosted',
-    );
+    ];
     if ($info['installed']) {
       // Because the library is self hosted, use files from library definition.
       if (!empty($info['files']['css'])) {

@@ -78,7 +78,7 @@ class ImageWidgetCropManager {
    *   All properties returned by the crop plugin (js),
    *   and the size of thumbnail image.
    * @param array|mixed $field_value
-   *   An array of values for the contained properties of image_crop widget.
+   *   An array of values contain properties of image_crop widget.
    * @param CropType $crop_type
    *   The entity CropType.
    */
@@ -213,6 +213,7 @@ class ImageWidgetCropManager {
     if (!$image->isValid()) {
       throw new \RuntimeException('This image file is nos valid.');
     }
+
     $delta = $this->getThumbnailCalculatedProperties($image)['delta'];
 
     // Get Center coordinate of crop zone.
@@ -302,6 +303,56 @@ class ImageWidgetCropManager {
   }
 
   /**
+   * Calculates the delta between the original image and the thumbnail use UI.
+   *
+   * @param Image $image
+   *   Image object to represent uploaded image file.
+   * @param string $preview
+   *   An array of values for the contained properties of image_crop widget.
+   *
+   * @return array<double>
+   *   The calculated properties between the original image and the thumbnail.
+   */
+  public static function getThumbnailCalculatedProperties(Image $image, $preview = 'crop_thumbnail') {
+    $image_styles = \Drupal::service('entity.manager')
+      ->getStorage('image_style')
+      ->loadByProperties(['status' => TRUE, 'name' => $preview]);
+
+    // Verify the configuration of ImageStyle and get the data width.
+    /** @var \Drupal\image\Entity\ImageStyle $image_style */
+    $image_style = $image_styles[$preview];
+    $effect = $image_style->getEffects()->getConfiguration();
+
+    $width = $image->getWidth();
+    $height = $image->getHeight();
+
+    // Get max Width of this imageStyle.
+    $thumbnail_width = $effect[array_keys($effect)[0]]['data']['width'];
+
+    if (!isset($thumbnail_width) || !is_int($thumbnail_width)) {
+      throw new \RuntimeException('Your crop preview ImageStyle not have "width", add it to have an correct preview.');
+    }
+
+    // Special case when the width of image is less,
+    // than maximum width of thumbnail.
+    if ($thumbnail_width > $width) {
+      $thumbnail_width = $width;
+    }
+
+    // Calculate Thumbnail height
+    // (Original Height x Thumbnail Width / Original Width = Thumbnail Height).
+    $thumbnail_height = round(($height * $thumbnail_width) / $width);
+
+    // Get the delta between Original Height divide by Thumbnail Height.
+    return [
+      'delta' => number_format($height / $thumbnail_height, 2, '.', ''),
+      'thumbnail_width' => $thumbnail_width,
+      'thumbnail_height' => $thumbnail_height
+    ];
+  }
+
+
+  /**
    * Apply different operation on ImageStyles.
    *
    * @param array $image_styles
@@ -367,55 +418,6 @@ class ImageWidgetCropManager {
     }
 
     return $crops;
-  }
-
-  /**
-   * Calculates the delta between the original image and the thumbnail use UI.
-   *
-   * @param Image $image
-   *   Image object to represent uploaded image file.
-   * @param string $preview
-   *   An array of values for the contained properties of image_crop widget.
-   *
-   * @return array<double>
-   *   The calculated properties between the original image and the thumbnail.
-   */
-  public static function getThumbnailCalculatedProperties(Image $image, $preview = 'crop_thumbnail') {
-    $image_styles = \Drupal::service('entity.manager')
-      ->getStorage('image_style')
-      ->loadByProperties(['status' => TRUE, 'name' => $preview]);
-
-    // Verify the configuration of ImageStyle and get the data width.
-    /** @var \Drupal\image\Entity\ImageStyle $image_style */
-    $image_style = $image_styles[$preview];
-    $effect = $image_style->getEffects()->getConfiguration();
-
-    $width = $image->getWidth();
-    $height = $image->getHeight();
-
-    // Get max Width of this imageStyle.
-    $thumbnail_width = $effect[array_keys($effect)[0]]['data']['width'];
-
-    if (!isset($thumbnail_width) || !is_int($thumbnail_width)) {
-      throw new \RuntimeException('Your crop preview ImageStyle not have "width", add it to have an correct preview.');
-    }
-
-    // Special case when the width of image is less,
-    // than maximum width of thumbnail.
-    if ($thumbnail_width > $width) {
-      $thumbnail_width = $width;
-    }
-
-    // Calculate Thumbnail height
-    // (Original Height x Thumbnail Width / Original Width = Thumbnail Height).
-    $thumbnail_height = round(($height * $thumbnail_width) / $width);
-
-    // Get the delta between Original Height divide by Thumbnail Height.
-    return [
-      'delta' => number_format($height / $thumbnail_height, 2, '.', ''),
-      'thumbnail_width' => $thumbnail_width,
-      'thumbnail_height' => $thumbnail_height
-    ];
   }
 
   /**
