@@ -32,9 +32,6 @@ image_widget_crop.settings:
     settings:
       type: mapping
       mapping:
-        crop_upload_location:
-          type: string
-          lable: 'Crop upload location'
         library_url:
           type: string
           label: 'Library URL'

@@ -626,14 +626,10 @@ class ImageCropWidget extends ImageWidget {
    *   The form elements for a single widget for this field.
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    /** @var \Drupal\Core\Config\ImmutableConfig $config */
-    $config = $this->configFactory->get('image_widget_crop.settings');
-
     // Add properties needed by process() method.
     $element['#crop_list'] = $this->getSetting('crop_list');
     $element['#crop_preview_image_style'] = $this->getSetting('crop_preview_image_style');
     $element['#crop_types_list'] = $this->cropTypeStorage->loadMultiple();
-    $element['#upload_location'] = $config->get('settings.crop_upload_location');
     $element['#show_crop_area'] = $this->getSetting('show_crop_area');
 
     return parent::formElement($items, $delta, $element, $form, $form_state);
