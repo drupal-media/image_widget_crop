@@ -436,7 +436,10 @@ class ImageWidgetCropManager {
    *   Return true if properties is not identical.
    */
   public function cropHasChanged(array $crop_properties, array $old_crop) {
-    return !empty(array_diff_assoc($crop_properties, $old_crop)) ? TRUE : FALSE;
+    if (!empty(array_diff_assoc($crop_properties, $old_crop))) {
+      return TRUE;
+    }
+    return FALSE;
   }
 
 }

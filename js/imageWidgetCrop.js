@@ -36,8 +36,7 @@
   /**
    * Initialize cropper on the ImageWidgetCrop widget.
    *
-   * @param context
-   *   Element to initialize cropper on.
+   * @param {Object} context - Element to initialize cropper on.
    */
   Drupal.imageWidgetCrop.initialize = function (context) {
     var $cropWrapper = $(cropWrapperSelector, context);
@@ -73,10 +72,8 @@
   /**
    * Initialize cropper on an element.
    *
-   * @param $element
-   *   Element to initialize cropper on.
-   * @param ratio
-   *   The ratio of the image
+   * @param {Object} $element - Element to initialize cropper on.
+   * @param {string} ratio - The ratio of the image.
    */
   Drupal.imageWidgetCrop.initializeCropper = function ($element, ratio) {
     var data = null;
@@ -105,8 +102,7 @@
   /**
    * Initialize cropper on all children of an element.
    *
-   * @param $element
-   *   Element to initialize cropper on its children.
+   * @param {Object} $element - Element to initialize cropper on its children.
    */
   Drupal.imageWidgetCrop.initializeCropperOnChildren = function ($element) {
     var visibleCropper = $element.find(cropperSelector + ':visible');
@@ -116,8 +112,7 @@
   /**
    * Update single crop summary of an element.
    *
-   * @param $element
-   *   The element cropping on which has been changed
+   * @param {Object} $element - The element cropping on which has been changed.
    */
   Drupal.imageWidgetCrop.updateSingleCropSummary = function ($element) {
     var $values = $element.siblings(cropperValuesSelector);
@@ -133,8 +128,7 @@
   /**
    * Update common crop summary of an element.
    *
-   * @param $element
-   *   The element cropping on which has been changed
+   * @param {Object} $element - The element cropping on which has been changed.
    */
   Drupal.imageWidgetCrop.updateCommonCropSummary = function ($element) {
     var croppingApplied = parseInt($element.find('.crop-applied[value="1"]').length);
@@ -148,8 +142,7 @@
   /**
    * Update crop summaries after cropping cas been set or reset.
    *
-   * @param $element
-   *   The element cropping on which has been changed
+   * @param {Object} $element - The element cropping on which has been changed.
    */
   Drupal.imageWidgetCrop.updateCropSummaries = function ($element) {
     var $cropWrapper = $(cropWrapperSelector);
@@ -174,8 +167,7 @@
   /**
    * Reset cropping for an element.
    *
-   * @param $element
-   *   The element to reset cropping on.
+   * @param {Object} $element - The element to reset cropping on.
    */
   Drupal.imageWidgetCrop.reset = function ($element) {
     var $values = $element.siblings(cropperValuesSelector);

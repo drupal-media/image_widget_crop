@@ -256,7 +256,8 @@ class ImageCropWidget extends ImageWidget {
             ];
 
             if ($edit && !empty($crop_storage)) {
-              // Get Only first crop entity @see https://www.drupal.org/node/2617818.
+              // Get Only first crop entity,
+              // @see https://www.drupal.org/node/2617818.
               /** @var \Drupal\crop\Entity\Crop $crop */
               $crop = current($crop_storage->loadByProperties(['type' => $crop_type_id, 'uri' => $variables['uri']]));
 
