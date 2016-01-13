@@ -15,7 +15,7 @@ Configuration
 -------------
 
 * Create a Crop Type (`admin/structure/crop`)
-* Create ImageStyles 
+* Create ImageStyles  
     * add Manual crop effect, using your Crop Type,
       (to apply your crop selection).
 * Create an Image field.
