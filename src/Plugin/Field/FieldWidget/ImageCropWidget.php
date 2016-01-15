@@ -549,28 +549,28 @@ class ImageCropWidget extends ImageWidget {
     $element = parent::settingsForm($form, $form_state);
 
     $element['crop_preview_image_style'] = [
-      '#title' => t('Crop preview image style'),
+      '#title' => $this->t('Crop preview image style'),
       '#type' => 'select',
       '#options' => $this->getAvailableCropImageStyle(image_style_options(FALSE)),
       '#default_value' => $this->getSetting('crop_preview_image_style'),
-      '#description' => t('The preview image will be shown while editing the content.'),
+      '#description' => $this->t('The preview image will be shown while editing the content.'),
       '#weight' => 15,
     ];
 
     $element['crop_list'] = [
-      '#title' => t('Crop Type'),
+      '#title' => $this->t('Crop Type'),
       '#type' => 'select',
       '#options' => $this->getAvailableCropType(CropType::getCropTypeNames()),
-      '#empty_option' => t('<@no-preview>', ['@no-preview' => t('no preview')]),
+      '#empty_option' => $this->t('<@no-preview>', ['@no-preview' => $this->t('no preview')]),
       '#default_value' => $this->getSetting('crop_list'),
       '#multiple' => TRUE,
       '#required' => TRUE,
-      '#description' => t('The type of crop to apply to your image. If your Crop Type not appear here, set an image style use your Crop Type'),
+      '#description' => $this->t('The type of crop to apply to your image. If your Crop Type not appear here, set an image style use your Crop Type'),
       '#weight' => 16,
     ];
 
     $element['show_crop_area'] = [
-      '#title' => t('Always expand crop area'),
+      '#title' => $this->t('Always expand crop area'),
       '#type' => 'checkbox',
       '#default_value' => $this->getSetting('show_crop_area'),
     ];
@@ -598,21 +598,21 @@ class ImageCropWidget extends ImageWidget {
     $crop_list = $this->getSetting('crop_list');
     $crop_show_button = $this->getSetting('show_crop_area');
 
-    $preview[] = t('Always expand crop area: @bool', ['@bool' => ($crop_show_button) ? 'Yes' : 'No']);
+    $preview[] = $this->t('Always expand crop area: @bool', ['@bool' => ($crop_show_button) ? 'Yes' : 'No']);
 
     if (isset($image_style_setting)) {
-      $preview[] = t('Preview image style: @style', ['@style' => $image_style_setting]);
+      $preview[] = $this->t('Preview image style: @style', ['@style' => $image_style_setting]);
     }
     else {
-      $preview[] = t('No preview image style');
+      $preview[] = $this->t('No preview image style');
     }
 
     if (isset($crop_preview)) {
-      $preview[] = t('Preview crop zone image style: @style', ['@style' => $crop_preview]);
+      $preview[] = $this->t('Preview crop zone image style: @style', ['@style' => $crop_preview]);
     }
 
     if (!empty($crop_list)) {
-      $preview[] = t('Crop Type used: @list', ['@list' => implode(", ", $crop_list)]);
+      $preview[] = $this->t('Crop Type used: @list', ['@list' => implode(", ", $crop_list)]);
     }
 
     return $preview;
