@@ -37,7 +37,7 @@ function image_widget_cropfield_widget_info_alter(array &$info) {
  * Implements hook_entity_presave().
  */
 function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
-  if (isset($entity) && method_exists($entity, 'getFields')) {
+  if (isset($entity) && $entity instanceof Drupal\Core\Entity\FieldableEntityInterface) {
     // Loop all fields of the saved entity.
     foreach ($entity->getFields() as $entity_fields) {
       // If current field is FileField and use imageWidgetCrop.
