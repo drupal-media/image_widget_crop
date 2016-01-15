@@ -7,7 +7,6 @@
 
 namespace Drupal\image_widget_crop;
 
-use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Image\Image;
 use Drupal\crop\Entity\Crop;
@@ -324,7 +323,7 @@ class ImageWidgetCropManager {
    *   The calculated properties between the original image and the thumbnail.
    */
   public static function getThumbnailCalculatedProperties(Image $image, $preview = 'crop_thumbnail') {
-    $image_styles = \Drupal::service('entity.manager')
+    $image_styles = \Drupal::service('entity_type.manager')
       ->getStorage('image_style')
       ->loadByProperties(['status' => TRUE, 'name' => $preview]);
 

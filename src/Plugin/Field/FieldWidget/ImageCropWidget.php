@@ -91,8 +91,8 @@ class ImageCropWidget extends ImageWidget {
       $configuration['third_party_settings'],
       $container->get('element_info'),
       $container->get('image_widget_crop.manager'),
-      $container->get('entity.manager')->getStorage('image_style'),
-      $container->get('entity.manager')->getStorage('crop_type'),
+      $container->get('entity_type.manager')->getStorage('image_style'),
+      $container->get('entity_type.manager')->getStorage('crop_type'),
       $container->get('config.factory')
     );
   }
@@ -147,7 +147,7 @@ class ImageCropWidget extends ImageWidget {
     if (isset($route_params['_entity_form']) && preg_match('/.edit/', $route_params['_entity_form'])) {
       $edit = TRUE;
       /** @var \Drupal\crop\CropStorage $crop_storage */
-      $crop_storage = \Drupal::service('entity.manager')->getStorage('crop');
+      $crop_storage = \Drupal::service('entity_type.manager')->getStorage('crop');
     }
 
     $element['#theme'] = 'image_widget';

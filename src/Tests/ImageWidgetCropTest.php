@@ -79,7 +79,7 @@ class ImageWidgetCropTest extends WebTestBase {
 
     /** @var \Drupal\file\FileUsage\FileUsageInterface $usage */
     $usage = \Drupal::service('file.usage');
-    $usage->add(\Drupal::service('entity.manager')->getStorage('file')->load(1), 'image_widget_crop', 'node', $node->id());
+    $usage->add(\Drupal::service('entity_type.manager')->getStorage('file')->load(1), 'image_widget_crop', 'node', $node->id());
 
     $this->drupalGet('node/1/edit');
 
