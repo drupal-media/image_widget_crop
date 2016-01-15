@@ -7,7 +7,8 @@
 
 namespace Drupal\image_widget_crop;
 
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Image\Image;
 use Drupal\crop\Entity\Crop;
 use Drupal\crop\Entity\CropType;
@@ -17,6 +18,13 @@ use Drupal\image\Entity\ImageStyle;
  * ImageWidgetCropManager calculation class.
  */
 class ImageWidgetCropManager {
+
+  /**
+   * The entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface;
+   */
+  protected $entityTypeManager;
 
   /**
    * The crop storage.
@@ -42,13 +50,14 @@ class ImageWidgetCropManager {
   /**
    * Constructs a ImageWidgetCropManager.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   Entity type manager service.
    */
-  public function __construct(EntityManagerInterface $entity_manager) {
-    $this->cropStorage = $entity_manager->getStorage('crop');
-    $this->imageStyleStorage = $entity_manager->getStorage('image_style');
-    $this->fileStorage = $entity_manager->getStorage('file');
+  public function __construct(EntityTypeManagerInterface $entity_type_manager) {
+    $this->entityTypeManager = $entity_type_manager;
+    $this->cropStorage = $this->entityTypeManager->getStorage('crop');
+    $this->imageStyleStorage = $this->entityTypeManager->getStorage('image_style');
+    $this->fileStorage = $this->entityTypeManager->getStorage('file');
   }
 
   /**
