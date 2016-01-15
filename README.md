@@ -9,7 +9,33 @@ under heavy development.
 Try me
 ------
 You can Test ImageWidgetCrop in action directly with the sub-module,
-"ImageWidgetCrop example" to test differents usecase of this module.
+"ImageWidgetCrop example" to test different usecases of this module.
+
+Installation
+------------
+1. Download and extract the module to your sites/all/modules/contrib folder.
+2. Enable the module on the Drupal Modules page (admin/modules) or using
+   $ drush en
+
+The module is currently using Cropper as a library to display the cropping widget.
+To properly configure it, do the following:
+
+* Local library:
+  1. Download the latest version of Cropper at
+     https://github.com/fengyuanchen/cropper.
+  2. Copy the dist folder into:
+     - /libraries/cropper or
+     - /sites/default/libraries/cropper or
+     - /sites/EXAMPLE/libraries/cropper or
+     - /sites/all/libraries/cropper
+  3. Enable the libraries module.
+
+* External library:
+  1. Set the external URL for the minified version of the library and CSS file in
+     Image Crop Widget settings (/admin/config/media/crop-widget), found at
+     https://cdnjs.com/libraries/cropper.
+
+ NOTE: The external library is set by default when you enable the module.
 
 Configuration
 -------------
