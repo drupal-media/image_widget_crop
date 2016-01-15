@@ -208,7 +208,6 @@ class ImageCropWidget extends ImageWidget {
           $label = $crop_type->label();
           if (in_array($crop_type_id, $element['#crop_list'])) {
             $thumb_properties = [];
-            // Add compatibility to PHP 5.3.
             $has_ratio = $crop_type->getAspectRatio();
             $ratio = !empty($has_ratio) ? $has_ratio : t('NaN');
             $ratio = str_replace(':', '/', $ratio);
