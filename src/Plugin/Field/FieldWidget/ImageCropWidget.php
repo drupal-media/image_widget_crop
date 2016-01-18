@@ -227,6 +227,7 @@ class ImageCropWidget extends ImageWidget {
               '#theme' => 'image_style',
               '#style_name' => $element['#crop_preview_image_style'],
               '#attributes' => [
+                  'class' => ['crop-preview-image'],
                   'data-ratio' => $ratio,
                   'data-name' => $crop_type_id,
                   'data-original-width' => $element['#default_value']['width'],

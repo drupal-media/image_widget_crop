@@ -6,7 +6,7 @@
 (function ($, Drupal, drupalSettings) {
   'use strict';
 
-  var cropperSelector = '.image-style-crop-thumbnail';
+  var cropperSelector = '.crop-preview-image';
   var cropperValuesSelector = '.crop-preview-wrapper-value';
   var cropWrapperSelector = '.crop-wrapper';
   var cropWrapperSummarySelector = 'summary';
