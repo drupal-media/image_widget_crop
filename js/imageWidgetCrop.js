@@ -22,10 +22,11 @@
       var $this = $(this);
       var $values = $this.siblings(cropperValuesSelector);
       var data = $this.cropper('getData');
-      $values.find('.crop-x').val(Math.round(data.x));
-      $values.find('.crop-y').val(Math.round(data.y));
-      $values.find('.crop-width').val(Math.round(data.width));
-      $values.find('.crop-height').val(Math.round(data.height));
+      var delta = $(cropperSelector).data('original-height') / $(cropperSelector).prop('naturalHeight');
+      $values.find('.crop-x').val(Math.round(data.x * delta));
+      $values.find('.crop-y').val(Math.round(data.y * delta));
+      $values.find('.crop-width').val(Math.round(data.width * delta));
+      $values.find('.crop-height').val(Math.round(data.height * delta));
       $values.find('.crop-applied').val(1);
       Drupal.imageWidgetCrop.updateCropSummaries($this);
     }
@@ -58,7 +59,8 @@
     $verticalTabsMenuItem.click(function () {
       var tabId = $(this).find('a').attr('href');
       var $cropper = $(tabId).find(cropperSelector);
-      Drupal.imageWidgetCrop.initializeCropper($cropper, $cropper.data('ratio'));
+      var ratio = Drupal.imageWidgetCrop.getRatio($cropper);
+      Drupal.imageWidgetCrop.initializeCropper($cropper, ratio);
     });
 
     $reset.on('click', function (e) {
@@ -70,22 +72,44 @@
   };
 
   /**
+   * Get ratio data and determine if an available ratio or free crop.
+   *
+   * @param {Object} $element - Element to initialize cropper on its children.
+   */
+  Drupal.imageWidgetCrop.getRatio = function ($element) {
+    var ratio = $element.data('ratio');
+    var regex = /:/;
+
+    if ((regex.exec(ratio)) !== null) {
+      var int = ratio.split(":");
+      if ($.isArray(int) && ($.isNumeric(int[0]) && $.isNumeric(int[1]))) {
+        return int[0] / int[1];
+      } else {
+        return "NaN";
+      }
+    } else {
+      return ratio;
+    }
+  };
+
+  /**
    * Initialize cropper on an element.
    *
    * @param {Object} $element - Element to initialize cropper on.
-   * @param {string} ratio - The ratio of the image.
+   * @param {number} ratio - The ratio of the image.
    */
   Drupal.imageWidgetCrop.initializeCropper = function ($element, ratio) {
     var data = null;
     var $values = $element.siblings(cropperValuesSelector);
     var options = cropperOptions;
+    var delta = $(cropperSelector).data('original-height') / $(cropperSelector).prop('naturalHeight');
 
     if (parseInt($values.find('.crop-applied').val()) === 1) {
       data = {
-        x: parseInt($values.find('.crop-x').val()),
-        y: parseInt($values.find('.crop-y').val()),
-        width: parseInt($values.find('.crop-width').val()),
-        height: parseInt($values.find('.crop-height').val()),
+        x: Math.round(parseInt($values.find('.crop-x').val()) / delta),
+        y: Math.round(parseInt($values.find('.crop-y').val()) / delta),
+        width: Math.round(parseInt($values.find('.crop-width').val()) / delta),
+        height: Math.round(parseInt($values.find('.crop-height').val()) / delta),
         rotate: 0,
         scaleX: 1,
         scaleY: 1
@@ -93,10 +117,9 @@
     }
 
     options.data = data;
-    // @TODO: eval() is evil.
-    options.aspectRatio = eval(ratio);
+    options.aspectRatio = ratio;
 
-    $element.cropper(cropperOptions);
+    $element.cropper(options);
   };
 
   /**
@@ -106,7 +129,8 @@
    */
   Drupal.imageWidgetCrop.initializeCropperOnChildren = function ($element) {
     var visibleCropper = $element.find(cropperSelector + ':visible');
-    Drupal.imageWidgetCrop.initializeCropper($(visibleCropper), $(visibleCropper).data('ratio'));
+    var ratio = Drupal.imageWidgetCrop.getRatio($(visibleCropper));
+    Drupal.imageWidgetCrop.initializeCropper($(visibleCropper), ratio);
   };
 
   /**

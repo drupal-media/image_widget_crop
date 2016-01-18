@@ -223,44 +223,19 @@ class ImageWidgetCropManager {
       throw new \RuntimeException('This image file is nos valid.');
     }
 
-    $delta = $this->getThumbnailCalculatedProperties($image)['delta'];
-
-    // Get Center coordinate of crop zone.
+    // Get Center coordinate of crop zone on original image.
     $axis_coordinate = $this->getAxisCoordinates(
       ['x' => $properties['x'], 'y' => $properties['y']],
       ['width' => $properties['width'], 'height' => $properties['height']]
     );
 
-    // Calculate coordinates (position & sizes) of crop zone.
-    $crop_coordinates = $this->getCoordinates([
-      'width' => $properties['width'],
-      'height' => $properties['height'],
-      'x' => $axis_coordinate['x'],
-      'y' => $axis_coordinate['y'],
-    ], $delta);
+    // Calculate coordinates (position & sizes) of crop zone on original image.
+    $crop_coordinates['width'] = $properties['width'];
+    $crop_coordinates['height'] = $properties['height'];
+    $crop_coordinates['x'] = $axis_coordinate['x'];
+    $crop_coordinates['y'] = $axis_coordinate['y'];
 
     return $crop_coordinates;
-  }
-
-  /**
-   * Calculate all coordinates for apply crop into original picture.
-   *
-   * @param array $properties
-   *   All properties returned by the crop plugin (js),
-   *   and the size of thumbnail image.
-   * @param int $delta
-   *   The calculated difference between original height and thumbnail height.
-   *
-   * @return array<double>
-   *   Coordinates (x & y or width & height) of crop.
-   */
-  public function getCoordinates(array $properties, $delta) {
-    $original_coordinates = [];
-    foreach ($properties as $key => $coordinate) {
-      $original_coordinates[$key] = round($coordinate * $delta);
-    }
-
-    return $original_coordinates;
   }
 
   /**
@@ -310,56 +285,6 @@ class ImageWidgetCropManager {
 
     return $styles;
   }
-
-  /**
-   * Calculates the delta between the original image and the thumbnail use UI.
-   *
-   * @param Image $image
-   *   Image object to represent uploaded image file.
-   * @param string $preview
-   *   An array of values for the contained properties of image_crop widget.
-   *
-   * @return array<double>
-   *   The calculated properties between the original image and the thumbnail.
-   */
-  public static function getThumbnailCalculatedProperties(Image $image, $preview = 'crop_thumbnail') {
-    $image_styles = \Drupal::service('entity_type.manager')
-      ->getStorage('image_style')
-      ->loadByProperties(['status' => TRUE, 'name' => $preview]);
-
-    // Verify the configuration of ImageStyle and get the data width.
-    /** @var \Drupal\image\Entity\ImageStyle $image_style */
-    $image_style = $image_styles[$preview];
-    $effect = $image_style->getEffects()->getConfiguration();
-
-    $width = $image->getWidth();
-    $height = $image->getHeight();
-
-    // Get max Width of this imageStyle.
-    $thumbnail_width = $effect[array_keys($effect)[0]]['data']['width'];
-
-    if (!isset($thumbnail_width) || !is_int($thumbnail_width)) {
-      throw new \RuntimeException('Your crop preview ImageStyle not have "width", add it to have an correct preview.');
-    }
-
-    // Special case when the width of image is less,
-    // than maximum width of thumbnail.
-    if ($thumbnail_width > $width) {
-      $thumbnail_width = $width;
-    }
-
-    // Calculate Thumbnail height
-    // (Original Height x Thumbnail Width / Original Width = Thumbnail Height).
-    $thumbnail_height = round(($height * $thumbnail_width) / $width);
-
-    // Get the delta between Original Height divide by Thumbnail Height.
-    return [
-      'delta' => number_format($height / $thumbnail_height, 2, '.', ''),
-      'thumbnail_width' => $thumbnail_width,
-      'thumbnail_height' => $thumbnail_height
-    ];
-  }
-
 
   /**
    * Apply different operation on ImageStyles.

@@ -12,7 +12,6 @@ use Drupal\Core\Config\Entity\ConfigEntityStorage;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Image\Image;
 use Drupal\Core\Render\ElementInfoManagerInterface;
 use Drupal\crop\Entity\Crop;
 use Drupal\image\Plugin\Field\FieldWidget\ImageWidget;
@@ -207,10 +206,9 @@ class ImageCropWidget extends ImageWidget {
           $crop_type_id = $crop_type->id();
           $label = $crop_type->label();
           if (in_array($crop_type_id, $element['#crop_list'])) {
-            $thumb_properties = [];
+            $original_properties = [];
             $has_ratio = $crop_type->getAspectRatio();
             $ratio = !empty($has_ratio) ? $has_ratio : t('NaN');
-            $ratio = str_replace(':', '/', $ratio);
 
             $container[$crop_type_id] = [
               '#type' => 'details',
@@ -228,7 +226,12 @@ class ImageCropWidget extends ImageWidget {
             $container[$crop_type_id][$element_wrapper_name]['image'] = [
               '#theme' => 'image_style',
               '#style_name' => $element['#crop_preview_image_style'],
-              '#attributes' => ['data-ratio' => [$ratio], 'data-name' => [$crop_type_id]],
+              '#attributes' => [
+                  'data-ratio' => $ratio,
+                  'data-name' => $crop_type_id,
+                  'data-original-width' => $element['#default_value']['width'],
+                  'data-original-height' => $element['#default_value']['height']
+              ],
               '#uri' => $variables['uri'],
               '#weight' => -10,
             ];
@@ -263,7 +266,7 @@ class ImageCropWidget extends ImageWidget {
               if (!empty($crop)) {
                 // Only if the crop already exist pre-populate,
                 // all cordinates values.
-                $crop_properties = self::getCropProperties($crop);
+                $original_properties = self::getCropProperties($crop);
 
                 /** @var \Drupal\Core\Image\Image $image */
                 $image = \Drupal::service('image.factory')->get($file->getFileUri());
@@ -271,14 +274,12 @@ class ImageCropWidget extends ImageWidget {
                   throw new \RuntimeException('This image file is nos valid');
                 }
 
-                $thumb_properties = self::getThumbnailCropProperties($image, $crop_properties);
-
                 // Element to track whether cropping is applied or not.
                 $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
               }
             }
 
-            self::getCropFormElement($element, $element_wrapper_name, $thumb_properties, $edit, $crop_type_id);
+            self::getCropFormElement($element, $element_wrapper_name, $original_properties, $edit, $crop_type_id);
 
             // Stock Original File Values.
             $element['file-uri'] = [
@@ -310,8 +311,6 @@ class ImageCropWidget extends ImageWidget {
       'y' => ['label' => t('Y coordinate'), 'value' => NULL],
       'width' => ['label' => t('Width'), 'value' => NULL],
       'height' => ['label' => t('Height'), 'value' => NULL],
-      'thumb-w' => ['label' => t('Thumbnail Width'), 'value' => NULL],
-      'thumb-h' => ['label' => t('Thumbnail Height'), 'value' => NULL],
     ];
   }
 
@@ -325,29 +324,32 @@ class ImageCropWidget extends ImageWidget {
    *   Get all crop zone properties (x, y, height, width),
    */
   public static function getCropProperties(Crop $crop) {
+    $anchor = $crop->anchor();
+    $size = $crop->size();
     return [
-      'anchor' => $crop->anchor(),
-      'size' => $crop->size()
+      'x' => $anchor['x'],
+      'y' => $anchor['y'],
+      'height' => $size['height'],
+      'width' => $size['width']
     ];
   }
 
   /**
    * Update crop elements of crop into the form widget.
    *
-   * @param array $thumb_properties
-   *   All properties calculate for apply to,
-   *   thumbnail image in UI.
+   * @param array $original_properties
+   *   All properties calculate for apply to.
    * @param bool $edit
    *   Context of this form.
    *
    * @return array<string,array>
    *   Populate all crop elements into the form.
    */
-  public static function getCropFormProperties(array $thumb_properties, $edit) {
+  public static function getCropFormProperties(array $original_properties, $edit) {
     $crop_elements = self::setCoordinatesElement();
-    if (!empty($thumb_properties) && $edit) {
+    if (!empty($original_properties) && $edit) {
       foreach ($crop_elements as $properties => $value) {
-        $crop_elements[$properties]['value'] = $thumb_properties[$properties];
+        $crop_elements[$properties]['value'] = $original_properties[$properties];
       }
     }
 
@@ -361,9 +363,8 @@ class ImageCropWidget extends ImageWidget {
    *   All form elements of widget.
    * @param string $element_wrapper_name
    *   Name of element contains all crop properties.
-   * @param array $thumb_properties
-   *   All properties calculate for apply to,
-   *   thumbnail image in UI.
+   * @param array $original_properties
+   *   All properties calculate for apply to.
    * @param bool $edit
    *   Context of this form.
    * @param string $crop_type_id
@@ -372,8 +373,8 @@ class ImageCropWidget extends ImageWidget {
    * @return array|NULL
    *   Populate all crop elements into the form.
    */
-  public static function getCropFormElement(array &$element, $element_wrapper_name, array $thumb_properties, $edit, $crop_type_id) {
-    $crop_properties = self::getCropFormProperties($thumb_properties, $edit);
+  public static function getCropFormElement(array &$element, $element_wrapper_name, array $original_properties, $edit, $crop_type_id) {
+    $crop_properties = self::getCropFormProperties($original_properties, $edit);
 
     // Generate all cordinates elements into the form when,
     // process is active.
@@ -422,47 +423,6 @@ class ImageCropWidget extends ImageWidget {
     }
 
     return NULL;
-  }
-
-  /**
-   * Calculate properties of thumbnail preview.
-   *
-   * @param Image $image
-   *   Image object to represent uploaded image file.
-   * @param array $original_crop
-   *   All properties returned by the crop plugin (js),
-   *   and the size of thumbnail image.
-   * @param string $preview
-   *   An array of values for the contained properties of image_crop widget.
-   *
-   * @return array<double>
-   *   All properties (x, y, crop height, crop width,
-   *   thumbnail height, thumbnail width), to apply the real crop
-   *   into thumbnail preview.
-   */
-  public static function getThumbnailCropProperties(Image $image, array $original_crop, $preview = 'crop_thumbnail') {
-    $crop_thumbnail = [];
-
-    $thumbnail_properties = ImageWidgetCropManager::getThumbnailCalculatedProperties($image, $preview);
-    if (!isset($thumbnail_properties) || empty($thumbnail_properties)) {
-      throw new \RuntimeException('Impossible to retrives thumbnail properties');
-    }
-
-    $delta = $thumbnail_properties['delta'];
-
-    // Get the Crop selection Size (into Uploaded image) &,
-    // calculate selection for Thumbnail.
-    $crop_thumbnail['height'] = round($original_crop['size']['height'] / $delta);
-    $crop_thumbnail['width'] = round($original_crop['size']['width'] / $delta);
-
-    // Calculate the Top-Left corner for Thumbnail.
-    // Get the real thumbnail sizes.
-    $crop_thumbnail['thumb-w'] = $thumbnail_properties['thumbnail_width'];
-    $crop_thumbnail['thumb-h'] = $thumbnail_properties['thumbnail_height'];
-    $crop_thumbnail['x'] = round($original_crop['anchor']['x'] / $delta);
-    $crop_thumbnail['y'] = round($original_crop['anchor']['y'] / $delta);
-
-    return $crop_thumbnail;
   }
 
   /**
