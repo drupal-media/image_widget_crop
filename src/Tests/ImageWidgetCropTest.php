@@ -88,6 +88,66 @@ class ImageWidgetCropTest extends WebTestBase {
   }
 
   /**
+   * Test Image Widget Crop.
+   */
+  public function testImageWidgetCrop() {
+    // Test that crop widget works properly.
+    $this->createImageField('field_image_crop_test', 'crop_test', [], [], ['crop_list' => ['crop_16_9' => 'crop_16_9']]);
+    $this->drupalGetTestFiles('image');
+
+    $this->drupalGet('node/add/crop_test');
+
+    // Assert that there is no crop widget, neither 'Alternative text' text
+    // filed nor 'Remove' button yet.
+    $raw = '<summary role="button" aria-controls="edit-field-image-crop-test-0-crop-preview-wrapper" aria-expanded="false" aria-pressed="false">Crop image</summary>';
+    $this->assertNoRaw($raw);
+    $this->assertNoText('Alternative text');
+    $this->assertNoFieldByName('field_image_crop_test_0_remove_button');
+
+    // Upload an image in field_image_crop_test_0.
+    $image['files[field_image_crop_test_0]'] = $this->container->get('file_system')->realpath('public://image-test.jpg');
+    $this->drupalPostAjaxForm(NULL, $image, $this->getButtonName('//input[@type="submit" and @value="Upload" and @data-drupal-selector="edit-field-image-crop-test-0-upload-button"]'));
+
+    // Assert that now crop widget and 'Alternative text' text field appear and
+    // that 'Remove' button exists.
+    $this->assertRaw($raw);
+    $this->assertText('Alternative text');
+    $this->assertFieldByName('field_image_crop_test_0_remove_button');
+
+    // Set title and 'Alternative text' text field and save.
+    $title = $this->randomMachineName();
+    $edit = array(
+      'title[0][value]' => $title,
+      'field_image_crop_test[0][alt]' => $this->randomMachineName(),
+    );
+    $this->drupalPostForm(NULL, $edit, 'Save');
+    $this->assertText('Crop test ' . $title . ' has been created.');
+    $url = $this->getUrl();
+    $nid = substr($url, -1, strrpos($url, '/'));
+
+    // Edit crop image.
+    $this->drupalGet('node/' . $nid . '/edit');
+
+    // Verify that the 'Remove' button works properly.
+    $this->assertText('Alternative text');
+    $this->drupalPostForm(NULL, NULL, 'Remove');
+    $this->assertNoText('Alternative text');
+
+    // Re-upload the image and set the 'Alternative text'.
+    $this->drupalPostAjaxForm(NULL, $image, $this->getButtonName('//input[@type="submit" and @value="Upload" and @data-drupal-selector="edit-field-image-crop-test-0-upload-button"]'));
+
+    // Verify that the 'Preview' button works properly.
+    $this->drupalPostForm(NULL, $edit, 'Preview');
+    $this->assertLink('Back to content editing');
+    $this->clickLink('Back to content editing');
+
+    // Verify that there is an image style preview.
+    $this->assertFieldByName('field_image_crop_test[0][width]', '40');
+    $this->assertFieldByName('field_image_crop_test[0][height]', '20');
+
+  }
+
+  /**
    * Gets IEF button name.
    *
    * @param string $xpath
