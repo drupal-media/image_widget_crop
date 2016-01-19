@@ -207,9 +207,8 @@
   Drupal.behaviors.imageWidgetCrop = {
     attach: function (context) {
       Drupal.imageWidgetCrop.initialize(context);
+      Drupal.imageWidgetCrop.updateAllCropSummaries();
     }
   };
-
-  Drupal.imageWidgetCrop.updateAllCropSummaries();
 
 }(jQuery, Drupal, drupalSettings));
