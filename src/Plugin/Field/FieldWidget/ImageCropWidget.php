@@ -230,8 +230,8 @@ class ImageCropWidget extends ImageWidget {
                   'class' => ['crop-preview-image'],
                   'data-ratio' => $ratio,
                   'data-name' => $crop_type_id,
-                  'data-original-width' => $element['#default_value']['width'],
-                  'data-original-height' => $element['#default_value']['height']
+                  'data-original-width' => !empty($element['#default_value']['width']) ? $element['#default_value']['width'] : '',
+                  'data-original-height' => !empty($element['#default_value']['height']) ? $element['#default_value']['height'] : ''
               ],
               '#uri' => $variables['uri'],
               '#weight' => -10,
