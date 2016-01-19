@@ -170,7 +170,7 @@ class ImageCropWidget extends ImageWidget {
       $element['crop_preview_wrapper'] = [
         '#type' => 'details',
         '#title' => t('Crop image'),
-        '#attributes' => ['class' => ['crop-wrapper']],
+        '#attributes' => ['class' => ['image-widget-data__crop-wrapper']],
         '#weight' => 100,
       ];
 
@@ -227,7 +227,7 @@ class ImageCropWidget extends ImageWidget {
               '#theme' => 'image_style',
               '#style_name' => $element['#crop_preview_image_style'],
               '#attributes' => [
-                  'class' => ['crop-preview-image'],
+                  'class' => ['crop-preview-wrapper__preview-image'],
                   'data-ratio' => $ratio,
                   'data-name' => $crop_type_id,
                   'data-original-width' => !empty($element['#default_value']['width']) ? $element['#default_value']['width'] : '',
@@ -240,14 +240,14 @@ class ImageCropWidget extends ImageWidget {
             $container[$crop_type_id][$element_wrapper_name]['reset'] = [
               '#type' => 'button',
               '#value' => t('Reset crop'),
-              '#attributes' => ['class' => ['crop-reset']],
+              '#attributes' => ['class' => ['crop-preview-wrapper__crop-reset']],
               '#weight' => -10,
             ];
 
             // Generation of html List with image & crop informations.
             $container[$crop_type_id][$element_wrapper_name]['values'] = [
               '#type' => 'container',
-              '#attributes' => ['class' => ['crop-preview-wrapper-value']],
+              '#attributes' => ['class' => ['crop-preview-wrapper__value']],
               '#weight' => -9,
             ];
 

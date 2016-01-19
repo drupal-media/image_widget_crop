@@ -1,10 +1,10 @@
-.crop-wrapper .crop-preview-image {
+.crop-preview-wrapper__preview-image {
   display: block;
   width: 100%;
   height: auto;
   margin-bottom: 1em;
 }
 
-.crop-wrapper .crop-reset {
+.image-widget-data__crop-wrapper .crop-preview-wrapper__crop-reset {
   margin-top: 1em;
 }

@@ -6,13 +6,13 @@
 (function ($, Drupal, drupalSettings) {
   'use strict';
 
-  var cropperSelector = '.crop-preview-image';
-  var cropperValuesSelector = '.crop-preview-wrapper-value';
-  var cropWrapperSelector = '.crop-wrapper';
+  var cropperSelector = '.crop-preview-wrapper__preview-image';
+  var cropperValuesSelector = '.crop-preview-wrapper__value';
+  var cropWrapperSelector = '.image-widget-data__crop-wrapper';
   var cropWrapperSummarySelector = 'summary';
   var verticalTabsSelector = '.vertical-tabs';
   var verticalTabsMenuItemSelector = '.vertical-tabs__menu-item';
-  var resetSelector = '.crop-reset';
+  var resetSelector = '.crop-preview-wrapper__crop-reset';
   var cropperOptions = {
     background: false,
     zoomable: false,
