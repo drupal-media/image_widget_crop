@@ -13,6 +13,7 @@
   var verticalTabsSelector = '.vertical-tabs';
   var verticalTabsMenuItemSelector = '.vertical-tabs__menu-item';
   var resetSelector = '.crop-preview-wrapper__crop-reset';
+  var detailsWrapper = '.details-wrapper';
   var cropperOptions = {
     background: false,
     zoomable: false,
@@ -41,26 +42,31 @@
    */
   Drupal.imageWidgetCrop.initialize = function (context) {
     var $cropWrapper = $(cropWrapperSelector, context);
-    var $cropWrapperSummary = $cropWrapper.children(cropWrapperSummarySelector);
+    var $cropWrapperSummary = $cropWrapper.children(detailsWrapper).find(cropWrapperSummarySelector);
     var $verticalTabs = $(verticalTabsSelector, context);
     var $verticalTabsMenuItem = $verticalTabs.find(verticalTabsMenuItemSelector);
     var $reset = $(resetSelector, context);
 
-    // @TODO: This event fires too early. The cropper element is not visible yet. This is why we need the setTimeout() workaround. Additionally it also fires when hiding and on page load
-    $cropWrapperSummary.bind('click', function (e) {
-      var $element = $(this).parents(cropWrapperSelector);
-      setTimeout(function () {
-        Drupal.imageWidgetCrop.initializeCropperOnChildren($element);
-      }, 10);
-      return true;
-    });
-
-    // @TODO: This event fires too early. The cropper element is not visible yet. This is why we need the setTimeout() workaround.
-    $verticalTabsMenuItem.click(function () {
-      var tabId = $(this).find('a').attr('href');
-      var $cropper = $(tabId).find(cropperSelector);
+    $verticalTabsMenuItem.add($cropWrapperSummary).click(function () {
+      var $cropper = $(this).parent().find(cropperSelector);
       var ratio = Drupal.imageWidgetCrop.getRatio($cropper);
       Drupal.imageWidgetCrop.initializeCropper($cropper, ratio);
+    });
+
+    $cropWrapper.children(cropWrapperSummarySelector).click(function (evt) {
+      if($verticalTabsMenuItem.length != 0) {
+        if( !$(this).siblings(detailsWrapper).is(':visible') ) {
+          evt.preventDefault();
+          $(this).parent().attr('open','open');
+          $(this).parent().find(detailsWrapper).show();
+          Drupal.imageWidgetCrop.initializeCropperOnChildren($(this).parent());
+          evt.stopImmediatePropagation();
+        }
+        else {
+          $(this).parent().removeAttr('open');
+          $(this).parent().find(detailsWrapper).hide();
+        }
+      }
     });
 
     $reset.on('click', function (e) {
