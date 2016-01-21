@@ -48,7 +48,11 @@
     var $reset = $(resetSelector, context);
 
     $verticalTabsMenuItem.add($cropWrapperSummary).click(function () {
+      var tabId = $(this).find('a').attr('href');
       var $cropper = $(this).parent().find(cropperSelector);
+      if(typeof tabId != 'undefined') {
+        $cropper = $(tabId).find(cropperSelector);
+      }
       var ratio = Drupal.imageWidgetCrop.getRatio($cropper);
       Drupal.imageWidgetCrop.initializeCropper($cropper, ratio);
     });
