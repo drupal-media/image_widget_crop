@@ -54,7 +54,7 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
           properties associate with her CropType. */
           foreach ($crop_element['crop_preview_wrapper'] as $crop_type_name => $properties) {
             /** @var \Drupal\crop\Entity\CropType $crop_type */
-            $crop_type = \Drupal::entityManager()
+            $crop_type = \Drupal::entityTypeManager()
               ->getStorage('crop_type')
               ->loadByProperties(['id' => $crop_type_name]);
 
@@ -135,7 +135,8 @@ function image_widget_crop_library_info_alter(&$libraries, $extension) {
   }
 
   $config = \Drupal::config('image_widget_crop.settings');
-  if (!\Drupal::moduleHandler()->moduleExists('libraries') && !$config->get('settings.library_url') && !$config->get('settings.css_url')
+  if (!\Drupal::moduleHandler()
+      ->moduleExists('libraries') && !$config->get('settings.library_url') && !$config->get('settings.css_url')
   ) {
     $libraries['cropper.integration']['js'] = [];
   }
@@ -219,7 +220,6 @@ function image_widget_crop_form_submit(&$form, \Drupal\Core\Form\FormStateInterf
   $user_values = $form_state->getUserInput();
 
   $crop_types = $user_values['crop_preview_wrapper'];
-
   foreach ($crop_types as $crop_type_id => $crop_container) {
     $old_properties = $old_values['crop_preview_wrapper'][$crop_type_id]['crop_container']['values'];
     $new_properties = $user_values['crop_preview_wrapper'][$crop_type_id]['crop_container']['values'];
@@ -233,7 +233,7 @@ function image_widget_crop_form_submit(&$form, \Drupal\Core\Form\FormStateInterf
     $image_widget_crop_manager = \Drupal::service('image_widget_crop.manager');
 
     /** @var \Drupal\crop\Entity\CropType $crop_type */
-    $crop_type = \Drupal::entityManager()
+    $crop_type = \Drupal::entityTypeManager()
       ->getStorage('crop_type')
       ->loadByProperties(['id' => $crop_type_id]);
 
@@ -273,27 +273,60 @@ function image_widget_crop_form_submit(&$form, \Drupal\Core\Form\FormStateInterf
  * Implements hook_form_alter().
  */
 function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  /** @var \Drupal\file_entity\Entity\FileEntity $entity */
   $entity = $form_state->getFormObject()->getEntity();
   $mime_type = $entity->getMimeTypeType();
-
   $operation = $form_state->getFormObject()->getOperation();
-
   if ($mime_type == 'image' && ($operation == 'edit' || $operation == 'inline_edit')) {
+    $edit = FALSE;
+
+    // Display an error message if the local/remote library and CSS are not set.
+    // @TODO Find a better solution to display the error message.
+    $config = \Drupal::config('image_widget_crop.settings');
+    $js_library = $config->get('settings.library_url');
+    $css_library = $config->get('settings.css_url');
+    if (!\Drupal::moduleHandler()->moduleExists('libraries')) {
+      if ((empty($js_library) || empty($css_library)) || (empty($js_library) && empty($css_library))) {
+        $form['message'] = array(
+          '#type' => 'container',
+          '#markup' => t('Either set the library locally (in /libraries/cropper) and enable the libraries module or enter the remote URL on <a href="/admin/config/media/crop-widget">Image Crop Widget settings</a>.'),
+          '#attributes' => array(
+            'class' => array('messages messages--error'),
+          ),
+        );
+      }
+    }
     $form['#theme'] = 'image_widget';
     $form['#attached']['library'][] = 'image/form';
     $form['#attached']['library'][] = 'image_widget_crop/cropper.integration';
 
+    // Ensure that the ID of an element is unique.
+    $list_id = \Drupal::service('uuid')->generate();
+    $element_wrapper_name = 'crop_container';
+    // Warn the user if the crop is used more than once.
+    $usage_counter = 0;
+    $file_usage = \Drupal::service('file.usage')->listUsage($entity);
+    foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($file_usage)) as $usage) {
+      $usage_counter += (int) $usage;
+    }
+    if ($usage_counter > 1) {
+      $form['crop_reuse'] = [
+        '#type' => 'container',
+        '#markup' => t('This crop definition affects more usages of this image'),
+        '#attributes' => [
+          'class' => ['messages messages--warning'],
+        ],
+        '#weight' => -10,
+      ];
+    }
+    // We need to wrap all elements to identify the widget elements.
     $form['crop_preview_wrapper'] = [
       '#type' => 'details',
       '#title' => t('Crop image'),
-      '#attributes' => ['class' => ['crop-wrapper']],
+      '#attributes' => ['class' => ['image-widget-data__crop-wrapper']],
       '#weight' => 100,
       '#tree' => TRUE,
     ];
-
-    $element_wrapper_name = 'crop_container';
-    // Ensure that the ID of an element is unique.
-    $list_id = \Drupal::service('uuid')->generate();
 
     $container = &$form['crop_preview_wrapper'];
     $container[$list_id] = [
@@ -304,7 +337,8 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
       '#parents' => array($list_id),
     ];
 
-    $crop_type_list = \Drupal::service('entity.manager')
+    // Get all crop type available @TODO Get available crop type from configuration.
+    $crop_type_list = \Drupal::service('entity_type.manager')
       ->getStorage('crop_type')
       ->loadMultiple();
 
@@ -319,11 +353,10 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
           '#group' => $list_id,
         ];
 
-        $thumb_properties = [];
+        $original_properties = [];
 
-        // Add compatibility to PHP 5.3.
-        $ratio = $crop_type->getAspectRatio() ?: t('NaN');
-        $ratio = str_replace(':', '/', $ratio);
+        $has_ratio = $crop_type->getAspectRatio();
+        $ratio = !empty($has_ratio) ? $has_ratio : t('NaN');
 
         // Generation of html List with image & crop informations.
         $container[$crop_type_id][$element_wrapper_name] = [
@@ -343,8 +376,11 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
           // TODO Get from configuration.
           '#style_name' => 'crop_thumbnail',
           '#attributes' => [
-            'data-ratio' => [$ratio],
-            'data-name' => [$crop_type_id],
+            'class' => ['crop-preview-wrapper__preview-image'],
+            'data-ratio' => $ratio,
+            'data-name' => $crop_type_id,
+            'data-original-width' => !empty($entity->getMetadata('width')) ? $entity->getMetadata('width') : '',
+            'data-original-height' => !empty($entity->getMetadata('height')) ? $entity->getMetadata('height') : '',
           ],
           '#uri' => $file_uri,
           '#weight' => -10,
@@ -353,14 +389,14 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
         $container[$crop_type_id][$element_wrapper_name]['reset'] = [
           '#type' => 'button',
           '#value' => t('Reset crop'),
-          '#attributes' => ['class' => ['crop-reset']],
+          '#attributes' => ['class' => ['crop-preview-wrapper__crop-reset']],
           '#weight' => -10,
         ];
 
         // Generation of html List with image & crop information.
         $container[$crop_type_id][$element_wrapper_name]['values'] = [
           '#type' => 'container',
-          '#attributes' => ['class' => ['crop-preview-wrapper-value']],
+          '#attributes' => ['class' => ['crop-preview-wrapper__value']],
           '#weight' => -9,
         ];
 
@@ -380,11 +416,9 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
           'type' => $crop_type_id,
           'uri' => $file_uri
         ]));
-
-        $edit = FALSE;
         // If there are no crops saved then we don't need to load crop values.
         if (!empty($crop)) {
-          $crop_properties = ImageCropWidget::getCropProperties($crop);
+          $original_properties = ImageCropWidget::getCropProperties($crop);
 
           /** @var \Drupal\Core\Image\Image $image */
           $image = \Drupal::service('image.factory')->get($file_uri);
@@ -392,14 +426,12 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
             throw new \RuntimeException('This image file is nos valid');
           }
 
-          $thumb_properties = ImageCropWidget::getThumbnailCropProperties($image, $crop_properties);
-
           // Element to track whether cropping is applied or not.
           $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
           $edit = TRUE;
         }
 
-        ImageCropWidget::getCropFormElement($form, $element_wrapper_name, $thumb_properties, $edit, $crop_type_id);
+        ImageCropWidget::getCropFormElement($form, $element_wrapper_name, $original_properties, $edit, $crop_type_id);
 
         $container[$crop_type_id][$element_wrapper_name]['values']['edit'] = [
           '#type' => 'value',
