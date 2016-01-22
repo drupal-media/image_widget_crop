@@ -19,11 +19,17 @@
     zoomable: false,
     viewMode: 3,
     autoCropArea: 1,
+    // Callback function, fires when crop is applied.
     cropend: function (e) {
       var $this = $(this);
       var $values = $this.siblings(cropperValuesSelector);
       var data = $this.cropper('getData');
+      // Calculate delta between original and thumbnail images.
       var delta = $(cropperSelector).data('original-height') / $(cropperSelector).prop('naturalHeight');
+      /*
+       * All data returned by cropper plugin multiple with delta in order to get
+       * proper crop sizes for original image.
+       */
       $values.find('.crop-x').val(Math.round(data.x * delta));
       $values.find('.crop-y').val(Math.round(data.y * delta));
       $values.find('.crop-width').val(Math.round(data.width * delta));
@@ -47,18 +53,25 @@
     var $verticalTabsMenuItem = $verticalTabs.find(verticalTabsMenuItemSelector);
     var $reset = $(resetSelector, context);
 
+    /*
+     * Cropper initialization on click events on vertical tabs and details
+     * summaries (for smaller screens).
+     */
     $verticalTabsMenuItem.add($cropWrapperSummary).click(function () {
       var tabId = $(this).find('a').attr('href');
       var $cropper = $(this).parent().find(cropperSelector);
-      if(typeof tabId != 'undefined') {
+      if(typeof tabId !== 'undefined') {
         $cropper = $(tabId).find(cropperSelector);
       }
       var ratio = Drupal.imageWidgetCrop.getRatio($cropper);
       Drupal.imageWidgetCrop.initializeCropper($cropper, ratio);
     });
 
+    // Handling click event for opening/closing vertical tabs.
     $cropWrapper.children(cropWrapperSummarySelector).click(function (evt) {
-      if($verticalTabsMenuItem.length != 0) {
+      // Work only on bigger screens where $verticalTabsMenuItem is not empty.
+      if($verticalTabsMenuItem.length !== 0) {
+        // If detailsWrapper is not visible display it and initialize cropper.
         if( !$(this).siblings(detailsWrapper).is(':visible') ) {
           evt.preventDefault();
           $(this).parent().attr('open','open');
@@ -66,6 +79,7 @@
           Drupal.imageWidgetCrop.initializeCropperOnChildren($(this).parent());
           evt.stopImmediatePropagation();
         }
+        // If detailsWrapper is visible hide it.
         else {
           $(this).parent().removeAttr('open');
           $(this).parent().find(detailsWrapper).hide();
