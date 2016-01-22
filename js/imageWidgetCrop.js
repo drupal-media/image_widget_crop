@@ -93,6 +93,9 @@
       Drupal.imageWidgetCrop.reset($element);
       return false;
     });
+
+    // Correctly updating messages of summaries.
+    Drupal.imageWidgetCrop.updateAllCropSummaries();
   };
 
   /**
@@ -193,9 +196,9 @@
    * @param {Object} $element - The element cropping on which has been changed.
    */
   Drupal.imageWidgetCrop.updateCropSummaries = function ($element) {
-    var $cropWrapper = $(cropWrapperSelector);
+    var $details = $element.closest('details' + cropWrapperSelector);
     Drupal.imageWidgetCrop.updateSingleCropSummary($element);
-    Drupal.imageWidgetCrop.updateCommonCropSummary($cropWrapper);
+    Drupal.imageWidgetCrop.updateCommonCropSummary($details);
   };
 
   /**
