@@ -6,3 +6,5 @@ package: Media
 dependencies:
   - crop
   - image
+test_dependencies:
+  - file_entity

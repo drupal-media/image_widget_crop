@@ -7,6 +7,7 @@
 
 namespace Drupal\image_widget_crop\Tests;
 
+use Drupal\file\Entity\File;
 use Drupal\node\Entity\Node;
 use Drupal\simpletest\WebTestBase;
 
@@ -36,6 +37,7 @@ class ImageWidgetCropTest extends WebTestBase {
     'crop',
     'image',
     'image_widget_crop',
+    'file_entity',
   ];
 
   /**
@@ -49,7 +51,9 @@ class ImageWidgetCropTest extends WebTestBase {
     $this->user = $this->createUser([
       'access content overview',
       'administer content types',
-      'edit any crop_test content'
+      'edit any crop_test content',
+      'edit any image files',
+      'administer files',
     ]);
     $this->drupalLogin($this->user);
   }
@@ -59,7 +63,7 @@ class ImageWidgetCropTest extends WebTestBase {
    */
   public function testCropUi() {
     // Test that when a crop has more than one usage we have a warning.
-    $this->createImageField('field_image_crop_test', 'crop_test', [], [], ['crop_list' => ['crop_16_9' => 'crop_16_9']]);
+    $this->createImageField('field_image_crop_test', 'crop_test', [], [], 'image_widget_crop', ['crop_list' => ['crop_16_9' => 'crop_16_9']]);
     $this->drupalGetTestFiles('image');
 
     $this->drupalGet('node/add/crop_test');
@@ -92,7 +96,7 @@ class ImageWidgetCropTest extends WebTestBase {
    */
   public function testImageWidgetCrop() {
     // Test that crop widget works properly.
-    $this->createImageField('field_image_crop_test', 'crop_test', [], [], ['crop_list' => ['crop_16_9' => 'crop_16_9']]);
+    $this->createImageField('field_image_crop_test', 'crop_test', [], [], 'image_widget_crop', ['crop_list' => ['crop_16_9' => 'crop_16_9']]);
     $this->drupalGetTestFiles('image');
 
     $this->drupalGet('node/add/crop_test');
@@ -148,6 +152,35 @@ class ImageWidgetCropTest extends WebTestBase {
   }
 
   /**
+   * Tests integration with file_entity module.
+   */
+  public function testFileEntityIntegration() {
+    $this->createImageField('field_image_file_entity', 'crop_test', [], [], 'file_editable');
+
+    $image = current($this->drupalGetTestFiles('image'));
+    $image = File::create((array) $image);
+    $image->save();
+
+    $node_title = $this->randomMachineName();
+    $this->drupalGet('node/add/crop_test');
+    $edit = [
+      'title[0][value]' => $node_title,
+      'files[field_image_file_entity_0]' => \Drupal::service('file_system')
+        ->realpath('public://image-test.jpg'),
+    ];
+    $this->drupalPostForm(NULL, $edit, 'Save');
+
+    $node = $this->drupalGetNodeByTitle($node_title);
+
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $ajax_response = $this->drupalPostAjaxForm(NULL, [], ['file_editable_2' => t('Edit')]);
+    $this->assertTrue(preg_match('/Crop image/', $ajax_response[3]['data']), 'Cropping tool is available on inline edit.');
+
+    $this->drupalGet('file/' . $image->id() . '/edit');
+    $this->assertText('Crop image', 'Cropping tool available on file edit.');
+  }
+
+  /**
    * Gets IEF button name.
    *
    * @param string $xpath
@@ -181,10 +214,12 @@ class ImageWidgetCropTest extends WebTestBase {
    *   A list of field storage settings that will be added to the defaults.
    * @param array $field_settings
    *   A list of instance settings that will be added to the instance defaults.
+   * @param string $widget_name
+   *   The name of the widget.
    * @param array $widget_settings
    *   A list of widget settings that will be added to the widget defaults.
    */
-  protected function createImageField($name, $type_name, $storage_settings = [], $field_settings = [], $widget_settings = []) {
+  protected function createImageField($name, $type_name, $storage_settings = [], $field_settings = [], $widget_name, $widget_settings = []) {
     \Drupal::entityTypeManager()->getStorage('field_storage_config')->create([
       'field_name' => $name,
       'entity_type' => 'node',
@@ -206,7 +241,7 @@ class ImageWidgetCropTest extends WebTestBase {
     /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $form_display */
     $form_display = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.' . $type_name . '.default');
     $form_display->setComponent($name, [
-        'type' => 'image_widget_crop',
+        'type' => $widget_name,
         'settings' => $widget_settings,
       ])
       ->save();
