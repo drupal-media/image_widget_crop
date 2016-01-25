@@ -1,7 +1,7 @@
-ImageWidgetCrop Example module
+ImageWidgetCrop Examples module
 ==============================
 
-Provides an out of box example implementation of ImageWidgetCrop.
+Provides an out of box examples implementation of ImageWidgetCrop.
 
 Requirement
 -----------
