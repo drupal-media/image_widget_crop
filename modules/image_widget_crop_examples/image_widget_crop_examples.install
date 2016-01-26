@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * Contains image_widget_crop_example.install.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function image_widget_crop_examples_install() {
+  // Set the front page.
+  \Drupal::configFactory()
+    ->getEditable('system.site')
+    ->set('page.front', '/image_widget_crop_examples')
+    ->save();
+}
