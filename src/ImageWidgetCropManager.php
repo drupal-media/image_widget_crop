@@ -200,8 +200,8 @@ class ImageWidgetCropManager {
    */
   public function getAxisCoordinates(array $axis, array $crop_selection) {
     return [
-      'x' => (int) $axis['x'] + ($crop_selection['width'] / 2),
-      'y' => (int) $axis['y'] + ($crop_selection['height'] / 2),
+      'x' => (int) round($axis['x'] + ($crop_selection['width'] / 2)),
+      'y' => (int) round($axis['y'] + ($crop_selection['height'] / 2)),
     ];
   }
 
