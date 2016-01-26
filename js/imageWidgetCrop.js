@@ -14,10 +14,11 @@
   var verticalTabsMenuItemSelector = '.vertical-tabs__menu-item';
   var resetSelector = '.crop-preview-wrapper__crop-reset';
   var detailsWrapper = '.details-wrapper';
+  var table = '.responsive-enabled';
   var cropperOptions = {
     background: false,
     zoomable: false,
-    viewMode: 3,
+    viewMode: 1,
     autoCropArea: 1,
     // Callback function, fires when crop is applied.
     cropend: function (e) {
@@ -25,7 +26,7 @@
       var $values = $this.siblings(cropperValuesSelector);
       var data = $this.cropper('getData');
       // Calculate delta between original and thumbnail images.
-      var delta = $(cropperSelector).data('original-height') / $(cropperSelector).prop('naturalHeight');
+      var delta = $this.data('original-height') / $this.prop('naturalHeight');
       /*
        * All data returned by cropper plugin multiple with delta in order to get
        * proper crop sizes for original image.
@@ -75,6 +76,7 @@
         if( !$(this).siblings(detailsWrapper).is(':visible') ) {
           evt.preventDefault();
           $(this).parent().attr('open','open');
+          $(table).addClass('responsive-enabled--opened');
           $(this).parent().find(detailsWrapper).show();
           Drupal.imageWidgetCrop.initializeCropperOnChildren($(this).parent());
           evt.stopImmediatePropagation();
@@ -82,6 +84,7 @@
         // If detailsWrapper is visible hide it.
         else {
           $(this).parent().removeAttr('open');
+          $(table).removeClass('responsive-enabled--opened');
           $(this).parent().find(detailsWrapper).hide();
         }
       }
@@ -128,8 +131,13 @@
   Drupal.imageWidgetCrop.initializeCropper = function ($element, ratio) {
     var data = null;
     var $values = $element.siblings(cropperValuesSelector);
+
+    //Calculate minimal height for cropper container (minimal width is 200).
+    var minDelta = ( $element.data('original-width') / 200 );
+    cropperOptions['minContainerHeight'] = $element.data('original-height') / minDelta;
+
     var options = cropperOptions;
-    var delta = $(cropperSelector).data('original-height') / $(cropperSelector).prop('naturalHeight');
+    var delta = $element.data('original-height') / $element.prop('naturalHeight');
 
     if (parseInt($values.find('.crop-applied').val()) === 1) {
       data = {
