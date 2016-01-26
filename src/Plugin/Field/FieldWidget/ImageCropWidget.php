@@ -260,7 +260,7 @@ class ImageCropWidget extends ImageWidget {
 
             $values = $form_state->getValues();
             // Numbers of crops from $form_state.
-            $crops = $values[$element['#field_name']];
+            $crops = isset($values[$element['#field_name']]) ? $values[$element['#field_name']] : $element;
 
             if ($edit && !empty($crop_storage)) {
               // Get Only first crop entity,
