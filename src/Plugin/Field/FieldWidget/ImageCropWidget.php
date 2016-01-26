@@ -268,36 +268,38 @@ class ImageCropWidget extends ImageWidget {
               /** @var \Drupal\crop\Entity\Crop $crop */
               $crop = current($crop_storage->loadByProperties(['type' => $crop_type_id, 'uri' => $variables['uri']]));
 
-              foreach($crops as $one_crop) {
-                // Values of crop.
-                $wrappers = $one_crop['crop_preview_wrapper'];
+              if (!empty($crop)) {
+                foreach($crops as $one_crop) {
+                  // Values of crop.
+                  $wrappers = $one_crop['crop_preview_wrapper'];
 
-                // On entering edit page for the first time values come from database.
-                if($file->id() == $one_crop['fids']['0']) {
-                  if (!empty($crop) && empty($wrappers)) {
-                    // Only if the crop already exist pre-populate, all cordinates values.
-                    $original_properties = self::getCropProperties($crop);
+                  // On entering edit page for the first time values come from database.
+                  if($file->id() == $one_crop['fids']['0']) {
+                    if (!empty($crop) && empty($wrappers)) {
+                      // Only if the crop already exist pre-populate, all cordinates values.
+                      $original_properties = self::getCropProperties($crop);
 
-                    /** @var \Drupal\Core\Image\Image $image */
-                    $image = \Drupal::service('image.factory')->get($file->getFileUri());
-                    if (!$image->isValid()) {
-                      throw new \RuntimeException('This image file is not valid');
+                      /** @var \Drupal\Core\Image\Image $image */
+                      $image = \Drupal::service('image.factory')->get($file->getFileUri());
+                      if (!$image->isValid()) {
+                        throw new \RuntimeException('This image file is not valid');
+                      }
+
+                      // Element to track whether cropping is applied or not.
+                      $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
                     }
-
-                    // Element to track whether cropping is applied or not.
-                    $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
                   }
-                }
 
-                // With uploading new image on saved crop values come from $form_state,
-                // and we need them if we make changes on saved crop.
-                if(!empty($crop) && !empty($wrappers)) {
-                  foreach($wrappers as $key => $wrapper) {
-                    $fids = $one_crop['fids']['0'];
-                    if($key == $crop_type_id && $fids == $file->id()) {
-                      $original_properties = $wrapper['crop_container']['values'];
-                      if($original_properties['crop_applied'] == '1') {
-                        $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
+                  // With uploading new image on saved crop values come from $form_state,
+                  // and we need them if we make changes on saved crop.
+                  if(!empty($crop) && !empty($wrappers)) {
+                    foreach($wrappers as $key => $wrapper) {
+                      $fids = $one_crop['fids']['0'];
+                      if($key == $crop_type_id && $fids == $file->id()) {
+                        $original_properties = $wrapper['crop_container']['values'];
+                        if($original_properties['crop_applied'] == '1') {
+                          $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
+                        }
                       }
                     }
                   }
@@ -305,15 +307,17 @@ class ImageCropWidget extends ImageWidget {
               }
 
               // Updating summaries(cropping) on unsaved crop values come from $form_state.
-              if(empty($crop)) {
+              elseif (empty($crop)) {
                 foreach($crops as $crop) {
-                  $wrappers = $crop['crop_preview_wrapper'];
-                  foreach($wrappers as $key => $wrapper) {
-                    $fids = $crop['fids']['0'];
-                    if($key == $crop_type_id && $fids == $file->id()) {
-                      $original_properties = $wrapper['crop_container']['values'];
-                      if($original_properties['crop_applied'] == '1') {
-                        $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
+                  if (is_array($crop)) {
+                    $wrappers = $crop['crop_preview_wrapper'];
+                    foreach($wrappers as $key => $wrapper) {
+                      $fids = $crop['fids']['0'];
+                      if($key == $crop_type_id && $fids == $file->id()) {
+                        $original_properties = $wrapper['crop_container']['values'];
+                        if($original_properties['crop_applied'] == '1') {
+                          $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
+                        }
                       }
                     }
                   }
