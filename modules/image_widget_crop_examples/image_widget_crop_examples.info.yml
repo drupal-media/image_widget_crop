@@ -13,5 +13,8 @@ dependencies:
   - media_entity
   - media_entity_image
   - responsive_image
+  - file_entity
+test_dependencies:
+  - media_entity
 theme:
   - bartik
