@@ -260,7 +260,7 @@ class ImageCropWidget extends ImageWidget {
 
             $values = $form_state->getValues();
             // Numbers of crops from $form_state.
-            $crops = isset($values[$element['#field_name']]) ? $values[$element['#field_name']] : $element;
+            $crops = $values[$element['#field_name']];
 
             if ($edit && !empty($crop_storage)) {
               // Get Only first crop entity,
@@ -307,17 +307,15 @@ class ImageCropWidget extends ImageWidget {
               }
 
               // Updating summaries(cropping) on unsaved crop values come from $form_state.
-              elseif (empty($crop)) {
-                foreach($crops as $crop) {
-                  if (is_array($crop)) {
-                    $wrappers = $crop['crop_preview_wrapper'];
-                    foreach($wrappers as $key => $wrapper) {
-                      $fids = $crop['fids']['0'];
-                      if($key == $crop_type_id && $fids == $file->id()) {
-                        $original_properties = $wrapper['crop_container']['values'];
-                        if($original_properties['crop_applied'] == '1') {
-                          $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
-                        }
+              if (empty($crop)) {
+                foreach ($crops as $crop) {
+                  $wrappers = $crop['crop_preview_wrapper'];
+                  foreach ($wrappers as $key => $wrapper) {
+                    $fids = $crop['fids']['0'];
+                    if ($key == $crop_type_id && $fids == $file->id()) {
+                      $original_properties = $wrapper['crop_container']['values'];
+                      if ($original_properties['crop_applied'] == '1') {
+                        $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
                       }
                     }
                   }
