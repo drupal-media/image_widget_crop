@@ -262,13 +262,17 @@ class ImageCropWidget extends ImageWidget {
             // Numbers of crops from $form_state.
             $crops = $values[$element['#field_name']];
 
-            if ($edit && !empty($crop_storage)) {
+            if (($edit && !empty($crop_storage)) || empty($edit)) {
               // Get Only first crop entity,
               // @see https://www.drupal.org/node/2617818.
               /** @var \Drupal\crop\Entity\Crop $crop */
+              $crop_storage = \Drupal::service('entity_type.manager')->getStorage('crop');
               $crop = current($crop_storage->loadByProperties(['type' => $crop_type_id, 'uri' => $variables['uri']]));
 
               if (!empty($crop)) {
+                $original_properties = self::getCropProperties($crop);
+                $edit = TRUE;
+                $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
                 foreach($crops as $one_crop) {
                   // Values of crop.
                   $wrappers = $one_crop['crop_preview_wrapper'];
