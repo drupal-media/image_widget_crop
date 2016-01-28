@@ -324,7 +324,7 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
       '#type' => 'details',
       '#title' => t('Crop image'),
       '#attributes' => ['class' => ['image-widget-data__crop-wrapper']],
-      '#weight' => 100,
+      '#weight' => 1,
       '#tree' => TRUE,
     ];
 
@@ -452,4 +452,18 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
     }
     $form['actions']['submit']['#submit'][] = 'image_widget_crop_form_submit';
   }
+}
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function image_widget_crop_entity_extra_field_info() {
+  $return = array();
+
+  $return['file']['image']['form']['crop_preview_wrapper'] = array(
+    'label' => t('Crop image'),
+    'weight' => 10,
+  );
+
+  return $return;
 }
