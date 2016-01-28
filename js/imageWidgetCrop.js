@@ -14,12 +14,14 @@
   var verticalTabsMenuItemSelector = '.vertical-tabs__menu-item';
   var resetSelector = '.crop-preview-wrapper__crop-reset';
   var detailsWrapper = '.details-wrapper';
+  var detailsParentSelector = '.image-widget-data';
   var table = '.responsive-enabled';
   var cropperOptions = {
     background: false,
     zoomable: false,
     viewMode: 1,
     autoCropArea: 1,
+    responsive: false,
     // Callback function, fires when crop is applied.
     cropend: function (e) {
       var $this = $(this);
@@ -95,6 +97,41 @@
       var $element = $(this).siblings(cropperSelector);
       Drupal.imageWidgetCrop.reset($element);
       return false;
+    });
+
+    // Handling croping when viewport resizes.
+    $(window).resize(function() {
+      $(detailsParentSelector).each(function() {
+        // Find only opened widgets.
+        var cropperDetailsWrapper = $(this).children('details[open="open"]');
+        cropperDetailsWrapper.each(function() {
+          // Find all croppers for opened widgets.
+          var $croppers = $(this).find(cropperSelector);
+          $croppers.each(function () {
+            if($(this).parent().parent().parent().css('display') !== 'none') {
+              // Get previous data for cropper.
+              var canvasDataOld = $(this).cropper('getCanvasData');
+              var cropBoxData = $(this).cropper('getCropBoxData');
+
+              // Re-render cropper.
+              $(this).cropper('render');
+
+              // Get new data for cropper and calculate resize ratio.
+              var canvasDataNew = $(this).cropper('getCanvasData');
+              var ratio = 1;
+              if (canvasDataOld.width !== 0) {
+                ratio = canvasDataNew.width / canvasDataOld.width;
+              }
+
+              // Set new data for crop box.
+              $.each(cropBoxData, function (index, value) {
+                cropBoxData[index] = value * ratio;
+              });
+              $(this).cropper('setCropBoxData', cropBoxData);
+            }
+          });
+        });
+      });
     });
 
     // Correctly updating messages of summaries.
