@@ -303,7 +303,7 @@ class ImageCropWidget extends ImageWidget {
                         /** @var \Drupal\Core\Image\Image $image */
                         $image = \Drupal::service('image.factory')->get($file->getFileUri());
                         if (!$image->isValid()) {
-                          throw new \RuntimeException('This image file is not valid');
+                          drupal_set_message(t('The file "@file" is not valid, file reference was removed from the element "@element".', ['@file' => $file->getFileUri(), '@element' => $element['#title']]), 'warning');
                         }
 
                         // Element to track whether cropping is applied or not.
