@@ -137,25 +137,22 @@ class ImageWidgetCropManager {
    *   Show notification after actions (default TRUE).
    */
   public function saveCrop(array $crop_properties, $field_value, array $image_styles, CropType $crop_type, $notify = TRUE) {
-    /** @var \Drupal\image\Entity\ImageStyle $image_style */
-    foreach ($image_styles as $image_style) {
-      $values = [
-        'type' => $crop_type->id(),
-        'entity_id' => $field_value['file-id'],
-        'entity_type' => 'file',
-        'uri' => $field_value['file-uri'],
-        'x' => $crop_properties['x'],
-        'y' => $crop_properties['y'],
-        'width' => $crop_properties['width'],
-        'height' => $crop_properties['height'],
-        'image_style' => $image_style->getName(),
-      ];
+    $values = [
+      'type' => $crop_type->id(),
+      'entity_id' => $field_value['file-id'],
+      'entity_type' => 'file',
+      'uri' => $field_value['file-uri'],
+      'x' => $crop_properties['x'],
+      'y' => $crop_properties['y'],
+      'width' => $crop_properties['width'],
+      'height' => $crop_properties['height'],
+    ];
 
-      // Save crop with previous values.
-      /** @var \Drupal\crop\CropInterface $crop */
-      $crop = $this->cropStorage->create($values);
-      $crop->save();
-    }
+    // Save crop with previous values.
+    /** @var \Drupal\crop\CropInterface $crop */
+    $crop = $this->cropStorage->create($values);
+    $crop->save();
+
     $this->imageStylesOperations($image_styles, $field_value['file-uri'], TRUE);
 
     if ($notify) {
