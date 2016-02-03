@@ -24,6 +24,9 @@ field.widget.settings.image_widget_crop:
     show_crop_area:
       type: boolean
       label: 'Always expand crop area'
+    show_default_crop:
+      type: boolean
+      label: 'Show default crop area'
 
 image_widget_crop.settings:
   type: config_object

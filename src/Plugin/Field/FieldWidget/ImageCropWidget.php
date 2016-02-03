@@ -107,6 +107,7 @@ class ImageCropWidget extends ImageWidget {
       'crop_preview_image_style' => 'crop_thumbnail',
       'crop_list' => NULL,
       'show_crop_area' => FALSE,
+      'show_default_crop' => TRUE,
     ] + parent::defaultSettings();
   }
 
@@ -123,6 +124,7 @@ class ImageCropWidget extends ImageWidget {
   public static function process($element, FormStateInterface $form_state, $form) {
     $edit = FALSE;
     $crop_types_list = $element['#crop_types_list'];
+    $crop_default = $element['#show_default_crop'];
     $route_params = \Drupal::requestStack()
       ->getCurrentRequest()->attributes->get('_route_params');
 
@@ -263,6 +265,8 @@ class ImageCropWidget extends ImageWidget {
               '#attributes' => ['class' => ["crop-applied"]],
               '#value' => 0,
             ];
+
+            $element['#attached']['drupalSettings']['crop_default'] = $crop_default;
 
             $values = $form_state->getValues();
             // Numbers of crops from $form_state.
@@ -662,6 +666,12 @@ class ImageCropWidget extends ImageWidget {
       '#default_value' => $this->getSetting('show_crop_area'),
     ];
 
+    $element['show_default_crop'] = [
+      '#title' => $this->t('Show default crop area'),
+      '#type' => 'checkbox',
+      '#default_value' => $this->getSetting('show_default_crop'),
+    ];
+
     return $element;
   }
 
@@ -684,8 +694,10 @@ class ImageCropWidget extends ImageWidget {
     $crop_preview = $image_styles[$this->getSetting('crop_preview_image_style')];
     $crop_list = $this->getSetting('crop_list');
     $crop_show_button = $this->getSetting('show_crop_area');
+    $show_default_crop = $this->getSetting('show_default_crop');
 
     $preview[] = $this->t('Always expand crop area: @bool', ['@bool' => ($crop_show_button) ? 'Yes' : 'No']);
+    $preview[] = $this->t('Show default crop area: @bool', ['@bool' => ($show_default_crop) ? 'Yes' : 'No']);
 
     if (isset($image_style_setting)) {
       $preview[] = $this->t('Preview image style: @style', ['@style' => $image_style_setting]);
@@ -717,6 +729,7 @@ class ImageCropWidget extends ImageWidget {
     $element['#crop_preview_image_style'] = $this->getSetting('crop_preview_image_style');
     $element['#crop_types_list'] = $this->cropTypeStorage->loadMultiple();
     $element['#show_crop_area'] = $this->getSetting('show_crop_area');
+    $element['#show_default_crop'] = $this->getSetting('show_default_crop');
 
     return parent::formElement($items, $delta, $element, $form, $form_state);
   }

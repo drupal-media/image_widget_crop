@@ -176,6 +176,9 @@
     var options = cropperOptions;
     var delta = $element.data('original-height') / $element.prop('naturalHeight');
 
+    // If 'Show default crop' is checked show crop box.
+    options.autoCrop = drupalSettings['crop_default'];
+
     if (parseInt($values.find('.crop-applied').val()) === 1) {
       data = {
         x: Math.round(parseInt($values.find('.crop-x').val()) / delta),
@@ -186,12 +189,44 @@
         scaleX: 1,
         scaleY: 1
       };
+      options.autoCrop = true;
+    }
+    else if (parseInt($values.find('.crop-default').val()) === 0) {
+      options.autoCrop = false;
     }
 
     options.data = data;
     options.aspectRatio = ratio;
 
     $element.cropper(options);
+
+    // If 'Show default crop' is checked apply default crop.
+    if(drupalSettings['crop_default']) {
+      var dataDefault = $element.cropper('getData');
+      // Calculate delta between original and thumbnail images.
+      var deltaDefault = $element.data('original-height') / $element.prop('naturalHeight');
+      /*
+       * All data returned by cropper plugin multiple with delta in order to get
+       * proper crop sizes for original image.
+       */
+      Drupal.imageWidgetCrop.updateCropValues($values, dataDefault, deltaDefault);
+      Drupal.imageWidgetCrop.updateCropSummaries($element);
+    }
+  };
+
+  /**
+   * Update crop values in hidden inputs.
+   *
+   * @param {Object} $element - Cropper values selector.
+   * @param {Array} $data - Cropper data.
+   * @param {number} $delta - Delta between original and thumbnail images.
+   */
+  Drupal.imageWidgetCrop.updateCropValues = function ($element, $data, $delta) {
+    $element.find('.crop-x').val(Math.round($data.x * $delta));
+    $element.find('.crop-y').val(Math.round($data.y * $delta));
+    $element.find('.crop-width').val(Math.round($data.width * $delta));
+    $element.find('.crop-height').val(Math.round($data.height * $delta));
+    $element.find('.crop-applied').val(1);
   };
 
   /**
@@ -215,7 +250,7 @@
     var croppingApplied = parseInt($values.find('.crop-applied').val());
 
     $element.closest('details').drupalSetSummary(function (context) {
-      if (croppingApplied) {
+      if (croppingApplied === 1) {
         return Drupal.t('Cropping applied');
       }
     });
@@ -266,13 +301,31 @@
    * @param {Object} $element - The element to reset cropping on.
    */
   Drupal.imageWidgetCrop.reset = function ($element) {
-    var $values = $element.siblings(cropperValuesSelector);
-    $element.cropper('reset').cropper('options', cropperOptions);
-    $values.find('.crop-x').val('');
-    $values.find('.crop-y').val('');
-    $values.find('.crop-width').val('');
-    $values.find('.crop-height').val('');
-    $values.find('.crop-applied').val(0);
+    var $valuesDefault = $element.siblings(cropperValuesSelector);
+    var options = cropperOptions;
+    // If 'Show default crop' is not checked re-initialize cropper.
+    if(!drupalSettings['crop_default']) {
+      $element.cropper('destroy');
+      options.autoCrop = false;
+      $element.cropper(options);
+      $valuesDefault.find('.crop-applied').val(0);
+      $valuesDefault.find('.crop-x').val('');
+      $valuesDefault.find('.crop-y').val('');
+      $valuesDefault.find('.crop-width').val('');
+      $valuesDefault.find('.crop-height').val('');
+    }
+    else {
+      // Reset cropper.
+      $element.cropper('reset').cropper('options', options);
+      var dataDefault = $element.cropper('getData');
+      // Calculate delta between original and thumbnail images.
+      var deltaDefault = $element.data('original-height') / $element.prop('naturalHeight');
+      /*
+       * All data returned by cropper plugin multiple with delta in order to get
+       * proper crop sizes for original image.
+       */
+      Drupal.imageWidgetCrop.updateCropValues($valuesDefault, dataDefault, deltaDefault);
+    }
     Drupal.imageWidgetCrop.updateCropSummaries($element);
   };
 
