@@ -156,6 +156,12 @@ class ImageCropWidget extends ImageWidget {
     // Add the image preview.
     if (!empty($element['#files']) && $element['#preview_image_style']) {
       $file = reset($element['#files']);
+
+      // If we use an element without default_value, we need to use image_factory.
+      if (empty($element['#default_value']['width']) || empty($element['#default_value']['height'])) {
+        $image_factory = \Drupal::service('image.factory')->get($file->getFileUri());
+      }
+
       $variables = ['style_name' => $element['#preview_image_style'], 'uri' => $file->getFileUri(), 'file_id' => $file->id()];
       // Verify if user have uploaded an image.
       self::getFileImageVariables($element, $variables);
@@ -230,8 +236,8 @@ class ImageCropWidget extends ImageWidget {
                   'class' => ['crop-preview-wrapper__preview-image'],
                   'data-ratio' => $ratio,
                   'data-name' => $crop_type_id,
-                  'data-original-width' => !empty($element['#default_value']['width']) ? $element['#default_value']['width'] : '',
-                  'data-original-height' => !empty($element['#default_value']['height']) ? $element['#default_value']['height'] : ''
+                  'data-original-width' => !empty($element['#default_value']['width']) ? $element['#default_value']['width'] : $image_factory->getWidth(),
+                  'data-original-height' => !empty($element['#default_value']['height']) ? $element['#default_value']['height'] : $image_factory->getHeight()
               ],
               '#uri' => $variables['uri'],
               '#weight' => -10,
