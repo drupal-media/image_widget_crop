@@ -407,7 +407,7 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
           '#value' => 0,
         ];
 
-        $form['#attached']['drupalSettings']['crop_default'] = true;
+        $form['#attached']['drupalSettings']['crop_default'] = TRUE;
 
         $crop_storage = \Drupal::service('entity.manager')->getStorage('crop');
 

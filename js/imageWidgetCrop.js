@@ -191,9 +191,6 @@
       };
       options.autoCrop = true;
     }
-    else if (parseInt($values.find('.crop-default').val()) === 0) {
-      options.autoCrop = false;
-    }
 
     options.data = data;
     options.aspectRatio = ratio;
