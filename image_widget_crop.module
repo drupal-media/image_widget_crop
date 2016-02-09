@@ -11,6 +11,13 @@ use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
 use Drupal\image_widget_crop\Plugin\Field\FieldWidget\ImageCropWidget;
 
 /**
+ * Standardize the name of IWC wrapper elements.
+ *
+ * @var string
+ */
+const ELEMENT_WRAPPER_NAME = 'crop_container';
+
+/**
  * Implements hook_help().
  */
 function image_widget_crop_help($route_name, RouteMatchInterface $route_match) {
@@ -302,7 +309,7 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
 
     // Ensure that the ID of an element is unique.
     $list_id = \Drupal::service('uuid')->generate();
-    $element_wrapper_name = 'crop_container';
+
     // Warn the user if the crop is used more than once.
     $usage_counter = 0;
     $file_usage = \Drupal::service('file.usage')->listUsage($entity);
@@ -358,8 +365,17 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
         $has_ratio = $crop_type->getAspectRatio();
         $ratio = !empty($has_ratio) ? $has_ratio : t('NaN');
 
+        $form['#attached']['drupalSettings'] = [
+          'image_widget_crop' => [
+            $crop_type->id() => [
+              'soft_limit' => $crop_type->getSoftLimit(),
+              'hard_limit' => $crop_type->getHardLimit(),
+            ],
+          ],
+        ];
+
         // Generation of html List with image & crop informations.
-        $container[$crop_type_id][$element_wrapper_name] = [
+        $container[$crop_type_id][ELEMENT_WRAPPER_NAME] = [
           '#type' => 'container',
           '#attributes' => [
             'class' => ['crop-preview-wrapper', $list_id],
@@ -371,7 +387,7 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
 
         $file_uri = $entity->getFileUri();
 
-        $container[$crop_type_id][$element_wrapper_name]['image'] = [
+        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['image'] = [
           '#theme' => 'image_style',
           // TODO Get from configuration.
           '#style_name' => 'crop_thumbnail',
@@ -386,7 +402,7 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
           '#weight' => -10,
         ];
 
-        $container[$crop_type_id][$element_wrapper_name]['reset'] = [
+        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['reset'] = [
           '#type' => 'button',
           '#value' => t('Reset crop'),
           '#attributes' => ['class' => ['crop-preview-wrapper__crop-reset']],
@@ -394,14 +410,14 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
         ];
 
         // Generation of html List with image & crop information.
-        $container[$crop_type_id][$element_wrapper_name]['values'] = [
+        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['values'] = [
           '#type' => 'container',
           '#attributes' => ['class' => ['crop-preview-wrapper__value']],
           '#weight' => -9,
         ];
 
         // Element to track whether cropping is applied or not.
-        $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied'] = [
+        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['values']['crop_applied'] = [
           '#type' => 'hidden',
           '#attributes' => ['class' => ["crop-applied"]],
           '#value' => 0,
@@ -429,24 +445,24 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
           }
 
           // Element to track whether cropping is applied or not.
-          $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
+          $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['values']['crop_applied']['#value'] = 1;
           $edit = TRUE;
         }
 
-        ImageCropWidget::getCropFormElement($form, $element_wrapper_name, $original_properties, $edit, $crop_type_id);
+        ImageCropWidget::getCropFormElement($form, ELEMENT_WRAPPER_NAME, $original_properties, $edit, $crop_type_id);
 
-        $container[$crop_type_id][$element_wrapper_name]['values']['edit'] = [
+        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['values']['edit'] = [
           '#type' => 'value',
           '#value' => $edit,
         ];
 
         // Stock Original File Values.
-        $container[$crop_type_id][$element_wrapper_name]['values']['file-uri'] = [
+        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['values']['file-uri'] = [
           '#type' => 'value',
           '#value' => $file_uri,
         ];
 
-        $container[$crop_type_id][$element_wrapper_name]['values']['file-id'] = [
+        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['values']['file-id'] = [
           '#type' => 'value',
           '#value' => $entity->id(),
         ];
