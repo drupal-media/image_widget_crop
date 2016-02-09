@@ -99,7 +99,7 @@
       return false;
     });
 
-    // Handling croping when viewport resizes.
+    // Handling cropping when viewport resizes.
     $(window).resize(function() {
       $(detailsParentSelector).each(function() {
         // Find only opened widgets.
@@ -108,16 +108,17 @@
           // Find all croppers for opened widgets.
           var $croppers = $(this).find(cropperSelector);
           $croppers.each(function () {
-            if($(this).parent().parent().parent().css('display') !== 'none') {
+            var $this = $(this);
+            if($this.parent().parent().parent().css('display') !== 'none') {
               // Get previous data for cropper.
-              var canvasDataOld = $(this).cropper('getCanvasData');
-              var cropBoxData = $(this).cropper('getCropBoxData');
+              var canvasDataOld = $this.cropper('getCanvasData');
+              var cropBoxData = $this.cropper('getCropBoxData');
 
               // Re-render cropper.
-              $(this).cropper('render');
+              $this.cropper('render');
 
               // Get new data for cropper and calculate resize ratio.
-              var canvasDataNew = $(this).cropper('getCanvasData');
+              var canvasDataNew = $this.cropper('getCanvasData');
               var ratio = 1;
               if (canvasDataOld.width !== 0) {
                 ratio = canvasDataNew.width / canvasDataOld.width;
@@ -127,7 +128,11 @@
               $.each(cropBoxData, function (index, value) {
                 cropBoxData[index] = value * ratio;
               });
-              $(this).cropper('setCropBoxData', cropBoxData);
+              $this.cropper('setCropBoxData', cropBoxData);
+
+              Drupal.imageWidgetCrop.updateHardLimits($this);
+              Drupal.imageWidgetCrop.checkSoftLimits($this);
+              Drupal.imageWidgetCrop.updateCropSummaries($this);
             }
           });
         });
@@ -192,10 +197,23 @@
       options.autoCrop = true;
     }
 
+    // React on crop move and check soft limits.
+    options.cropmove = function (e) {
+      Drupal.imageWidgetCrop.checkSoftLimits($(this));
+    };
+
     options.data = data;
     options.aspectRatio = ratio;
 
     $element.cropper(options);
+
+    // Hard and soft limits we need to check for fist time when cropper
+    // finished it initialization.
+    $element.on('built.cropper', function (e) {
+      var $this = $(this);
+      Drupal.imageWidgetCrop.updateHardLimits($this);
+      Drupal.imageWidgetCrop.checkSoftLimits($this);
+    });
 
     // If 'Show default crop' is checked apply default crop.
     if(drupalSettings['crop_default']) {
@@ -227,6 +245,130 @@
   };
 
   /**
+   * Converts horizontal and vertical dimensions to canvas dimensions.
+   *
+   * @param {Object} $element - Crop element.
+   * @param {Number} x - horizontal dimension in image space.
+   * @param {Number} y - vertical dimension in image space.
+   */
+  Drupal.imageWidgetCrop.toCanvasDimensions = function ($element, x, y) {
+    var imageData = $element.data('cropper').getImageData();
+    return {
+      width: imageData.width * (x / $element.data('original-width')),
+      height: imageData.height * (y / $element.data('original-height'))
+    }
+  };
+
+  /**
+   * Converts horizontal and vertical dimensions to image dimensions.
+   *
+   * @param {Object} $element - Crop element.
+   * @param {Number} x - horizontal dimension in canvas space.
+   * @param {Number} y - vertical dimension in canvas space.
+   */
+  Drupal.imageWidgetCrop.toImageDimensions = function ($element, x, y) {
+    var imageData = $element.data('cropper').getImageData();
+    return {
+      width: x * ($element.data('original-width') / imageData.width),
+      height: y * ($element.data('original-height') / imageData.height)
+    }
+  };
+
+  /**
+   * Update hard limits for given element.
+   *
+   * @param {Object} $element - Crop element.
+   */
+  Drupal.imageWidgetCrop.updateHardLimits = function ($element) {
+    var cropName = $element.data('name');
+
+    // Check first that we have configuration for this crop.
+    if (!drupalSettings.image_widget_crop.hasOwnProperty(cropName)) {
+      return;
+    }
+
+    var cropConfig = drupalSettings.image_widget_crop[cropName];
+    var cropper = $element.data('cropper');
+    var options = cropper.options;
+
+    // Limits works in canvas so we need to convert dimensions.
+    var converted = Drupal.imageWidgetCrop.toCanvasDimensions($element, cropConfig.hard_limit.width, cropConfig.hard_limit.height);
+    options.minCropBoxWidth = converted.width;
+    options.minCropBoxHeight = converted.height;
+
+    // After updating the options we need to limit crop box.
+    cropper.limitCropBox(true, false);
+  };
+
+  /**
+   * Check soft limit for given crop element.
+   *
+   * @param {Object} $element - Crop element.
+   */
+  Drupal.imageWidgetCrop.checkSoftLimits = function ($element) {
+    var cropName = $element.data('name');
+
+    // Check first that we have configuration for this crop.
+    if (!drupalSettings.image_widget_crop.hasOwnProperty(cropName)) {
+      return;
+    }
+
+    var cropConfig = drupalSettings.image_widget_crop[cropName];
+
+    var minSoftCropBox = {
+      'width': Number(cropConfig.soft_limit.width) || 0,
+      'height': Number(cropConfig.soft_limit.height) || 0
+    };
+
+    // We do comparison in image dimensions so lets convert first.
+    var cropBoxData = $element.cropper('getCropBoxData');
+    var converted = Drupal.imageWidgetCrop.toImageDimensions($element, cropBoxData.width, cropBoxData.height);
+
+    var dimensions = ['width', 'height'];
+
+    for (var i = 0; i < dimensions.length; ++i) {
+      // @todo - setting up soft limit status in data attribute is not ideal
+      // but current architecture is like that. When we convert to proper
+      // one imageWidgetCrop object per crop widget we will be able to fix
+      // this also. @see https://www.drupal.org/node/2660788.
+      var softLimitReached = $element.data(dimensions[i] + '-soft-limit-reached');
+
+      if (converted[dimensions[i]] < minSoftCropBox[dimensions[i]]) {
+        if (!softLimitReached) {
+          softLimitReached = true;
+          Drupal.imageWidgetCrop.softLimitChanged($element, dimensions[i], softLimitReached);
+        }
+      }
+      else if (softLimitReached) {
+        softLimitReached = false;
+        Drupal.imageWidgetCrop.softLimitChanged($element, dimensions[i], softLimitReached);
+      }
+    }
+  };
+
+  /**
+   * React on soft limit change.
+   *
+   * @param {Object} $element - Crop element.
+   * @param {boolean} newSoftLimitState - new soft imit state, true if it
+   *   reached, or false.
+   */
+  Drupal.imageWidgetCrop.softLimitChanged = function ($element, dimension, newSoftLimitState) {
+    var $cropperWrapper = $element.siblings('.cropper-container');
+    if (newSoftLimitState) {
+      $cropperWrapper.addClass('cropper--' + dimension + '-soft-limit-reached');
+    }
+    else {
+      $cropperWrapper.removeClass('cropper--' + dimension + '-soft-limit-reached');
+    }
+
+    // @todo - use temporary storage while we are waiting for [#2660788].
+    $element.data(dimension + '-soft-limit-reached', newSoftLimitState);
+
+    Drupal.imageWidgetCrop.updateSingleCropSummary($element);
+  };
+
+  /**
    * Initialize cropper on all children of an element.
    *
    * @param {Object} $element - Element to initialize cropper on its children.
@@ -245,11 +387,18 @@
   Drupal.imageWidgetCrop.updateSingleCropSummary = function ($element) {
     var $values = $element.siblings(cropperValuesSelector);
     var croppingApplied = parseInt($values.find('.crop-applied').val());
+    var summaryMessages = [];
 
     $element.closest('details').drupalSetSummary(function (context) {
       if (croppingApplied === 1) {
-        return Drupal.t('Cropping applied');
+        summaryMessages.push(Drupal.t('Cropping applied.'));
       }
+
+      if ($element.data('height-soft-limit-reached') || $element.data('width-soft-limit-reached')) {
+        summaryMessages.push(Drupal.t('Soft limit reached.'));
+      }
+
+      return summaryMessages.join('<br>');
     });
   };
 

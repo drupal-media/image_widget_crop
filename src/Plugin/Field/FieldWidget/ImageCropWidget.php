@@ -68,6 +68,13 @@ class ImageCropWidget extends ImageWidget {
   protected $configFactory;
 
   /**
+   * Standardize the name of wrapper elements.
+   *
+   * @var string
+   */
+  protected static $elementWrapperName = 'crop_container';
+
+  /**
    * {@inheritdoc}
    */
   public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, ElementInfoManagerInterface $element_info, ImageWidgetCropManager $image_widget_crop, ConfigEntityStorage $image_style_storage, ConfigEntityStorage $crop_type_storage, ConfigFactoryInterface $config_factory) {
@@ -171,9 +178,6 @@ class ImageCropWidget extends ImageWidget {
       // Ensure that the ID of an element is unique.
       $list_id = \Drupal::service('uuid')->generate();
 
-      // Standardize the name of wrapper elements.
-      $element_wrapper_name = 'crop_container';
-
       // We need to wrap all elements to identify the widget elements.
       $element['crop_preview_wrapper'] = [
         '#type' => 'details',
@@ -218,6 +222,15 @@ class ImageCropWidget extends ImageWidget {
             $has_ratio = $crop_type->getAspectRatio();
             $ratio = !empty($has_ratio) ? $has_ratio : t('NaN');
 
+            $element['#attached']['drupalSettings'] = [
+              'image_widget_crop' => [
+                $crop_type->id() => [
+                  'soft_limit' => $crop_type->getSoftLimit(),
+                  'hard_limit' => $crop_type->getHardLimit(),
+                ],
+              ],
+            ];
+
             $container[$crop_type_id] = [
               '#type' => 'details',
               '#title' => $label,
@@ -225,13 +238,13 @@ class ImageCropWidget extends ImageWidget {
             ];
 
             // Generation of html List with image & crop informations.
-            $container[$crop_type_id][$element_wrapper_name] = [
+            $container[$crop_type_id][self::$elementWrapperName] = [
               '#type' => 'container',
               '#attributes' => ['class' => ['crop-preview-wrapper', $list_id], 'id' => [$crop_type_id], 'data-ratio' => [$ratio]],
               '#weight' => -10,
             ];
 
-            $container[$crop_type_id][$element_wrapper_name]['image'] = [
+            $container[$crop_type_id][self::$elementWrapperName]['image'] = [
               '#theme' => 'image_style',
               '#style_name' => $element['#crop_preview_image_style'],
               '#attributes' => [
@@ -245,7 +258,7 @@ class ImageCropWidget extends ImageWidget {
               '#weight' => -10,
             ];
 
-            $container[$crop_type_id][$element_wrapper_name]['reset'] = [
+            $container[$crop_type_id][self::$elementWrapperName]['reset'] = [
               '#type' => 'button',
               '#value' => t('Reset crop'),
               '#attributes' => ['class' => ['crop-preview-wrapper__crop-reset']],
@@ -253,14 +266,14 @@ class ImageCropWidget extends ImageWidget {
             ];
 
             // Generation of html List with image & crop informations.
-            $container[$crop_type_id][$element_wrapper_name]['values'] = [
+            $container[$crop_type_id][self::$elementWrapperName]['values'] = [
               '#type' => 'container',
               '#attributes' => ['class' => ['crop-preview-wrapper__value']],
               '#weight' => -9,
             ];
 
             // Element to track whether cropping is applied or not.
-            $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied'] = [
+            $container[$crop_type_id][self::$elementWrapperName]['values']['crop_applied'] = [
               '#type' => 'hidden',
               '#attributes' => ['class' => ["crop-applied"]],
               '#value' => 0,
@@ -284,7 +297,7 @@ class ImageCropWidget extends ImageWidget {
               if (!empty($crop)) {
                 $original_properties = self::getCropProperties($crop);
                 $edit = TRUE;
-                $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
+                $container[$crop_type_id][self::$elementWrapperName]['values']['crop_applied']['#value'] = 1;
                 if(!empty($crops)) {
                   foreach($crops as $one_crop) {
                     $crop_array = [];
@@ -317,7 +330,7 @@ class ImageCropWidget extends ImageWidget {
                         }
 
                         // Element to track whether cropping is applied or not.
-                        $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
+                        $container[$crop_type_id][self::$elementWrapperName]['values']['crop_applied']['#value'] = 1;
                       }
                     }
 
@@ -329,10 +342,10 @@ class ImageCropWidget extends ImageWidget {
                         if($key == $crop_type_id && $fids == $file->id()) {
                           $original_properties = $wrapper['crop_container']['values'];
                           if($original_properties['crop_applied'] == '1') {
-                            $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
+                            $container[$crop_type_id][self::$elementWrapperName]['values']['crop_applied']['#value'] = 1;
                           }
                           else {
-                            $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 0;
+                            $container[$crop_type_id][self::$elementWrapperName]['values']['crop_applied']['#value'] = 0;
                           }
                         }
                       }
@@ -352,10 +365,10 @@ class ImageCropWidget extends ImageWidget {
                         if ($key == $crop_type_id && $fids == $file->id()) {
                           $original_properties = $wrapper['crop_container']['values'];
                           if ($original_properties['crop_applied'] == '1') {
-                            $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
+                            $container[$crop_type_id][self::$elementWrapperName]['values']['crop_applied']['#value'] = 1;
                           }
                           else {
-                            $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 0;
+                            $container[$crop_type_id][self::$elementWrapperName]['values']['crop_applied']['#value'] = 0;
                           }
                         }
                       }
@@ -377,10 +390,10 @@ class ImageCropWidget extends ImageWidget {
                         $original_properties = $wrapper['crop_container']['values'];
                         $edit = TRUE;
                         if($original_properties['crop_applied'] == '1') {
-                          $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
+                          $container[$crop_type_id][self::$elementWrapperName]['values']['crop_applied']['#value'] = 1;
                         }
                         else {
-                          $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 0;
+                          $container[$crop_type_id][self::$elementWrapperName]['values']['crop_applied']['#value'] = 0;
                         }
                       }
                     }
@@ -398,10 +411,10 @@ class ImageCropWidget extends ImageWidget {
                       if($key == $crop_type_id && $fids == $file->id()) {
                         $original_properties = $wrapper['crop_container']['values'];
                         if($original_properties['crop_applied'] == '1') {
-                          $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 1;
+                          $container[$crop_type_id][self::$elementWrapperName]['values']['crop_applied']['#value'] = 1;
                         }
                         else {
-                          $container[$crop_type_id][$element_wrapper_name]['values']['crop_applied']['#value'] = 0;
+                          $container[$crop_type_id][self::$elementWrapperName]['values']['crop_applied']['#value'] = 0;
                         }
                       }
                     }
@@ -410,7 +423,7 @@ class ImageCropWidget extends ImageWidget {
               }
             }
 
-            self::getCropFormElement($element, $element_wrapper_name, $original_properties, $edit, $crop_type_id);
+            self::getCropFormElement($element, self::$elementWrapperName, $original_properties, $edit, $crop_type_id);
 
             // Stock Original File Values.
             $element['file-uri'] = [
@@ -517,11 +530,44 @@ class ImageCropWidget extends ImageWidget {
         '#attributes' => [
           'class' => ["crop-$property"]
         ],
-        '#value' => $value_property,
+        '#crop_type' => $crop_type_id,
+        '#element_name' => $property,
+        '#default_value' => $value_property,
       ];
+      if ($property == 'height' || $property == 'width') {
+        $crop_element['#element_validate'] = [[get_called_class(), 'validateHardLimit']];
+      }
     }
 
     return $element;
+  }
+
+  /**
+   * Form element validation handler for crop widget elements.
+   */
+  public static function validateHardLimit($element, FormStateInterface $form_state) {
+    $crop_type = \Drupal::entityTypeManager()->getStorage('crop_type')
+      ->load($element['#crop_type']);
+    $parents = $element['#parents'];
+    array_pop($parents);
+    $crop_values = $form_state->getValue($parents);
+    $hard_limit = $crop_type->getHardLimit();
+    $operation = $form_state->getTriggeringElement()['#value']->getUntranslatedString();
+    if ((int) $crop_values['crop_applied'] == 0 || $operation == 'Remove') {
+      return;
+    }
+    $element_name = $element['#element_name'];
+    if ($hard_limit[$element_name] !== 0 && !empty($hard_limit[$element_name])) {
+      if ($hard_limit[$element_name] > (int) $crop_values[$element_name]) {
+        $form_state->setError($element, t('Crop @property is smaller then the allowed @hard_limitpx for @crop_name',
+          [
+            '@property' => $element_name,
+            '@hard_limit' => $hard_limit[$element_name],
+            '@crop_name' => $crop_type->label(),
+          ]
+        ));
+      }
+    }
   }
 
   /**

@@ -9,6 +9,21 @@
   margin-top: 1em;
 }
 
+.cropper--height-soft-limit-reached .cropper-point,
+.cropper--width-soft-limit-reached .cropper-point {
+  background-color: #a51b00;
+}
+.cropper--height-soft-limit-reached .line-w,
+.cropper--height-soft-limit-reached .line-e {
+  background-color: #ff0000;
+  opacity: 0.2;
+}
+.cropper--width-soft-limit-reached .line-n,
+.cropper--width-soft-limit-reached .line-s {
+  background-color: #ff0000;
+  opacity: 0.2;
+}
+
 @media screen and (max-width: 480px) {
   .details-wrapper th {
     display: none;
