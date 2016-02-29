@@ -8,7 +8,7 @@
 
   var cropperSelector = '.crop-preview-wrapper__preview-image';
   var cropperValuesSelector = '.crop-preview-wrapper__value';
-  var cropWrapperSelector = '.image-widget-data__crop-wrapper';
+  var cropWrapperSelector = '.image-data__crop-wrapper';
   var cropWrapperSummarySelector = 'summary';
   var verticalTabsSelector = '.vertical-tabs';
   var verticalTabsMenuItemSelector = '.vertical-tabs__menu-item';
@@ -63,7 +63,7 @@
     $verticalTabsMenuItem.add($cropWrapperSummary).click(function () {
       var tabId = $(this).find('a').attr('href');
       var $cropper = $(this).parent().find(cropperSelector);
-      if(typeof tabId !== 'undefined') {
+      if (typeof tabId !== 'undefined') {
         $cropper = $(tabId).find(cropperSelector);
       }
       var ratio = Drupal.imageWidgetCrop.getRatio($cropper);
@@ -73,9 +73,9 @@
     // Handling click event for opening/closing vertical tabs.
     $cropWrapper.children(cropWrapperSummarySelector).click(function (evt) {
       // Work only on bigger screens where $verticalTabsMenuItem is not empty.
-      if($verticalTabsMenuItem.length !== 0) {
+      if ($verticalTabsMenuItem.length !== 0) {
         // If detailsWrapper is not visible display it and initialize cropper.
-        if( !$(this).siblings(detailsWrapper).is(':visible') ) {
+        if (!$(this).siblings(detailsWrapper).is(':visible')) {
           evt.preventDefault();
           $(this).parent().attr('open','open');
           $(table).addClass('responsive-enabled--opened');
@@ -109,7 +109,7 @@
           var $croppers = $(this).find(cropperSelector);
           $croppers.each(function () {
             var $this = $(this);
-            if($this.parent().parent().parent().css('display') !== 'none') {
+            if ($this.parent().parent().parent().css('display') !== 'none') {
               // Get previous data for cropper.
               var canvasDataOld = $this.cropper('getCanvasData');
               var cropBoxData = $this.cropper('getCropBoxData');
@@ -156,10 +156,12 @@
       var int = ratio.split(":");
       if ($.isArray(int) && ($.isNumeric(int[0]) && $.isNumeric(int[1]))) {
         return int[0] / int[1];
-      } else {
+      }
+      else {
         return "NaN";
       }
-    } else {
+    }
+    else {
       return ratio;
     }
   };
@@ -174,8 +176,8 @@
     var data = null;
     var $values = $element.siblings(cropperValuesSelector);
 
-    //Calculate minimal height for cropper container (minimal width is 200).
-    var minDelta = ( $element.data('original-width') / 200 );
+    // Calculate minimal height for cropper container (minimal width is 200).
+    var minDelta = ($element.data('original-width') / 200);
     cropperOptions['minContainerHeight'] = $element.data('original-height') / minDelta;
 
     var options = cropperOptions;
@@ -216,7 +218,7 @@
     });
 
     // If 'Show default crop' is checked apply default crop.
-    if(drupalSettings['crop_default']) {
+    if (drupalSettings['crop_default']) {
       var dataDefault = $element.cropper('getData');
       // Calculate delta between original and thumbnail images.
       var deltaDefault = $element.data('original-height') / $element.prop('naturalHeight');
@@ -450,7 +452,7 @@
     var $valuesDefault = $element.siblings(cropperValuesSelector);
     var options = cropperOptions;
     // If 'Show default crop' is not checked re-initialize cropper.
-    if(!drupalSettings['crop_default']) {
+    if (!drupalSettings['crop_default']) {
       $element.cropper('destroy');
       options.autoCrop = false;
       $element.cropper(options);

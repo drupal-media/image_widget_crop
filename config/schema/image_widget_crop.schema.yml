@@ -18,9 +18,6 @@ field.widget.settings.image_widget_crop:
       label: 'The preview image will be cropped'
       sequence:
         type: string
-    crop_help_text:
-      type: string
-      label: 'Default help text slide'
     show_crop_area:
       type: boolean
       label: 'Always expand crop area'
@@ -41,3 +38,17 @@ image_widget_crop.settings:
         css_url:
           type: string
           label: 'CSS URL'
+        crop_preview_image_style:
+          type: string
+          label: 'Preview crop image style'
+        crop_list:
+          type: sequence
+          label: 'The preview image will be cropped'
+          sequence:
+            type: string
+        warn_multiple_usages:
+          type: boolean
+          label: 'Warn user when a file have multiple usages'
+        show_default_crop:
+          type: boolean
+          label: 'Show default crop area'

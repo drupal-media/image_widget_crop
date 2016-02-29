@@ -6,16 +6,9 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Render\Element;
+use Drupal\crop\Entity\Crop;
+use Drupal\crop\Entity\CropType;
 use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
-use Drupal\image_widget_crop\Plugin\Field\FieldWidget\ImageCropWidget;
-
-/**
- * Standardize the name of IWC wrapper elements.
- *
- * @var string
- */
-const ELEMENT_WRAPPER_NAME = 'crop_container';
 
 /**
  * Implements hook_help().
@@ -49,54 +42,48 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
     // Loop all fields of the saved entity.
     foreach ($entity->getFields() as $entity_fields) {
       // If current field is FileField and use imageWidgetCrop.
-      if ($entity_fields instanceof FileFieldItemList && isset($entity_fields->crop_preview_wrapper)) {
-
-        /** @var \Drupal\image_widget_crop\ImageWidgetCropManager $image_widget_crop_manager */
-        $image_widget_crop_manager = \Drupal::service('image_widget_crop.manager');
-
+      if ($entity_fields instanceof FileFieldItemList) {
         /* First loop to get each elements independently in the field values.
         Required if the image field cardinality > 1. */
-        foreach ($entity_fields->getValue() as $crop_element) {
-          /* Parse all value of a crop_preview_wrapper element and get,
-          properties associate with her CropType. */
-          foreach ($crop_element['crop_preview_wrapper'] as $crop_type_name => $properties) {
-            /** @var \Drupal\crop\Entity\CropType $crop_type */
-            $crop_type = \Drupal::entityTypeManager()
-              ->getStorage('crop_type')
-              ->loadByProperties(['id' => $crop_type_name]);
+        foreach ($entity_fields->getValue() as $crop_elements) {
+          foreach ($crop_elements as $crop_element) {
+            if (is_array($crop_element) && isset($crop_element['crop_wrapper'])) {
+              /** @var \Drupal\image_widget_crop\ImageWidgetCropManager $image_widget_crop_manager */
+              $image_widget_crop_manager = \Drupal::service('image_widget_crop.manager');
+              // Parse all value of a crop_wrapper element and get properties
+              // associate with her CropType.
+              foreach ($crop_element['crop_wrapper'] as $crop_type_name => $properties) {
+                $properties = $properties['crop_container']['values'];
+                /** @var \Drupal\crop\Entity\CropType $crop_type */
+                $crop_type = \Drupal::entityTypeManager()
+                  ->getStorage('crop_type')
+                  ->load($crop_type_name);
 
-            $properties['values'] = &$properties['crop_container']['values'];
-
-            // If the crop type needed is disabled or delete.
-            if (!isset($crop_type[$crop_type_name]) || empty($crop_type[$crop_type_name])) {
-              drupal_set_message(t("The CropType ('@cropType') is not active or not defined. Please verify configuration of image style or ImageWidgetCrop formatter configuration", ['@cropType' => $crop_type_name]), 'error');
-              return;
-            }
-
-            // If this crop is availables to create an crop entity.
-            if ($entity->isNew()) {
-              if ($properties['values']['crop_applied'] == '1' && isset($properties['values']) && (!empty($properties['values']['width']) && !empty($properties['values']['height']))) {
-                // Get crop type for current cropType.
-                if (!isset($crop_type) && empty($crop_type)) {
-                  drupal_set_message(t("The type of crop does not exist, please check the configuration of the CropType ('@cropType')", ['@cropType' => $crop_type->label()]), 'error');
+                // If the crop type needed is disabled or delete.
+                if (empty($crop_type) && $crop_type instanceof CropType) {
+                  drupal_set_message(t("The CropType ('@cropType') is not active or not defined. Please verify configuration of image style or ImageWidgetCrop formatter configuration", ['@cropType' => $crop_type->id()]), 'error');
                   return;
                 }
 
-                $image_widget_crop_manager->applyCrop($properties['values'], $crop_element, $crop_type[$crop_type_name]);
-              }
-            }
-            else {
-              // Get all imagesStyle used this crop_type.
-              $image_styles = $image_widget_crop_manager->getImageStylesByCrop($crop_type_name);
-              $crops = $image_widget_crop_manager->loadImageStyleByCrop($image_styles, $crop_type[$crop_type_name], $crop_element['file-uri']);
-              // If the entity already exist & is not deleted by,
-              // user update $crop_type_name crop entity.
-              // If you need to delete existing crop when you edit this entity.
-              if ($properties['values']['crop_applied'] == '0' && !empty($crops)) {
-                $image_widget_crop_manager->deleteCrop($crop_element['file-uri'], $crop_type[$crop_type_name], $crop_element['file-id']);
-              }
-              elseif (isset($properties['values']) && (!empty($properties['values']['width']) && !empty($properties['values']['height']))) {
-                $image_widget_crop_manager->updateCrop($properties['values'], $crop_element, $crop_type[$crop_type_name]);
+                // If this crop is available to create an crop entity.
+                if ($entity->isNew()) {
+                  if ($properties['crop_applied'] == '1' && isset($properties) && (!empty($properties['width']) && !empty($properties['height']))) {
+                    $image_widget_crop_manager->applyCrop($properties, $crop_element, $crop_type);
+                  }
+                }
+                else {
+                  // Get all imagesStyle used this crop_type.
+                  $image_styles = $image_widget_crop_manager->getImageStylesByCrop($crop_type_name);
+                  $crops = $image_widget_crop_manager->loadImageStyleByCrop($image_styles, $crop_type, $crop_element['file-uri']);
+                  // If the entity already exist & is not deleted by user
+                  // update $crop_type_name crop entity.
+                  if ($properties['crop_applied'] == '0' && !empty($crops)) {
+                    $image_widget_crop_manager->deleteCrop($crop_element['file-uri'], $crop_type, $crop_element['file-id']);
+                  }
+                  elseif (isset($properties) && (!empty($properties['width']) && !empty($properties['height']))) {
+                    $image_widget_crop_manager->updateCrop($properties, $crop_element, $crop_type);
+                  }
+                }
               }
             }
           }
@@ -110,26 +97,26 @@ function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $en
  * Implements hook_libraries_info().
  */
 function image_widget_crop_libraries_info() {
-  $libraries = array(
-    'cropper' => array(
+  $libraries = [
+    'cropper' => [
       'name' => 'cropper',
       'vendor url' => 'https://github.com/fengyuanchen/cropper',
       'download url' => 'https://cdnjs.com/libraries/cropper',
-      'version arguments' => array(
+      'version arguments' => [
         'file' => 'cropper.min.js',
         'pattern' => '/Cropper v(.*)/',
         'lines' => 2,
-      ),
-      'files' => array(
-        'js' => array(
-          'cropper.min.js' => array(),
-        ),
-        'css' => array(
-          'cropper.min.css' => array(),
-        ),
-      ),
-    ),
-  );
+      ],
+      'files' => [
+        'js' => [
+          'cropper.min.js' => [],
+        ],
+        'css' => [
+          'cropper.min.css' => [],
+        ],
+      ],
+    ],
+  ];
   return $libraries;
 }
 
@@ -216,63 +203,57 @@ function image_widget_crop_library_info_alter(&$libraries, $extension) {
 /**
  * Form submission handler for image_widget_crop_form_file_form_alter.
  *
- * @param $form
+ * @param array $form
+ *   The complete form array.
  * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The current state of the form.
  */
-function image_widget_crop_form_submit(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
-  // Get old values.
-  $old_values = $form_state->getValues();
-
-  // Get values from js.
-  $user_values = $form_state->getUserInput();
-
-  $crop_types = $user_values['crop_preview_wrapper'];
-  foreach ($crop_types as $crop_type_id => $crop_container) {
-    $old_properties = $old_values['crop_preview_wrapper'][$crop_type_id]['crop_container']['values'];
-    $new_properties = $user_values['crop_preview_wrapper'][$crop_type_id]['crop_container']['values'];
-
-    // If we don't have old values and not creating new crop then simply
-    // continue.
-    if ($old_properties['edit'] == FALSE && $new_properties['crop_applied'] == 0) {
-      continue;
-    }
-
+function image_widget_crop_form_submit(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  /** @var \Drupal\file_entity\Entity\FileEntity $entity */
+  $entity = $form_state->getFormObject()->getEntity();
+  $form_state_values = $form_state->getValues();
+  if (is_array($form_state_values['image_crop']) && isset($form_state_values['image_crop']['crop_wrapper'])) {
+    /** @var \Drupal\image_widget_crop\ImageWidgetCropManager $image_widget_crop_manager */
     $image_widget_crop_manager = \Drupal::service('image_widget_crop.manager');
+    // Parse all values and get properties associate with the crop type.
+    foreach ($form_state_values['image_crop']['crop_wrapper'] as $crop_type_name => $properties) {
+      $properties = $properties['crop_container']['values'];
+      /** @var \Drupal\crop\Entity\CropType $crop_type */
+      $crop_type = \Drupal::entityTypeManager()
+        ->getStorage('crop_type')
+        ->load($crop_type_name);
 
-    /** @var \Drupal\crop\Entity\CropType $crop_type */
-    $crop_type = \Drupal::entityTypeManager()
-      ->getStorage('crop_type')
-      ->loadByProperties(['id' => $crop_type_id]);
-
-    // If the crop type needed is disabled or delete.
-    if (!isset($crop_type[$crop_type_id]) || empty($crop_type[$crop_type_id])) {
-      drupal_set_message(t("The CropType ('@cropType') is not active or not defined. Please verify configuration of image style or ImageWidgetCrop formatter configuration", ['@cropType' => $crop_type['crop_type_name']]), 'error');
-      return;
-    }
-
-    if ($old_properties['edit'] == FALSE && $new_properties['crop_applied'] == 1) {
-      if (!isset($crop_type) && empty($crop_type)) {
-        drupal_set_message(t("The type of crop does not exist, please check the configuration of the CropType ('@cropType')", ['@cropType' => $crop_type->label()]), 'error');
+      // If the crop type needed is disabled or delete.
+      if (empty($crop_type) && $crop_type instanceof CropType) {
+        drupal_set_message(t("The CropType ('@cropType') is not active or not defined. Please verify configuration of image style or ImageWidgetCrop formatter configuration", ['@cropType' => $crop_type->id()]), 'error');
         return;
       }
-      $image_widget_crop_manager->applyCrop($new_properties, $old_properties, $crop_type[$crop_type_id]);
-    }
 
-    // Get all imagesStyle used this crop_type.
-    $image_styles = $image_widget_crop_manager->getImageStylesByCrop($crop_type_id);
-    $crops = $image_widget_crop_manager->loadImageStyleByCrop($image_styles, $crop_type[$crop_type_id], $old_properties['file-uri']);
-
-    if ($old_properties['edit'] == TRUE) {
-      if ($new_properties['crop_applied'] == 1) {
-        if ($image_widget_crop_manager->cropHasChanged($new_properties, $old_properties)) {
-          $image_widget_crop_manager->updateCrop($new_properties, $old_properties, $crop_type[$crop_type_id]);
+      if (is_array($properties) && isset($properties)) {
+        $crop_exists = Crop::cropExists($entity->getFileUri(), $crop_type_name);
+        if (!$crop_exists) {
+          if ($properties['crop_applied'] == '1' && isset($properties) && (!empty($properties['width']) && !empty($properties['height']))) {
+            $image_widget_crop_manager->applyCrop($properties, $form_state_values['image_crop'], $crop_type);
+          }
+        }
+        else {
+          // Get all imagesStyle used this crop_type.
+          $image_styles = $image_widget_crop_manager->getImageStylesByCrop($crop_type_name);
+          $crops = $image_widget_crop_manager->loadImageStyleByCrop($image_styles, $crop_type, $entity->getFileUri());
+          // If the entity already exist & is not deleted by user update
+          // $crop_type_name crop entity.
+          if ($properties['crop_applied'] == '0' && !empty($crops)) {
+            $image_widget_crop_manager->deleteCrop($entity->getFileUri(), $crop_type, $entity->id());
+          }
+          elseif (isset($properties) && (!empty($properties['width']) && !empty($properties['height']))) {
+            $image_widget_crop_manager->updateCrop($properties, [
+              'file-uri' => $entity->getFileUri(),
+              'file-id' => $entity->id(),
+            ], $crop_type);
+          }
         }
       }
-      elseif ($new_properties['crop_applied'] == 0 && !empty($crops)) {
-        $image_widget_crop_manager->deleteCrop($old_properties['file-uri'], $crop_type[$crop_type_id], $old_properties['file-id']);
-      }
     }
-
   }
 }
 
@@ -280,194 +261,20 @@ function image_widget_crop_form_submit(&$form, \Drupal\Core\Form\FormStateInterf
  * Implements hook_form_alter().
  */
 function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  /** @var \Drupal\file_entity\Entity\FileEntity $entity */
-  $entity = $form_state->getFormObject()->getEntity();
-  $mime_type = $entity->getMimeTypeType();
+  /** @var \Drupal\file_entity\Entity\FileEntity $file */
+  $file = $form_state->getFormObject()->getEntity();
+  $mime_type = $file->getMimeTypeType();
   $operation = $form_state->getFormObject()->getOperation();
+  $crop_config = \Drupal::config('image_widget_crop.settings');
   if ($mime_type == 'image' && ($operation == 'edit' || $operation == 'inline_edit')) {
-    $edit = FALSE;
-
-    // Display an error message if the local/remote library and CSS are not set.
-    // @TODO Find a better solution to display the error message.
-    $config = \Drupal::config('image_widget_crop.settings');
-    $js_library = $config->get('settings.library_url');
-    $css_library = $config->get('settings.css_url');
-    if (!\Drupal::moduleHandler()->moduleExists('libraries')) {
-      if ((empty($js_library) || empty($css_library)) || (empty($js_library) && empty($css_library))) {
-        $form['message'] = array(
-          '#type' => 'container',
-          '#markup' => t('Either set the library locally (in /libraries/cropper) and enable the libraries module or enter the remote URL on <a href="/admin/config/media/crop-widget">Image Crop Widget settings</a>.'),
-          '#attributes' => array(
-            'class' => array('messages messages--error'),
-          ),
-        );
-      }
-    }
-    $form['#theme'] = 'image_widget';
-    $form['#attached']['library'][] = 'image/form';
-    $form['#attached']['library'][] = 'image_widget_crop/cropper.integration';
-
-    // Ensure that the ID of an element is unique.
-    $list_id = \Drupal::service('uuid')->generate();
-
-    // Warn the user if the crop is used more than once.
-    $usage_counter = 0;
-    $file_usage = \Drupal::service('file.usage')->listUsage($entity);
-    foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($file_usage)) as $usage) {
-      $usage_counter += (int) $usage;
-    }
-    if ($usage_counter > 1) {
-      $form['crop_reuse'] = [
-        '#type' => 'container',
-        '#markup' => t('This crop definition affects more usages of this image'),
-        '#attributes' => [
-          'class' => ['messages messages--warning'],
-        ],
-        '#weight' => -10,
-      ];
-    }
-    // We need to wrap all elements to identify the widget elements.
-    $form['crop_preview_wrapper'] = [
-      '#type' => 'details',
-      '#title' => t('Crop image'),
-      '#attributes' => ['class' => ['image-widget-data__crop-wrapper']],
-      '#weight' => 1,
-      '#tree' => TRUE,
+    $form['image_crop'] = [
+      '#type' => 'image_crop',
+      '#file' => $file,
+      '#crop_type_list' => $crop_config->get('settings.crop_list'),
+      '#crop_preview_image_style' => $crop_config->get('settings.crop_preview_image_style'),
+      '#show_default_crop' => $crop_config->get('settings.show_default_crop'),
+      '#warn_mupltiple_usages' => $crop_config->get('settings.warn_mupltiple_usages'),
     ];
-
-    $container = &$form['crop_preview_wrapper'];
-    $container[$list_id] = [
-      '#type' => 'vertical_tabs',
-      '#default_tab' => '',
-      '#theme_wrappers' => array('vertical_tabs'),
-      '#tree' => TRUE,
-      '#parents' => array($list_id),
-    ];
-
-    // Get all crop type available @TODO Get available crop type from configuration.
-    $crop_type_list = \Drupal::service('entity_type.manager')
-      ->getStorage('crop_type')
-      ->loadMultiple();
-
-    if (!empty($crop_type_list)) {
-      foreach ($crop_type_list as $crop_type) {
-        $crop_type_id = $crop_type->id();
-        $label = $crop_type->label();
-
-        $container[$crop_type_id] = [
-          '#type' => 'details',
-          '#title' => $label,
-          '#group' => $list_id,
-        ];
-
-        $original_properties = [];
-
-        $has_ratio = $crop_type->getAspectRatio();
-        $ratio = !empty($has_ratio) ? $has_ratio : t('NaN');
-
-        $form['#attached']['drupalSettings'] = [
-          'image_widget_crop' => [
-            $crop_type->id() => [
-              'soft_limit' => $crop_type->getSoftLimit(),
-              'hard_limit' => $crop_type->getHardLimit(),
-            ],
-          ],
-        ];
-
-        // Generation of html List with image & crop informations.
-        $container[$crop_type_id][ELEMENT_WRAPPER_NAME] = [
-          '#type' => 'container',
-          '#attributes' => [
-            'class' => ['crop-preview-wrapper', $list_id],
-            'id' => [$crop_type_id],
-            'data-ratio' => [$ratio]
-          ],
-          '#weight' => -10,
-        ];
-
-        $file_uri = $entity->getFileUri();
-
-        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['image'] = [
-          '#theme' => 'image_style',
-          // TODO Get from configuration.
-          '#style_name' => 'crop_thumbnail',
-          '#attributes' => [
-            'class' => ['crop-preview-wrapper__preview-image'],
-            'data-ratio' => $ratio,
-            'data-name' => $crop_type_id,
-            'data-original-width' => !empty($entity->getMetadata('width')) ? $entity->getMetadata('width') : '',
-            'data-original-height' => !empty($entity->getMetadata('height')) ? $entity->getMetadata('height') : '',
-          ],
-          '#uri' => $file_uri,
-          '#weight' => -10,
-        ];
-
-        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['reset'] = [
-          '#type' => 'button',
-          '#value' => t('Reset crop'),
-          '#attributes' => ['class' => ['crop-preview-wrapper__crop-reset']],
-          '#weight' => -10,
-        ];
-
-        // Generation of html List with image & crop information.
-        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['values'] = [
-          '#type' => 'container',
-          '#attributes' => ['class' => ['crop-preview-wrapper__value']],
-          '#weight' => -9,
-        ];
-
-        // Element to track whether cropping is applied or not.
-        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['values']['crop_applied'] = [
-          '#type' => 'hidden',
-          '#attributes' => ['class' => ["crop-applied"]],
-          '#value' => 0,
-        ];
-
-        $form['#attached']['drupalSettings']['crop_default'] = TRUE;
-
-        $crop_storage = \Drupal::service('entity.manager')->getStorage('crop');
-
-        // Get Only first crop entity,
-        // @see https://www.drupal.org/node/2617818.
-        /** @var \Drupal\crop\Entity\Crop $crop */
-        $crop = current($crop_storage->loadByProperties([
-          'type' => $crop_type_id,
-          'uri' => $file_uri
-        ]));
-        // If there are no crops saved then we don't need to load crop values.
-        if (!empty($crop)) {
-          $original_properties = ImageCropWidget::getCropProperties($crop);
-
-          /** @var \Drupal\Core\Image\Image $image */
-          $image = \Drupal::service('image.factory')->get($file_uri);
-          if (!$image->isValid()) {
-            throw new \RuntimeException('This image file is nos valid');
-          }
-
-          // Element to track whether cropping is applied or not.
-          $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['values']['crop_applied']['#value'] = 1;
-          $edit = TRUE;
-        }
-
-        ImageCropWidget::getCropFormElement($form, ELEMENT_WRAPPER_NAME, $original_properties, $edit, $crop_type_id);
-
-        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['values']['edit'] = [
-          '#type' => 'value',
-          '#value' => $edit,
-        ];
-
-        // Stock Original File Values.
-        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['values']['file-uri'] = [
-          '#type' => 'value',
-          '#value' => $file_uri,
-        ];
-
-        $container[$crop_type_id][ELEMENT_WRAPPER_NAME]['values']['file-id'] = [
-          '#type' => 'value',
-          '#value' => $entity->id(),
-        ];
-      }
-    }
     $form['actions']['submit']['#submit'][] = 'image_widget_crop_form_submit';
   }
 }
@@ -476,12 +283,11 @@ function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormSt
  * Implements hook_entity_extra_field_info().
  */
 function image_widget_crop_entity_extra_field_info() {
-  $return = array();
-
-  $return['file']['image']['form']['crop_preview_wrapper'] = array(
+  $return = [];
+  $return['file']['image']['form']['crop_preview_wrapper'] = [
     'label' => t('Crop image'),
     'weight' => 10,
-  );
+  ];
 
   return $return;
 }

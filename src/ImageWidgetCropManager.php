@@ -210,14 +210,19 @@ class ImageWidgetCropManager {
    * @param array $properties
    *   The original height of image.
    *
-   * @return array<double>
+   * @return NULL|array
    *   The data dimensions (width & height) into this ImageStyle.
    */
   public function getCropOriginalDimension(array $field_values, array $properties) {
+    $crop_coordinates = [];
+
     /** @var \Drupal\Core\Image\Image $image */
     $image = \Drupal::service('image.factory')->get($field_values['file-uri']);
     if (!$image->isValid()) {
-      throw new \RuntimeException('This image file is nos valid.');
+      drupal_set_message(t('The file "@file" is not valid, your crop is not applied.', [
+        '@file' => $field_values['file-uri'],
+      ]), 'error');
+      return NULL;
     }
 
     // Get Center coordinate of crop zone on original image.
@@ -342,9 +347,8 @@ class ImageWidgetCropManager {
     $crops = [];
     /** @var \Drupal\image\Entity\ImageStyle $image_style */
     foreach ($image_styles as $image_style) {
-      // Get Only first crop entity @see https://www.drupal.org/node/2617818.
       /** @var \Drupal\crop\Entity\Crop $crop */
-      $crop = current($this->cropStorage->loadByProperties(['type' => $crop_type->id(), 'uri' => $file_uri]));
+      $crop = Crop::findCrop($file_uri, $crop_type->id());
       if (!empty($crop)) {
         $crops[$image_style->id()] = $crop;
       }
@@ -370,6 +374,71 @@ class ImageWidgetCropManager {
       return TRUE;
     }
     return FALSE;
+  }
+
+  /**
+   * Verify if ImageStyle is correctly configured.
+   *
+   * @param array $styles
+   *   The list of available ImageStyle.
+   *
+   * @return array<integer>
+   *   The list of styles filtred.
+   */
+  public function getAvailableCropImageStyle(array $styles) {
+    $available_styles = [];
+    foreach ($styles as $style_id => $style_label) {
+      $style_loaded = $this->imageStyleStorage->loadByProperties(['name' => $style_id]);
+      /** @var \Drupal\image\Entity\ImageStyle $image_style */
+      $image_style = $style_loaded[$style_id];
+      $effect_data = $this->getEffectData($image_style, 'width');
+      if (!empty($effect_data)) {
+        $available_styles[$style_id] = $style_label;
+      }
+    }
+
+    return $available_styles;
+  }
+
+  /**
+   * Verify if the crop is used by a ImageStyle.
+   *
+   * @param array $crop_list
+   *   The list of existent Crop Type.
+   *
+   * @return array<integer>
+   *   The list of Crop Type filtred.
+   */
+  public function getAvailableCropType(array $crop_list) {
+    $available_crop = [];
+    foreach ($crop_list as $crop_machine_name => $crop_label) {
+      $image_styles = $this->getImageStylesByCrop($crop_machine_name);
+      if (!empty($image_styles)) {
+        $available_crop[$crop_machine_name] = $crop_label;
+      }
+    }
+
+    return $available_crop;
+  }
+
+  /**
+   * Get All sizes properties of the crops for an file.
+   *
+   * @param \Drupal\crop\Entity\Crop $crop
+   *   All crops attached to this file based on URI.
+   *
+   * @return array<array>
+   *   Get all crop zone properties (x, y, height, width),
+   */
+  public static function getCropProperties(Crop $crop) {
+    $anchor = $crop->anchor();
+    $size = $crop->size();
+    return [
+      'x' => $anchor['x'],
+      'y' => $anchor['y'],
+      'height' => $size['height'],
+      'width' => $size['width']
+    ];
   }
 
 }

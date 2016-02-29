@@ -63,7 +63,7 @@ class ImageWidgetCropTest extends WebTestBase {
    */
   public function testCropUi() {
     // Test that when a crop has more than one usage we have a warning.
-    $this->createImageField('field_image_crop_test', 'crop_test', [], [], 'image_widget_crop', ['crop_list' => ['crop_16_9' => 'crop_16_9']]);
+    $this->createImageField('field_image_crop_test', 'crop_test', 'image_widget_crop', [], [], ['crop_list' => ['crop_16_9' => 'crop_16_9']]);
     $this->drupalGetTestFiles('image');
 
     $this->drupalGet('node/add/crop_test');
@@ -96,14 +96,14 @@ class ImageWidgetCropTest extends WebTestBase {
    */
   public function testImageWidgetCrop() {
     // Test that crop widget works properly.
-    $this->createImageField('field_image_crop_test', 'crop_test', [], [], 'image_widget_crop', ['crop_list' => ['crop_16_9' => 'crop_16_9']]);
+    $this->createImageField('field_image_crop_test', 'crop_test', 'image_widget_crop', [], [], ['crop_list' => ['crop_16_9' => 'crop_16_9']]);
     $this->drupalGetTestFiles('image');
 
     $this->drupalGet('node/add/crop_test');
 
     // Assert that there is no crop widget, neither 'Alternative text' text
     // filed nor 'Remove' button yet.
-    $raw = '<summary role="button" aria-controls="edit-field-image-crop-test-0-crop-preview-wrapper" aria-expanded="false" aria-pressed="false">Crop image</summary>';
+    $raw = '<summary role="button" aria-controls="edit-field-image-crop-test-0-image-crop-crop-wrapper" aria-expanded="false" aria-pressed="false">Crop image</summary>';
     $this->assertNoRaw($raw);
     $this->assertNoText('Alternative text');
     $this->assertNoFieldByName('field_image_crop_test_0_remove_button');
@@ -120,10 +120,10 @@ class ImageWidgetCropTest extends WebTestBase {
 
     // Set title and 'Alternative text' text field and save.
     $title = $this->randomMachineName();
-    $edit = array(
+    $edit = [
       'title[0][value]' => $title,
       'field_image_crop_test[0][alt]' => $this->randomMachineName(),
-    );
+    ];
     $this->drupalPostForm(NULL, $edit, 'Save');
     $this->assertText('Crop test ' . $title . ' has been created.');
     $url = $this->getUrl();
@@ -155,7 +155,7 @@ class ImageWidgetCropTest extends WebTestBase {
    * Tests integration with file_entity module.
    */
   public function testFileEntityIntegration() {
-    $this->createImageField('field_image_file_entity', 'crop_test', [], [], 'file_editable');
+    $this->createImageField('field_image_file_entity', 'crop_test', 'file_editable');
 
     $image = current($this->drupalGetTestFiles('image'));
     $image = File::create((array) $image);
@@ -210,16 +210,16 @@ class ImageWidgetCropTest extends WebTestBase {
    *   The name of the new field (all lowercase), exclude the "field_" prefix.
    * @param string $type_name
    *   The node type that this field will be added to.
+   * @param string $widget_name
+   *   The name of the widget.
    * @param array $storage_settings
    *   A list of field storage settings that will be added to the defaults.
    * @param array $field_settings
    *   A list of instance settings that will be added to the instance defaults.
-   * @param string $widget_name
-   *   The name of the widget.
    * @param array $widget_settings
    *   A list of widget settings that will be added to the widget defaults.
    */
-  protected function createImageField($name, $type_name, $storage_settings = [], $field_settings = [], $widget_name, $widget_settings = []) {
+  protected function createImageField($name, $type_name, $widget_name, $storage_settings = [], $field_settings = [], $widget_settings = []) {
     \Drupal::entityTypeManager()->getStorage('field_storage_config')->create([
       'field_name' => $name,
       'entity_type' => 'node',
