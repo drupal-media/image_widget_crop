@@ -13,11 +13,12 @@ You can Test ImageWidgetCrop in action directly with the sub-module,
 
 Installation
 ------------
-1. Download and extract the module to your sites/all/modules/contrib folder.
-2. Enable the module on the Drupal Modules page (admin/modules) or using
+1. Download and extract the module to your (`sites/all/modules/contrib`) folder.
+2. Enable the module on the Drupal Modules page (`admin/modules`) or using
    $ drush en
 
-The module is currently using Cropper as a library to display the cropping widget.
+The module is currently using Cropper as a library to display,
+ the cropping widget.
 To properly configure it, do the following:
 
 * Local library:
@@ -31,21 +32,24 @@ To properly configure it, do the following:
   3. Enable the libraries module.
 
 * External library:
-  1. Set the external URL for the minified version of the library and CSS file in
-     Image Crop Widget settings (/admin/config/media/crop-widget), found at
+  1. Set the external URL for the minified version of the library and CSS file,
+     in Image Crop Widget settings (`/admin/config/media/crop-widget`), found at
      https://cdnjs.com/libraries/cropper.
 
  NOTE: The external library is set by default when you enable the module.
 
 Configuration
 -------------
+ImageWidgetCrop can be used in different contexts.
+
+###FieldWidget:
 
 * Create a Crop Type (`admin/structure/crop`)
 * Create ImageStyles  
     * add Manual crop effect, using your Crop Type,
       (to apply your crop selection).
 * Create an Image field.
-* In its form display, at `admin/structure/types/manage/page/form-display`:
+* In its form display, at (`admin/structure/types/manage/page/form-display`):
     * set the widget for your field to ImageWidgetCrop 
     * at select your crop types in the Crop settings list. You can configure 
       the widget to create different crops on each crop types. For example, if 
@@ -56,3 +60,26 @@ Configuration
   or responsive image styles.
 * Go add an image with your widget and crop your picture,
   by crop types used for this image.
+
+###FileEntity:
+
+* The (`image_crop` element are already implemented to use,
+ an general configuration of module.
+* In its ImageWidgetCrop general configuration, 
+ at (`admin/config/media/crop-widget`):
+    * open (`GENERAL CONFIGURATION`) fieldset.
+    * at select your crop types in the Crop settings list. You can configure 
+      the element to create different crops on each crop types. For example, if 
+      you have an editorial site, you need to display an image on different 
+      places. With this option, you can set an optimal crop zone for each of the
+      image styles applied to the image
+* Verify your content using (`image`) field type configured,
+ with (`Editable file`) form widget.
+* Add an File into a content (`node/add/{your-content-type}`) upload your file,
+ click to (`Edit`) button and crop your picture,
+  by crop types used for this image.
+
+###Form API:
+
+* Implement (`image_crop`) form element.
+* Set all variables elements Or use general configuration of module.
