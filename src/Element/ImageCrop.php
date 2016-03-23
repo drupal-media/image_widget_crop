@@ -4,6 +4,7 @@ namespace Drupal\image_widget_crop\Element;
 
 use Drupal\Core\Render\Element\FormElement;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\crop\Entity\Crop;
 use Drupal\file\FileInterface;
@@ -374,7 +375,11 @@ class ImageCrop extends FormElement {
     array_pop($parents);
     $crop_values = $form_state->getValue($parents);
     $hard_limit = $crop_type->getHardLimit();
-    $operation = $form_state->getTriggeringElement()['#value']->getUntranslatedString();
+    $action_button = $form_state->getTriggeringElement()['#value'];
+    // @todo We need to add this test in multilingual context because,
+    // the "#value" element are a simple string in translate form,
+    // and an TranslatableMarkup object in other cases.
+    $operation = ($action_button instanceof TranslatableMarkup) ? $action_button->getUntranslatedString() : $action_button;
 
     if ((int) $crop_values['crop_applied'] == 0 || $operation == 'Remove') {
       return;
