@@ -63,7 +63,7 @@ ImageWidgetCrop can be used in different contexts.
 
 ###FileEntity:
 
-* The (`image_crop` element are already implemented to use,
+* The (`image_crop`) element are already implemented to use,
  an general configuration of module.
 * In its ImageWidgetCrop general configuration, 
  at (`admin/config/media/crop-widget`):
@@ -83,3 +83,29 @@ ImageWidgetCrop can be used in different contexts.
 
 * Implement (`image_crop`) form element.
 * Set all variables elements Or use general configuration of module.
+
+###Example of Form API implementation:
+
+####General element configuration of ImageWidgetCrop:
+```php
+$crop_config = \Drupal::config('image_widget_crop.settings');
+$form['image_crop'] = [
+  '#type' => 'image_crop',
+  '#file' => $file,
+  '#crop_type_list' => $crop_config->get('settings.crop_list'),
+  '#crop_preview_image_style' => $crop_config->get('settings.crop_preview_image_style'),
+  '#show_default_crop' => $crop_config->get('settings.show_default_crop'),
+  '#warn_mupltiple_usages' => $crop_config->get('settings.warn_mupltiple_usages'),
+];
+```
+####Custom element configuration
+```php
+$form['image_crop'] = [
+  '#type' => 'image_crop',
+  '#file' => $file_object,
+  '#crop_type_list' => ['crop_16_9', 'crop_free'],
+  '#crop_preview_image_style' => 'crop_thumbnail',
+  '#show_default_crop' => FALSE,
+  '#warn_mupltiple_usages' => FALSE,
+];
+```
