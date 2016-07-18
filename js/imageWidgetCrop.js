@@ -71,7 +71,7 @@
     });
 
     // Handling click event for opening/closing vertical tabs.
-    $cropWrapper.children(cropWrapperSummarySelector).click(function (evt) {
+    $cropWrapper.children(cropWrapperSummarySelector).once('imageWidgetCrop').click(function (evt) {
       // Work only on bigger screens where $verticalTabsMenuItem is not empty.
       if ($verticalTabsMenuItem.length !== 0) {
         // If detailsWrapper is not visible display it and initialize cropper.
