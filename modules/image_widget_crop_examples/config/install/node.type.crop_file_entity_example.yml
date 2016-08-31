@@ -8,6 +8,8 @@ third_party_settings:
     available_menus:
       - main
     parent: 'main:'
+_core:
+  default_config_hash: FyVg-c0Tuxsvxw0VfMJ1Fyi_YsKtqoUJ8sWr9OwgWIM
 name: 'Crop File Entity Example'
 type: crop_file_entity_example
 description: ''

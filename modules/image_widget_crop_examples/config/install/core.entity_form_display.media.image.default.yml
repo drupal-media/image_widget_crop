@@ -3,9 +3,12 @@ status: true
 dependencies:
   config:
     - field.field.media.image.field_image_crop
+    - image.style.thumbnail
     - media_entity.bundle.image
   module:
     - image_widget_crop
+_core:
+  default_config_hash: g5oQ61OAgDAud1ClTPDe9SKgSKPWQNIVE6Kry86WIqU
 id: media.image.default
 targetEntityType: media
 bundle: image

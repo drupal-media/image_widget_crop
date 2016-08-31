@@ -4,11 +4,14 @@ dependencies:
   config:
     - field.field.node.crop_responsive_example.body
     - field.field.node.crop_responsive_example.field_image_crop_simple
+    - image.style.thumbnail
     - node.type.crop_responsive_example
   module:
     - image_widget_crop
     - path
     - text
+_core:
+  default_config_hash: b-DhI9p0lKDk3e5Zn3lq7RcATSyHQB1iHrIH3AhdNFI
 id: node.crop_responsive_example.default
 targetEntityType: node
 bundle: crop_responsive_example
@@ -39,11 +42,6 @@ content:
         crop_free_ratio: crop_free_ratio
     third_party_settings: {  }
     type: image_widget_crop
-  langcode:
-    type: language_select
-    weight: 3
-    settings: {  }
-    third_party_settings: {  }
   path:
     type: path
     weight: 8

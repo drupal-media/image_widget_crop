@@ -8,6 +8,8 @@ third_party_settings:
     available_menus:
       - main
     parent: 'main:'
+_core:
+  default_config_hash: 4m0SaikszbLhy_6AoYUx7MnGdrF0g1f0TiJBqkJsvAM
 name: 'Crop Media Example'
 type: crop_media_example
 description: 'Implementation of ImageWidgetCrop with Node type bundle with media_entity_image reference.'

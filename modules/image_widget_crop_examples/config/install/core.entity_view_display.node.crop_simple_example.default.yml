@@ -4,11 +4,14 @@ dependencies:
   config:
     - field.field.node.crop_simple_example.body
     - field.field.node.crop_simple_example.field_image_crop_simple
+    - image.style.small_16_9
     - node.type.crop_simple_example
   module:
     - image
     - text
     - user
+_core:
+  default_config_hash: OKltsTtgZyO3DEyL2eqqAHxmzkVg_-ZqD3oZtYAJ7ZI
 id: node.crop_simple_example.default
 targetEntityType: node
 bundle: crop_simple_example
@@ -29,5 +32,4 @@ content:
     third_party_settings: {  }
     type: image
 hidden:
-  langcode: true
   links: true

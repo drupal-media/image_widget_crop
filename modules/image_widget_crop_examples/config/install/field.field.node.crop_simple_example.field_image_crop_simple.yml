@@ -6,6 +6,8 @@ dependencies:
     - node.type.crop_simple_example
   module:
     - image
+_core:
+  default_config_hash: NmWlFA9k5xsT2spa7IHPMo_APcRfQhUGy13dvHtxaww
 id: node.crop_simple_example.field_image_crop_simple
 field_name: field_image_crop_simple
 entity_type: node

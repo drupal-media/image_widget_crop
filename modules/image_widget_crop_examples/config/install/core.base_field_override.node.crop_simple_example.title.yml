@@ -3,6 +3,8 @@ status: true
 dependencies:
   config:
     - node.type.crop_simple_example
+_core:
+  default_config_hash: VVp5N8bt9nKbVWti9NiHq39zJboWSghUYYmNUGR1n5I
 id: node.crop_simple_example.title
 field_name: title
 entity_type: node

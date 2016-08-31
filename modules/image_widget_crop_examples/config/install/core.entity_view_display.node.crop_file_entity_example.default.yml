@@ -4,11 +4,14 @@ dependencies:
   config:
     - field.field.node.crop_file_entity_example.body
     - field.field.node.crop_file_entity_example.field_image_crop_file_entity
+    - image.style.small_16_9
     - node.type.crop_file_entity_example
   module:
     - image
     - text
     - user
+_core:
+  default_config_hash: 4oTXNaICC7ZajFBIrrasmmzg7k-mFBYDbcyHK9WZq68
 id: node.crop_file_entity_example.default
 targetEntityType: node
 bundle: crop_file_entity_example

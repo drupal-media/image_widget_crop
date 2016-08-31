@@ -6,6 +6,8 @@ dependencies:
     - node.type.crop_file_entity_example
   module:
     - image
+_core:
+  default_config_hash: GoEQWwEn6Sd1XmQz_JY6B_E9-OVFEqz2OaWtqlZNkGU
 id: node.crop_file_entity_example.field_image_crop_file_entity
 field_name: field_image_crop_file_entity
 entity_type: node

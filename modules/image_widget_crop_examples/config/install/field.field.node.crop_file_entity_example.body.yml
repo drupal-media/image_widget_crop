@@ -6,6 +6,8 @@ dependencies:
     - node.type.crop_file_entity_example
   module:
     - text
+_core:
+  default_config_hash: e2c4A3OAMCs9kazrXjCWP44FlBxdiOqWF5jBBUBs0to
 id: node.crop_file_entity_example.body
 field_name: body
 entity_type: node

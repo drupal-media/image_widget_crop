@@ -9,6 +9,8 @@ dependencies:
   module:
     - text
     - user
+_core:
+  default_config_hash: mjduwOio_lh9hV9rhI6L8c8Ffc47mHSMpT0cewrrN-k
 id: node.crop_responsive_example.teaser
 targetEntityType: node
 bundle: crop_responsive_example
@@ -25,4 +27,3 @@ content:
     weight: 100
 hidden:
   field_image_crop_simple: true
-  langcode: true

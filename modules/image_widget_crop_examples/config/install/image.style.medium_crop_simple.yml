@@ -3,6 +3,8 @@ status: true
 dependencies:
   module:
     - crop
+_core:
+  default_config_hash: j-bZ4zTIVVBiwxs6hGzK74fJezlYn_5T3_BmPJOAFuY
 name: medium_crop_simple
 label: 'Medium with crop simple'
 effects:

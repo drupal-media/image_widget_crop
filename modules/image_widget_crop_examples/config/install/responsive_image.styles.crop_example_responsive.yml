@@ -7,6 +7,8 @@ dependencies:
     - image.style.small_16_9
   theme:
     - bartik
+_core:
+  default_config_hash: JWsIqbvSep7qjwa9tLY-WpXRfD4YfuFeS0oloCw5IX8
 id: crop_example_responsive
 label: 'Crop example responsive'
 image_style_mappings:

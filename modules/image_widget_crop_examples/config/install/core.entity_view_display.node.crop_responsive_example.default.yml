@@ -5,10 +5,13 @@ dependencies:
     - field.field.node.crop_responsive_example.body
     - field.field.node.crop_responsive_example.field_image_crop_simple
     - node.type.crop_responsive_example
+    - responsive_image.styles.crop_example_responsive
   module:
     - responsive_image
     - text
     - user
+_core:
+  default_config_hash: ik3FNQyNdooF_VZq2VI_i2dpsv5iVr08Jyut_YoH5Sc
 id: node.crop_responsive_example.default
 targetEntityType: node
 bundle: crop_responsive_example
@@ -29,5 +32,4 @@ content:
     third_party_settings: {  }
     type: responsive_image
 hidden:
-  langcode: true
   links: true

@@ -9,6 +9,8 @@ dependencies:
     - file_entity
     - path
     - text
+_core:
+  default_config_hash: lKT7tajNuj0izeYzh9qy_Hta_BbI6UmHlYS5yN5xBlQ
 id: node.crop_file_entity_example.default
 targetEntityType: node
 bundle: crop_file_entity_example

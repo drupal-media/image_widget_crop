@@ -9,6 +9,8 @@ dependencies:
   module:
     - text
     - user
+_core:
+  default_config_hash: HL0vvKoZvvS43VpSrFrARS-JB_N-zQ1kut-vZMuhgLA
 id: node.crop_media_example.teaser
 targetEntityType: node
 bundle: crop_media_example
@@ -25,4 +27,3 @@ content:
     weight: 100
 hidden:
   field_image_crop_media: true
-  langcode: true

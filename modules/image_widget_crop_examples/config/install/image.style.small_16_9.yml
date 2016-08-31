@@ -2,7 +2,9 @@ langcode: en
 status: true
 dependencies:
   module:
-    - image_widget_crop
+    - crop
+_core:
+  default_config_hash: qx8IiVE7HXBWQg9N-2zyLZC5W3TAigghLQwJ3eDeZlo
 name: small_16_9
 label: 'Small - (320 x 180) with crop 16:9'
 effects:

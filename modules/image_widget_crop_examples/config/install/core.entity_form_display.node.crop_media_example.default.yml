@@ -9,6 +9,8 @@ dependencies:
     - inline_entity_form
     - path
     - text
+_core:
+  default_config_hash: tx2Y3h6nVY7sHCQ9zOya3phQ1zbmbzFgXjNW2IouBEc
 id: node.crop_media_example.default
 targetEntityType: node
 bundle: crop_media_example

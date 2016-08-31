@@ -8,6 +8,8 @@ dependencies:
   module:
     - text
     - user
+_core:
+  default_config_hash: 7thIpzv7qfsewQUall2RMYrJ2Uuo7Kll9l58VxYkYt8
 id: node.crop_media_example.default
 targetEntityType: node
 bundle: crop_media_example
@@ -28,5 +30,4 @@ content:
     third_party_settings: {  }
     type: entity_reference_entity_view
 hidden:
-  langcode: true
   links: true

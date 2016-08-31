@@ -4,11 +4,14 @@ dependencies:
   config:
     - field.field.node.crop_simple_example.body
     - field.field.node.crop_simple_example.field_image_crop_simple
+    - image.style.thumbnail
     - node.type.crop_simple_example
   module:
     - image_widget_crop
     - path
     - text
+_core:
+  default_config_hash: fAIwasH3eMDo2iDDNQHvTOil9458TD6GJAYjI_iQi8I
 id: node.crop_simple_example.default
 targetEntityType: node
 bundle: crop_simple_example
@@ -30,18 +33,15 @@ content:
   field_image_crop_simple:
     weight: 1
     settings:
-      progress_indicator: throbber
+      show_crop_area: true
+      show_default_crop: true
       preview_image_style: thumbnail
       crop_preview_image_style: crop_thumbnail
       crop_list:
-        crop_16_9: crop_16_9
+        - crop_16_9
+      progress_indicator: throbber
     third_party_settings: {  }
     type: image_widget_crop
-  langcode:
-    type: language_select
-    weight: 3
-    settings: {  }
-    third_party_settings: {  }
   path:
     type: path
     weight: 8
