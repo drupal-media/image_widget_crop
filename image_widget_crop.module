@@ -5,6 +5,9 @@
  * Contains image_widget_crop.module.
  */
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\crop\Entity\Crop;
 use Drupal\crop\Entity\CropType;
@@ -37,8 +40,8 @@ function image_widget_cropfield_widget_info_alter(array &$info) {
 /**
  * Implements hook_entity_presave().
  */
-function image_widget_crop_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
-  if (isset($entity) && $entity instanceof Drupal\Core\Entity\FieldableEntityInterface) {
+function image_widget_crop_entity_presave(EntityInterface $entity) {
+  if (isset($entity) && $entity instanceof FieldableEntityInterface) {
     // Loop all fields of the saved entity.
     foreach ($entity->getFields() as $entity_fields) {
       // If current field is FileField and use imageWidgetCrop.
@@ -192,7 +195,7 @@ function image_widget_crop_library_info_alter(&$libraries, $extension) {
  * @param \Drupal\Core\Form\FormStateInterface $form_state
  *   The current state of the form.
  */
-function image_widget_crop_form_submit(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+function image_widget_crop_form_submit(array &$form, FormStateInterface $form_state) {
   /** @var \Drupal\file_entity\Entity\FileEntity $entity */
   $entity = $form_state->getFormObject()->getEntity();
   $form_state_values = $form_state->getValues();
@@ -244,7 +247,7 @@ function image_widget_crop_form_submit(array &$form, \Drupal\Core\Form\FormState
 /**
  * Implements hook_form_alter().
  */
-function image_widget_crop_form_file_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function image_widget_crop_form_file_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   /** @var \Drupal\file_entity\Entity\FileEntity $file */
   $file = $form_state->getFormObject()->getEntity();
   $mime_type = $file->getMimeTypeType();

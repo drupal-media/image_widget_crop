@@ -1,14 +1,8 @@
 <?php
 
-/**
- * @file
- * Contains of \Drupal\image_widget_crop\ImageWidgetCropManager.
- */
-
 namespace Drupal\image_widget_crop;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Image\Image;
 use Drupal\crop\Entity\Crop;
 use Drupal\crop\Entity\CropType;
 use Drupal\image\Entity\ImageStyle;
@@ -174,13 +168,13 @@ class ImageWidgetCropManager {
     $image_styles = $this->getImageStylesByCrop($crop_type->id());
     $crop = $this->cropStorage->loadByProperties([
       'type' => $crop_type->id(),
-      'uri' => $file_uri
+      'uri' => $file_uri,
     ]);
     $this->cropStorage->delete($crop);
     $this->imageStylesOperations($image_styles, $file_uri);
     drupal_set_message(t('The crop "@cropType" was successfully deleted for image "@filename".', [
       '@cropType' => $crop_type->label(),
-      '@filename' => $this->fileStorage->load($file_id)->getFilename()
+      '@filename' => $this->fileStorage->load($file_id)->getFilename(),
     ]));
   }
 
@@ -437,7 +431,7 @@ class ImageWidgetCropManager {
       'x' => $anchor['x'],
       'y' => $anchor['y'],
       'height' => $size['height'],
-      'width' => $size['width']
+      'width' => $size['width'],
     ];
   }
 
