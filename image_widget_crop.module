@@ -129,74 +129,58 @@ function image_widget_crop_library_info_alter(&$libraries, $extension) {
   }
 
   $config = \Drupal::config('image_widget_crop.settings');
-  if (!\Drupal::moduleHandler()
-      ->moduleExists('libraries') && !$config->get('settings.library_url') && !$config->get('settings.css_url')
-  ) {
+  $js  = $config->get('settings.library_url');
+  $css = $config->get('settings.css_url');
+
+  if (!empty($js) && !empty($css)) {
+    // Explicit configuration takes priority.
+    $is_local = parse_url($js, PHP_URL_SCHEME) === NULL && strpos($js, '//') !== 0;
+    $libraries['cropper']['js'][$js] = [
+      'type' => $is_local ? 'file' : 'external',
+      'minified' => TRUE,
+    ];
+    $is_local = parse_url($css, PHP_URL_SCHEME) === NULL && strpos($css, '//') !== 0;
+    $libraries['cropper']['css']['component'][$css] = [
+      'type' => $is_local ? 'file' : 'external',
+      'minified' => TRUE,
+    ];
+  }
+  elseif (\Drupal::moduleHandler()->moduleExists('libraries')
+    && ($info = libraries_detect('cropper')) && $info['installed']) {
+    // Library is available via Libraries API.
+    $libraries['cropper']['version'] = $info['version'];
+    foreach ($info['files'] as $type => $files) {
+      foreach ($files as $data => $option) {
+        if (is_numeric($data)) {
+          $option = "/{$info['library path']}/{$option}";
+        }
+        elseif (empty($option['type']) || $option['type'] == 'file') {
+          $data = "/{$info['library path']}/{$data}";
+        }
+      }
+
+      if ($type == 'css') {
+        $libraries['cropper']['css']['theme'][$data] = $option;
+      }
+      else {
+        $libraries['cropper'][$type][$data] = $option;
+      }
+    }
+  }
+  else {
+    // Fallback to CDN.
+    $js  = 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.1.0/cropper.min.js';
+    $libraries['cropper']['js'][$js] = [
+      'type' => 'external',
+      'minified' => TRUE,
+    ];
+    $css = 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.1.0/cropper.min.css';
+    $libraries['cropper']['css']['component'][$css] = [
+      'type' => 'external',
+      'minified' => TRUE,
+    ];
+    $libraries['cropper']['version'] = 'web-hosted';
     $libraries['cropper.integration']['js'] = [];
-  }
-
-  // Get the correct path of the Cropper js file (the user needs to manually
-  // put the jquery.cropper.min.js in libraries/cropper folder or set the url
-  // in the settings).
-  if ($library_url = $config->get('settings.library_url')) {
-    // Cloud hosted library, use external JavaScript.
-    $libraries['cropper']['js'][$library_url] = [
-      'type' => 'external',
-      'minified' => TRUE,
-    ];
-  }
-  elseif (\Drupal::moduleHandler()->moduleExists('libraries')) {
-    $info = libraries_detect('cropper');
-    $libraries['cropper'] += [
-      'version' => $info['installed'] ? $info['version'] : 'web-hosted',
-    ];
-    if ($info['installed']) {
-      // Because the library is self hosted, use files from library definition.
-      if (!empty($info['files']['js'])) {
-        foreach ($info['files']['js'] as $data => $option) {
-
-          if (is_numeric($data)) {
-            $option = "/{$info['library path']}/{$option}";
-          }
-          elseif (empty($option['type']) || $option['type'] == 'file') {
-            $data = "/{$info['library path']}/{$data}";
-          }
-
-          $libraries['cropper']['js'][$data] = $option;
-        }
-      }
-    }
-  }
-
-  // Add the local CSS to the libraries.
-  if ($css_url = $config->get('settings.css_url')) {
-    // Cloud hosted library, use external CSS.
-    $libraries['cropper']['css']['component'][$css_url] = [
-      'type' => 'external',
-      'minified' => TRUE,
-    ];
-  }
-  elseif (\Drupal::moduleHandler()->moduleExists('libraries')) {
-    $info = libraries_detect('cropper');
-    $libraries['cropper'] += [
-      'version' => $info['installed'] ? $info['version'] : 'web-hosted',
-    ];
-    if ($info['installed']) {
-      // Because the library is self hosted, use files from library definition.
-      if (!empty($info['files']['css'])) {
-        foreach ($info['files']['css'] as $data => $option) {
-
-          if (is_numeric($data)) {
-            $option = "/{$info['library path']}/{$option}";
-          }
-          elseif (empty($option['type']) || $option['type'] == 'file') {
-            $data = "/{$info['library path']}/{$data}";
-          }
-
-          $libraries['cropper']['css']['theme'][$data] = $option;
-        }
-      }
-    }
   }
 }
 

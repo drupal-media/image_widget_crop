@@ -60,25 +60,6 @@ class ImageCrop extends FormElement {
     if (!empty($file) && preg_match('/image/', $file->getMimeType())) {
       $element['#attached']['drupalSettings']['crop_default'] = $element['#show_default_crop'];
 
-      // Display an error message if the local/remote library and CSS are not
-      // set.
-      $config = \Drupal::config('image_widget_crop.settings');
-      $js_library = $config->get('settings.library_url');
-      if (!\Drupal::moduleHandler()->moduleExists('libraries')) {
-        if (empty($js_library)) {
-          $element['message'] = [
-            '#type' => 'container',
-            '#markup' => t('Either set the library locally (in /libraries/cropper) and enable the libraries module or enter the remote URL on <a href="@link">Image Crop Widget settings</a>.', [
-              '@link' => Url::fromRoute('image_widget_crop.crop_widget_settings')
-                ->toString(),
-            ]),
-            '#attributes' => [
-              'class' => ['messages messages--error'],
-            ],
-          ];
-        }
-      }
-
       /** @var \Drupal\Core\Image\Image $image */
       $image = \Drupal::service('image.factory')->get($file->getFileUri());
       if (!$image->isValid()) {
