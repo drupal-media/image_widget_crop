@@ -32,6 +32,7 @@ class ImageCrop extends FormElement {
       '#crop_type_list' => [],
       '#warn_multiple_usages' => FALSE,
       '#show_default_crop' => TRUE,
+      '#show_crop_area' => FALSE,
       '#attached' => [
         'library' => 'image_widget_crop/cropper.integration',
       ],
@@ -100,6 +101,7 @@ class ImageCrop extends FormElement {
         '#type' => 'details',
         '#title' => t('Crop image'),
         '#attributes' => ['class' => ['image-data__crop-wrapper']],
+        '#open' => $element['#show_crop_area'],
         '#weight' => 100,
       ];
 

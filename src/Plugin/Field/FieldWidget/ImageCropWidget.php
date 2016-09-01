@@ -129,6 +129,7 @@ class ImageCropWidget extends ImageWidget {
           '#crop_type_list' => $element['#crop_list'],
           '#crop_preview_image_style' => $element['#crop_preview_image_style'],
           '#show_default_crop' => $element['#show_default_crop'],
+          '#show_crop_area' => $element['#show_crop_area'],
           '#warn_multiple_usages' => TRUE,
         ];
       }

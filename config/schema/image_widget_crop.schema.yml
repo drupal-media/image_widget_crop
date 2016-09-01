@@ -52,3 +52,6 @@ image_widget_crop.settings:
         show_default_crop:
           type: boolean
           label: 'Show default crop area'
+        show_crop_area:
+          type: boolean
+          label: 'Always expand crop area'
