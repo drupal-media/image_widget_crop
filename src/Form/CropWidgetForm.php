@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\image_widget_crop\Form\CropWidgetForm.
- */
-
 namespace Drupal\image_widget_crop\Form;
 
 use Drupal\Core\Cache\Cache;
@@ -183,7 +178,6 @@ class CropWidgetForm extends ConfigFormBase {
         $form_state->setErrorByName('plugin', t('Please provide both a library and a CSS file when using custom URLs.'));
       }
       else {
-        global $base_root;
         foreach ($files as $type => $file) {
           // Verify that both files exist.
           $is_local = parse_url($file, PHP_URL_SCHEME) === NULL && strpos($file, '//') !== 0;

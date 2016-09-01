@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Tests for Image Widget Crop.
- */
-
 namespace Drupal\image_widget_crop\Tests;
 
 use Drupal\file\Entity\File;
@@ -241,10 +236,9 @@ class ImageWidgetCropTest extends WebTestBase {
     /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $form_display */
     $form_display = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.' . $type_name . '.default');
     $form_display->setComponent($name, [
-        'type' => $widget_name,
-        'settings' => $widget_settings,
-      ])
-      ->save();
+      'type' => $widget_name,
+      'settings' => $widget_settings,
+    ])->save();
 
     /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface $view_display */
     $view_display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load('node.' . $type_name . '.default');

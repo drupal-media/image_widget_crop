@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\image_widget_crop_examples\Tests.
- */
 
 namespace Drupal\image_widget_crop_examples\Tests;
 

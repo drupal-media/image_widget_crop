@@ -5,7 +5,6 @@ namespace Drupal\image_widget_crop\Element;
 use Drupal\Core\Render\Element\FormElement;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\Core\Url;
 use Drupal\crop\Entity\Crop;
 use Drupal\file\FileInterface;
 use RecursiveArrayIterator;

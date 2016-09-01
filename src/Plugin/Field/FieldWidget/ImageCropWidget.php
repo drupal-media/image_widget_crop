@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\image_widget_crop\Plugin\Field\FieldWidget\ImageCropWidget.
- */
-
 namespace Drupal\image_widget_crop\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -13,9 +8,7 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\ElementInfoManagerInterface;
-use Drupal\crop\Entity\Crop;
 use Drupal\image\Plugin\Field\FieldWidget\ImageWidget;
-use Drupal\image_widget_crop\Element\ImageCrop;
 use Drupal\image_widget_crop\ImageWidgetCropManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\crop\Entity\CropType;
