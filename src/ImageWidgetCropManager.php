@@ -319,9 +319,10 @@ class ImageWidgetCropManager {
     // Parse all properties if this crop have changed.
     foreach ($crop_properties as $crop_coordinate => $value) {
       // Edit the crop properties if he have changed.
-      $crop->set($crop_coordinate, $value, TRUE)
-        ->save();
+      $crop->set($crop_coordinate, $value, TRUE);
     }
+
+    $crop->save();
   }
 
   /**
