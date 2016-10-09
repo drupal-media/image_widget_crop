@@ -1,4 +1,3 @@
-uuid: 6db35b08-1c82-4523-97db-fad4ce9c654c
 langcode: en
 status: true
 dependencies:
@@ -8,7 +7,7 @@ dependencies:
   module:
     - image
 _core:
-  default_config_hash: xfDBtqxYnaUtixmkHWYyjip2OTxjBHSjsfM5CYsbSwo
+  default_config_hash: Kjn0MTCag1m4TM0NXH0MG9UwfpIq1AEa0rxMjALBtaU
 id: media.image.field_image_crop
 field_name: field_image_crop
 entity_type: media

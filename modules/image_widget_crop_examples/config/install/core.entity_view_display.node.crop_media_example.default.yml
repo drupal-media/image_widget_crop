@@ -9,7 +9,7 @@ dependencies:
     - text
     - user
 _core:
-  default_config_hash: 7thIpzv7qfsewQUall2RMYrJ2Uuo7Kll9l58VxYkYt8
+  default_config_hash: dP0FVF7gD7zfQzagySQa0QyIsDiKvCyuNONtLI4j9y4
 id: node.crop_media_example.default
 targetEntityType: node
 bundle: crop_media_example
@@ -21,6 +21,7 @@ content:
     weight: 1
     settings: {  }
     third_party_settings: {  }
+    region: content
   field_image_crop_media:
     weight: 0
     label: above
@@ -29,5 +30,7 @@ content:
       link: false
     third_party_settings: {  }
     type: entity_reference_entity_view
+    region: content
 hidden:
+  langcode: true
   links: true

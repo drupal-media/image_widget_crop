@@ -8,7 +8,7 @@ dependencies:
   theme:
     - bartik
 _core:
-  default_config_hash: JWsIqbvSep7qjwa9tLY-WpXRfD4YfuFeS0oloCw5IX8
+  default_config_hash: BFqVoQcX6OZONkKtWdSmZhyUr41KsdveOU0rixi596I
 id: crop_example_responsive
 label: 'Crop example responsive'
 image_style_mappings:

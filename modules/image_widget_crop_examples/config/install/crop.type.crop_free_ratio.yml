@@ -2,7 +2,7 @@ langcode: en
 status: true
 dependencies: {  }
 _core:
-  default_config_hash: NXApgfXS4l5__zrm2zSb5U_0OJVI5qqslDe0nMvrfNk
+  default_config_hash: xV8d_q_l9slfM-_bkf4e1kJT9owj8e9saZ5d4bq9p8c
 label: 'Free crop'
 id: crop_free_ratio
 description: ''

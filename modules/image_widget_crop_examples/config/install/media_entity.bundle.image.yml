@@ -2,11 +2,9 @@ langcode: en
 status: true
 dependencies:
   module:
-    - crop
     - media_entity_image
-third_party_settings: {  }
 _core:
-  default_config_hash: _GUl0ynoxD9SDpOTZj_g8aw0IUOqkmMqoLrNJrCJB4Q
+  default_config_hash: bLvRAyfQHVOsPxhGwsB3jiq9MFjfreqgJF1asl19KI8
 id: image
 label: Image
 description: ''

@@ -4,7 +4,7 @@ dependencies:
   module:
     - crop
 _core:
-  default_config_hash: qx8IiVE7HXBWQg9N-2zyLZC5W3TAigghLQwJ3eDeZlo
+  default_config_hash: tJnSf-Bg15BdKFz5sAoCZc30IhIbjYQNIGnJiwY4v-o
 name: small_16_9
 label: 'Small - (320 x 180) with crop 16:9'
 effects:

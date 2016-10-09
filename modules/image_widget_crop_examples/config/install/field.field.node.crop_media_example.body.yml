@@ -7,7 +7,7 @@ dependencies:
   module:
     - text
 _core:
-  default_config_hash: igBJoqOqFehJYHCDFX-vYXy-VYSSXd9ylXGnYkyNiEE
+  default_config_hash: pwxgsilTnXL25q7iTc-xvThm5AHibhUYUOqPqKROx1k
 id: node.crop_media_example.body
 field_name: body
 entity_type: node

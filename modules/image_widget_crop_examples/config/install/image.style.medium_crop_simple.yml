@@ -4,7 +4,7 @@ dependencies:
   module:
     - crop
 _core:
-  default_config_hash: j-bZ4zTIVVBiwxs6hGzK74fJezlYn_5T3_BmPJOAFuY
+  default_config_hash: eoQqq_dca4czuDhTkKCmWgQ5QOHTB28mwePTOHwtcE8
 name: medium_crop_simple
 label: 'Medium with crop simple'
 effects:

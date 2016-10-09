@@ -6,7 +6,7 @@ dependencies:
     - image
     - media_entity
 _core:
-  default_config_hash: 5b_AvsJ89vAe_qNDw91GH7tHMycEwAHklWEiyvrbIx8
+  default_config_hash: 7yRpqNy4UWrIIP5oVmf6h3MkgAT9WoyPp3toSZa2fNc
 id: media.field_image_crop
 field_name: field_image_crop
 entity_type: media

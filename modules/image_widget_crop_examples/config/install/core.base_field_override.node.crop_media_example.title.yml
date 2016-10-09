@@ -4,7 +4,7 @@ dependencies:
   config:
     - node.type.crop_media_example
 _core:
-  default_config_hash: 2TQEkgUU8TclHQjUE25uIuwee7EUI96PCtd95U8GgIc
+  default_config_hash: gmm2Ivb7ZIt2CKtJF5BconI5oNBvuV_Lj49ryQkS6Jk
 id: node.crop_media_example.title
 field_name: title
 entity_type: node

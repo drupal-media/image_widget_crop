@@ -9,7 +9,7 @@ third_party_settings:
       - main
     parent: 'main:'
 _core:
-  default_config_hash: FyVg-c0Tuxsvxw0VfMJ1Fyi_YsKtqoUJ8sWr9OwgWIM
+  default_config_hash: sKgJudhzSkCr5S2InViX7KEoZj8bh2tz_40aNgQGo4k
 name: 'Crop File Entity Example'
 type: crop_file_entity_example
 description: ''
