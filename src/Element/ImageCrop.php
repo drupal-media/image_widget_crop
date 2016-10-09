@@ -6,6 +6,7 @@ use Drupal\Core\Render\Element\FormElement;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\crop\Entity\Crop;
+use Drupal\crop\Entity\CropType;
 use Drupal\file\FileInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
@@ -77,6 +78,13 @@ class ImageCrop extends FormElement {
       }
 
       $crop_type_list = $element['#crop_type_list'];
+      // Display all crop types if none is selected.
+      if (empty($crop_type_list)) {
+        /** @var \Drupal\image_widget_crop\ImageWidgetCropManager $image_widget_crop_manager */
+        $image_widget_crop_manager = \Drupal::service('image_widget_crop.manager');
+        $available_crop_types = $image_widget_crop_manager->getAvailableCropType(CropType::getCropTypeNames());
+        $crop_type_list = array_keys($available_crop_types);
+      }
       $element['crop_wrapper'] = [
         '#type' => 'details',
         '#title' => t('Crop image'),

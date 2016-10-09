@@ -2,7 +2,9 @@
 
 namespace Drupal\image_widget_crop\Tests;
 
+use Drupal\crop\Entity\CropType;
 use Drupal\file\Entity\File;
+use Drupal\image\Entity\ImageStyle;
 use Drupal\node\Entity\Node;
 use Drupal\simpletest\WebTestBase;
 
@@ -171,7 +173,30 @@ class ImageWidgetCropTest extends WebTestBase {
     $ajax_response = $this->drupalPostAjaxForm(NULL, [], ['file_editable_2' => t('Edit')]);
     $this->assertTrue(preg_match('/Crop image/', $ajax_response[3]['data']), 'Cropping tool is available on inline edit.');
 
+    // Create a sample crop type.
+    $crop_type = CropType::create([
+      'label' => '16_9',
+      'id' => '16_9',
+      'aspect_ratio' => '16:9',
+    ]);
+    $crop_type->save();
+
+    // Add a created crop type to an image style.
+    $crop_image_style = ImageStyle::load('large');
+    $crop_image_style->addImageEffect([
+      'id' => 'crop_crop',
+      'data' => ['crop_type' => '16_9']
+    ]);
+    $crop_image_style->save();
+
+    // Assert that crop widget is displayed by default, even if there are no
+    // crop types selected in the global image widget crop configuration.
+    $image_widget_crop_settings = \Drupal::config('image_widget_crop.settings')->get('crop_list');
+    $this->assertEqual($image_widget_crop_settings, []);
     $this->drupalGet('file/' . $image->id() . '/edit');
+    $this->assertRaw('edit-image-crop-crop-wrapper-16-9');
+    $this->assertRaw('16_9');
+
     $this->assertText('Crop image', 'Cropping tool available on file edit.');
   }
 
