@@ -111,7 +111,6 @@ class ImageWidgetCropManager {
       }
 
       $this->updateCropProperties($crop, $crop_properties);
-      $this->imageStylesOperations($image_styles, $field_value['file-uri']);
       drupal_set_message(t('The crop "@cropType" were successfully updated for image "@filename".', ['@cropType' => $crop_type->label(), '@filename' => $this->fileStorage->load($field_value['file-id'])->getFilename()]));
     }
   }
@@ -146,8 +145,6 @@ class ImageWidgetCropManager {
     /** @var \Drupal\crop\CropInterface $crop */
     $crop = $this->cropStorage->create($values);
     $crop->save();
-
-    $this->imageStylesOperations($image_styles, $field_value['file-uri'], TRUE);
 
     if ($notify) {
       drupal_set_message(t('The crop "@cropType" was successfully added for image "@filename".', ['@cropType' => $crop_type->label(), '@filename' => $this->fileStorage->load($field_value['file-id'])->getFilename()]));
