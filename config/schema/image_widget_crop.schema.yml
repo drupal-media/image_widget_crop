@@ -18,6 +18,9 @@ field.widget.settings.image_widget_crop:
       label: 'The preview image will be cropped'
       sequence:
         type: string
+    warn_multiple_usages:
+      type: boolean
+      label: 'Warn user when a file have multiple usages'
     show_crop_area:
       type: boolean
       label: 'Always expand crop area'

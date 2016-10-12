@@ -100,6 +100,7 @@ class ImageCropWidget extends ImageWidget {
       'crop_list' => NULL,
       'show_crop_area' => FALSE,
       'show_default_crop' => TRUE,
+      'warn_multiple_usages' => TRUE,
     ] + parent::defaultSettings();
   }
 
@@ -123,7 +124,7 @@ class ImageCropWidget extends ImageWidget {
           '#crop_preview_image_style' => $element['#crop_preview_image_style'],
           '#show_default_crop' => $element['#show_default_crop'],
           '#show_crop_area' => $element['#show_crop_area'],
-          '#warn_multiple_usages' => TRUE,
+          '#warn_multiple_usages' => $element['#warn_multiple_usages'],
         ];
       }
     }
@@ -202,6 +203,12 @@ class ImageCropWidget extends ImageWidget {
       '#default_value' => $this->getSetting('show_default_crop'),
     ];
 
+    $element['warn_multiple_usages'] = [
+      '#title' => $this->t('Warn the user if the crop is used more than once.'),
+      '#type' => 'checkbox',
+      '#default_value' => $this->getSetting('warn_multiple_usages'),
+    ];
+
     return $element;
   }
 
@@ -225,9 +232,11 @@ class ImageCropWidget extends ImageWidget {
     $crop_list = $this->getSetting('crop_list');
     $crop_show_button = $this->getSetting('show_crop_area');
     $show_default_crop = $this->getSetting('show_default_crop');
+    $warn_multiple_usages = $this->getSetting('warn_multiple_usages');
 
     $preview[] = $this->t('Always expand crop area: @bool', ['@bool' => ($crop_show_button) ? 'Yes' : 'No']);
     $preview[] = $this->t('Show default crop area: @bool', ['@bool' => ($show_default_crop) ? 'Yes' : 'No']);
+    $preview[] = $this->t('Warn the user if the crop is used more than once: @bool', ['@bool' => ($warn_multiple_usages) ? 'Yes' : 'No']);
 
     if (isset($image_style_setting)) {
       $preview[] = $this->t('Preview image style: @style', ['@style' => $image_style_setting]);
@@ -259,6 +268,7 @@ class ImageCropWidget extends ImageWidget {
     $element['#crop_preview_image_style'] = $this->getSetting('crop_preview_image_style');
     $element['#show_crop_area'] = $this->getSetting('show_crop_area');
     $element['#show_default_crop'] = $this->getSetting('show_default_crop');
+    $element['#warn_multiple_usages'] = $this->getSetting('warn_multiple_usages');
 
     return parent::formElement($items, $delta, $element, $form, $form_state);
   }
