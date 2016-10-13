@@ -19,7 +19,6 @@ content:
     weight: 10
     settings: {  }
     third_party_settings: {  }
-    region: content
   field_image_crop:
     weight: 11
     settings:
@@ -33,11 +32,9 @@ content:
       warn_multiple_usages: false
     third_party_settings: {  }
     type: image_widget_crop
-    region: content
   langcode:
     type: language_select
     weight: 2
-    region: content
     settings: {  }
     third_party_settings: {  }
   name:
@@ -47,7 +44,6 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-    region: content
   uid:
     type: entity_reference_autocomplete
     weight: 5
@@ -56,5 +52,4 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-    region: content
 hidden: {  }
