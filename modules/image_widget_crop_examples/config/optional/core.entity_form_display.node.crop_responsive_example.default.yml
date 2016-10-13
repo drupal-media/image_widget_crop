@@ -11,7 +11,7 @@ dependencies:
     - path
     - text
 _core:
-  default_config_hash: onyew2TYqr0YucyoEwpLG_rEEXO15k2xS9SAL4eWIcU
+  default_config_hash: pYMGibDIOkLz1S36INFG7RRygJ5FN8tTnm5-5UIe9YE
 id: node.crop_responsive_example.default
 targetEntityType: node
 bundle: crop_responsive_example
@@ -35,13 +35,16 @@ content:
   field_image_crop_simple:
     weight: 1
     settings:
-      progress_indicator: throbber
+      show_default_crop: true
+      warn_multiple_usages: true
       preview_image_style: thumbnail
       crop_preview_image_style: crop_thumbnail
       crop_list:
-        crop_16_9: crop_16_9
-        crop_4_3: crop_4_3
-        crop_free_ratio: crop_free_ratio
+        - crop_16_9
+        - crop_4_3
+        - crop_free_ratio
+      progress_indicator: throbber
+      show_crop_area: false
     third_party_settings: {  }
     type: image_widget_crop
     region: content

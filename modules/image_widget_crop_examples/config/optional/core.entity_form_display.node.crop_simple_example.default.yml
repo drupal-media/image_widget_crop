@@ -11,7 +11,7 @@ dependencies:
     - path
     - text
 _core:
-  default_config_hash: yewtrLyl70LyZ8COQHXvHs0W8DMcSrahx-WZbODRNX4
+  default_config_hash: Tuo6EK7LpzkQAfDTo-kOe-itC3LtNM9Bo5vvXA9fhNg
 id: node.crop_simple_example.default
 targetEntityType: node
 bundle: crop_simple_example
@@ -37,6 +37,7 @@ content:
     settings:
       show_crop_area: true
       show_default_crop: true
+      warn_multiple_usages: true
       preview_image_style: thumbnail
       crop_preview_image_style: crop_thumbnail
       crop_list:
