@@ -23,7 +23,6 @@ content:
     weight: 1
     settings: {  }
     third_party_settings: {  }
-    region: content
   field_image_crop_simple:
     weight: 0
     label: above
@@ -32,7 +31,6 @@ content:
       image_link: ''
     third_party_settings: {  }
     type: image
-    region: content
 hidden:
   langcode: true
   links: true

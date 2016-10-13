@@ -21,7 +21,6 @@ content:
     weight: 1
     settings: {  }
     third_party_settings: {  }
-    region: content
   field_image_crop_media:
     weight: 0
     label: above
@@ -30,7 +29,6 @@ content:
       link: false
     third_party_settings: {  }
     type: entity_reference_entity_view
-    region: content
 hidden:
   langcode: true
   links: true
