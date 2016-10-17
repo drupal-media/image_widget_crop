@@ -263,7 +263,7 @@ class ImageCrop extends FormElement {
    * @param string $crop_type_id
    *   The id of the current crop.
    *
-   * @return array|NULL
+   * @return array|null
    *   Populate all crop elements into the form.
    */
   public static function getCropFormElement(array &$element, $element_wrapper_name, array $original_properties, $edit, $crop_type_id) {
@@ -325,12 +325,12 @@ class ImageCrop extends FormElement {
    *   The id of the current crop.
    * @param bool $edit
    *   Context of this form.
-   * @param int|NULL $value
+   * @param int|null $value
    *   The values calculated by ImageCrop::getCropFormProperties().
    * @param string $property
    *   Name of current property @see setCoordinatesElement().
    *
-   * @return int|NULL
+   * @return int|null
    *   Value of this element.
    */
   public static function getCropFormPropertyValue(array &$element, $crop_type, $edit, $value, $property) {

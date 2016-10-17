@@ -100,11 +100,11 @@
     });
 
     // Handling cropping when viewport resizes.
-    $(window).resize(function() {
-      $(detailsParentSelector).each(function() {
+    $(window).resize(function () {
+      $(detailsParentSelector).each(function () {
         // Find only opened widgets.
         var cropperDetailsWrapper = $(this).children('details[open="open"]');
-        cropperDetailsWrapper.each(function() {
+        cropperDetailsWrapper.each(function () {
           // Find all croppers for opened widgets.
           var $croppers = $(this).find(cropperSelector);
           $croppers.each(function () {

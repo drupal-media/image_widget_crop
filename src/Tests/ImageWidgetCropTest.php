@@ -185,7 +185,7 @@ class ImageWidgetCropTest extends WebTestBase {
     $crop_image_style = ImageStyle::load('large');
     $crop_image_style->addImageEffect([
       'id' => 'crop_crop',
-      'data' => ['crop_type' => '16_9']
+      'data' => ['crop_type' => '16_9'],
     ]);
     $crop_image_style->save();
 

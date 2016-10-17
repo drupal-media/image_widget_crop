@@ -201,7 +201,7 @@ class ImageWidgetCropManager {
    * @param array $properties
    *   The original height of image.
    *
-   * @return NULL|array
+   * @return null|array
    *   The data dimensions (width & height) into this ImageStyle.
    */
   public function getCropOriginalDimension(array $field_values, array $properties) {
@@ -239,7 +239,7 @@ class ImageWidgetCropManager {
    * @param string $data_type
    *   The type of data needed in current ImageStyle.
    *
-   * @return mixed|NULL
+   * @return mixed|null
    *   The effect data in current ImageStyle.
    */
   public function getEffectData(ImageStyle $image_style, $data_type) {
