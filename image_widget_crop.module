@@ -189,3 +189,10 @@ function image_widget_crop_entity_update(EntityInterface $entity) {
 function image_widget_crop_form_submit(array &$form, FormStateInterface $form_state) {
   \Drupal::service('image_widget_crop.manager')->buildCropToForm($form_state);
 }
+
+/**
+ * Implements hook_filefield_sources_widgets().
+ */
+function image_widget_crop_filefield_sources_widgets() {
+  return ['image_widget_crop'];
+}
