@@ -2,9 +2,14 @@
 
 namespace Drupal\image_widget_crop;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\crop\Entity\Crop;
 use Drupal\crop\Entity\CropType;
+use Drupal\file\Entity\File;
+use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
 use Drupal\image\Entity\ImageStyle;
 
 /**
@@ -25,6 +30,13 @@ class ImageWidgetCropManager {
    * @var \Drupal\crop\CropStorage.
    */
   protected $cropStorage;
+
+  /**
+   * The crop storage.
+   *
+   * @var \Drupal\Core\Config\Entity\ConfigEntityStorageInterface.
+   */
+  protected $cropTypeStorage;
 
   /**
    * The image style storage.
@@ -49,6 +61,7 @@ class ImageWidgetCropManager {
   public function __construct(EntityTypeManagerInterface $entity_type_manager) {
     $this->entityTypeManager = $entity_type_manager;
     $this->cropStorage = $this->entityTypeManager->getStorage('crop');
+    $this->cropTypeStorage = $this->entityTypeManager->getStorage('crop_type');
     $this->imageStyleStorage = $this->entityTypeManager->getStorage('image_style');
     $this->fileStorage = $this->entityTypeManager->getStorage('file');
   }
@@ -431,6 +444,119 @@ class ImageWidgetCropManager {
       'height' => $size['height'],
       'width' => $size['width'],
     ];
+  }
+
+  /**
+   * Fetch all fields FileField and use "image_crop" element on an entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity object.
+   */
+  public function buildCropToEntity(EntityInterface $entity) {
+    if (isset($entity) && $entity instanceof FieldableEntityInterface) {
+      // Loop all fields of the saved entity.
+      foreach ($entity->getFields() as $entity_fields) {
+        // If current field is FileField and use imageWidgetCrop.
+        if ($entity_fields instanceof FileFieldItemList) {
+          /* First loop to get each elements independently in the field values.
+          Required if the image field cardinality > 1. */
+          foreach ($entity_fields->getValue() as $crop_elements) {
+            foreach ($crop_elements as $crop_element) {
+              if (is_array($crop_element) && isset($crop_element['crop_wrapper'])) {
+                // Reload image since its URI could have been changed by other modules.
+                /** @var \Drupal\file_entity\Entity\FileEntity $file */
+                $file = $this->fileStorage->load($crop_element['file-id']);
+                $crop_element['file-uri'] = $file->getFileUri();
+                // Parse all value of a crop_wrapper element and get properties
+                // associate with her CropType.
+                foreach ($crop_element['crop_wrapper'] as $crop_type_name => $properties) {
+                  $properties = $properties['crop_container']['values'];
+                  /** @var \Drupal\crop\Entity\CropType $crop_type */
+                  $crop_type = $this->cropTypeStorage->load($crop_type_name);
+
+                  // If the crop type needed is disabled or delete.
+                  if (empty($crop_type) && $crop_type instanceof CropType) {
+                    drupal_set_message(t("The CropType ('@cropType') is not active or not defined. Please verify configuration of image style or ImageWidgetCrop formatter configuration", ['@cropType' => $crop_type->id()]), 'error');
+                    return;
+                  }
+
+                  // If this crop is available to create an crop entity.
+                  if ($entity->isNew()) {
+                    if ($properties['crop_applied'] == '1' && isset($properties) && (!empty($properties['width']) && !empty($properties['height']))) {
+                      $this->applyCrop($properties, $crop_element, $crop_type);
+                    }
+                  }
+                  else {
+                    // Get all imagesStyle used this crop_type.
+                    $image_styles = $this->getImageStylesByCrop($crop_type_name);
+                    $crops = $this->loadImageStyleByCrop($image_styles, $crop_type, $crop_element['file-uri']);
+                    // If the entity already exist & is not deleted by user
+                    // update $crop_type_name crop entity.
+                    if ($properties['crop_applied'] == '0' && !empty($crops)) {
+                      $this->deleteCrop($crop_element['file-uri'], $crop_type, $crop_element['file-id']);
+                    }
+                    elseif (isset($properties) && (!empty($properties['width']) && !empty($properties['height']))) {
+                      $this->updateCrop($properties, $crop_element, $crop_type);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Fetch all form elements using image_crop element.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   */
+  public function buildCropToForm(FormStateInterface $form_state) {
+    /** @var \Drupal\file_entity\Entity\FileEntity $entity */
+    $entity = $form_state->getFormObject()->getEntity();
+    $form_state_values = $form_state->getValues();
+    if (is_array($form_state_values['image_crop']) && isset($form_state_values['image_crop']['crop_wrapper'])) {
+      // Parse all values and get properties associate with the crop type.
+      foreach ($form_state_values['image_crop']['crop_wrapper'] as $crop_type_name => $properties) {
+        $properties = $properties['crop_container']['values'];
+        /** @var \Drupal\crop\Entity\CropType $crop_type */
+        $crop_type = $this->cropTypeStorage->load($crop_type_name);
+
+        // If the crop type needed is disabled or delete.
+        if (empty($crop_type) && $crop_type instanceof CropType) {
+          drupal_set_message(t("The CropType ('@cropType') is not active or not defined. Please verify configuration of image style or ImageWidgetCrop formatter configuration", ['@cropType' => $crop_type->id()]), 'error');
+          return;
+        }
+
+        if (is_array($properties) && isset($properties)) {
+          $crop_exists = Crop::cropExists($entity->getFileUri(), $crop_type_name);
+          if (!$crop_exists) {
+            if ($properties['crop_applied'] == '1' && isset($properties) && (!empty($properties['width']) && !empty($properties['height']))) {
+              $this->applyCrop($properties, $form_state_values['image_crop'], $crop_type);
+            }
+          }
+          else {
+            // Get all imagesStyle used this crop_type.
+            $image_styles = $this->getImageStylesByCrop($crop_type_name);
+            $crops = $this->loadImageStyleByCrop($image_styles, $crop_type, $entity->getFileUri());
+            // If the entity already exist & is not deleted by user update
+            // $crop_type_name crop entity.
+            if ($properties['crop_applied'] == '0' && !empty($crops)) {
+              $this->deleteCrop($entity->getFileUri(), $crop_type, $entity->id());
+            }
+            elseif (isset($properties) && (!empty($properties['width']) && !empty($properties['height']))) {
+              $this->updateCrop($properties, [
+                'file-uri' => $entity->getFileUri(),
+                'file-id' => $entity->id(),
+              ], $crop_type);
+            }
+          }
+        }
+      }
+    }
   }
 
 }
