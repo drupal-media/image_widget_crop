@@ -6,7 +6,7 @@ cropper:
     - core/jquery
 
 cropper.integration:
-  version: 1.6
+  version: 1.7
   js:
     js/imageWidgetCrop.js: {}
   css:
