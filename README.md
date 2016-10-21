@@ -25,10 +25,7 @@ To properly configure it, do the following:
   1. Download the latest version of Cropper at
      https://github.com/fengyuanchen/cropper.
   2. Copy the dist folder into:
-     - /libraries/cropper or
-     - /sites/default/libraries/cropper or
-     - /sites/EXAMPLE/libraries/cropper or
-     - /sites/all/libraries/cropper
+     - /libraries/cropper/dist
   3. Enable the libraries module.
 
 * External library:

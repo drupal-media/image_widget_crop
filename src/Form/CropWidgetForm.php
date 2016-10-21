@@ -104,8 +104,8 @@ class CropWidgetForm extends ConfigFormBase {
     // Indicate which files are used when custom urls are not set.
     if (\Drupal::moduleHandler()->moduleExists('libraries')
       && ($info = libraries_detect('cropper')) && $info['installed']) {
-      $form['library']['library_url']['#attributes']['placeholder'] = $info['library path'] . '/' . key($info['files']['js']);
-      $form['library']['css_url']['#attributes']['placeholder'] = $info['library path'] . '/' . key($info['files']['css']);
+      $form['library']['library_url']['#attributes']['placeholder'] = $info['library path'] . '/dist/' . key($info['files']['js']);
+      $form['library']['css_url']['#attributes']['placeholder'] = $info['library path'] . '/dist/' . key($info['files']['css']);
     }
     else {
       $form['library']['library_url']['#attributes']['placeholder'] = $cdn_js;

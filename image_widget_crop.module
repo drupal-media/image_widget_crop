@@ -76,25 +76,34 @@ function image_widget_crop_library_info_alter(&$libraries, $extension) {
   $config = \Drupal::config('image_widget_crop.settings');
   $js  = $config->get('settings.library_url');
   $css = $config->get('settings.css_url');
-
+  // Explicit configuration takes priority.
   if (!empty($js) && !empty($css)) {
-    // Explicit configuration takes priority.
-    $is_local = parse_url($js, PHP_URL_SCHEME) === NULL && strpos($js, '//') !== 0;
-    $libraries['cropper']['js'][$js] = [
-      'type' => $is_local ? 'file' : 'external',
-      'minified' => TRUE,
-    ];
-    $is_local = parse_url($css, PHP_URL_SCHEME) === NULL && strpos($css, '//') !== 0;
-    $libraries['cropper']['css']['component'][$css] = [
-      'type' => $is_local ? 'file' : 'external',
-      'minified' => TRUE,
-    ];
+    $files = ['js' => $js, 'css' =>  $css];
+    foreach ($files as $type => $file_path) {
+      // Evaluate if the path are an local or external.
+      $is_local = parse_url($file_path, PHP_URL_SCHEME) === NULL && strpos($file_path, '//') !== 0;
+      // In that location $file_path are placed on root of module not in drupal root.
+      $data = ($is_local && substr($file_path, 0, 1) !== '/') ? '/' . $file_path : $file_path;
+      if ($type === 'js') {
+        $libraries['cropper'][$type][$data] = [
+          'type' => $is_local ? 'file' : 'external',
+          'minified' => TRUE,
+        ];
+      } else {
+        $libraries['cropper'][$type]['component'][$data] = [
+          'type' => $is_local ? 'file' : 'external',
+          'minified' => TRUE,
+        ];
+      }
+    }
   }
+  // If Libraries exist and cropper library is available via Libraries API.
   elseif (\Drupal::moduleHandler()->moduleExists('libraries')
-    && ($info = libraries_detect('cropper')) && $info['installed']) {
-    // Library is available via Libraries API.
+    && ($info = libraries_detect('cropper'))
+    && $info['installed']) {
     $libraries['cropper']['version'] = $info['version'];
     foreach ($info['files'] as $type => $files) {
+      // Fetch all possible entry.
       foreach ($files as $data => $option) {
         if (is_numeric($data)) {
           $option = "/{$info['library path']}/{$option}";
@@ -108,6 +117,7 @@ function image_widget_crop_library_info_alter(&$libraries, $extension) {
         $libraries['cropper']['css']['theme'][$data] = $option;
       }
       else {
+        $libraries['cropper'][$type][$data] = $option;
         $libraries['cropper'][$type][$data] = $option;
       }
     }
