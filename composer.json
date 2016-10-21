@@ -1,0 +1,20 @@
+{
+  "name": "drupal/image_widget_crop",
+  "description": "Provides an interface for using the features of the Crop API.",
+  "type": "drupal-module",
+  "homepage": "https://www.drupal.org/project/image_widget_crop",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/image_widget_crop",
+    "source": "https://www.drupal.org/project/image_widget_crop"
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packages.drupal.org/8"
+    }
+  ],
+  "require": {
+    "drupal/crop": "1.0.0"
+  },
+  "license": "GPL-2.0+"
+}
