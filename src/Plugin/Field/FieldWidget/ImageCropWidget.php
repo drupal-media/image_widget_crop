@@ -3,7 +3,7 @@
 namespace Drupal\image_widget_crop\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Config\Entity\ConfigEntityStorage;
+use Drupal\Core\Config\Entity\ConfigEntityStorageInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -62,7 +62,7 @@ class ImageCropWidget extends ImageWidget {
   /**
    * {@inheritdoc}
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, ElementInfoManagerInterface $element_info, ImageWidgetCropManager $image_widget_crop_manager, ConfigEntityStorage $image_style_storage, ConfigEntityStorage $crop_type_storage, ConfigFactoryInterface $config_factory) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, ElementInfoManagerInterface $element_info, ImageWidgetCropManager $image_widget_crop_manager, ConfigEntityStorageInterface $image_style_storage, ConfigEntityStorageInterface $crop_type_storage, ConfigFactoryInterface $config_factory) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings, $element_info);
     $this->imageWidgetCropManager = $image_widget_crop_manager;
     $this->imageStyleStorage = $image_style_storage;
