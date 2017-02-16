@@ -9,13 +9,14 @@
   var cropperSelector = '.crop-preview-wrapper__preview-image';
   var cropperValuesSelector = '.crop-preview-wrapper__value';
   var cropWrapperSelector = '.image-data__crop-wrapper';
-  var cropWrapperSummarySelector = 'summary';
+  var cropWrapperSummarySelector = 'div > a[role="button"], summary';
   var verticalTabsSelector = '.vertical-tabs';
-  var verticalTabsMenuItemSelector = '.vertical-tabs__menu-item';
+  var verticalTabsMenuItemSelector = '.vertical-tabs__menu-item, .vertical-tab-button';
   var resetSelector = '.crop-preview-wrapper__crop-reset';
-  var detailsWrapper = '.details-wrapper';
+  var detailsWrapper = cropWrapperSelector + ' > div:first-child';
   var detailsParentSelector = '.image-widget-data';
   var table = '.responsive-enabled';
+  var boostrapTable = '.panel-body.panel-collapse';
   var cropperOptions = {
     background: false,
     zoomable: false,
@@ -70,17 +71,28 @@
       Drupal.imageWidgetCrop.initializeCropper($cropper, ratio);
     });
 
-    // Handling click event for opening/closing vertical tabs.
-    $cropWrapper.children(cropWrapperSummarySelector).once('imageWidgetCrop').click(function (evt) {
+    // Handling click event for opening/closing vertical tabs, we use "find" instead "children" to support other themes.
+    $cropWrapper.find(cropWrapperSummarySelector).once('imageWidgetCrop').click(function (evt) {
       // Work only on bigger screens where $verticalTabsMenuItem is not empty.
       if ($verticalTabsMenuItem.length !== 0) {
         // If detailsWrapper is not visible display it and initialize cropper.
         if (!$(this).siblings(detailsWrapper).is(':visible')) {
           evt.preventDefault();
-          $(this).parent().attr('open','open');
-          $(table).addClass('responsive-enabled--opened');
-          $(this).parent().find(detailsWrapper).show();
-          Drupal.imageWidgetCrop.initializeCropperOnChildren($(this).parent());
+          // We check if the "structure" of element are more "standard" or have changed.
+          if ($(this).parent().is('details')) {
+              $(this).parent().attr('open','open');
+              $(table).addClass('responsive-enabled--opened');
+              $(this).parent().find(detailsWrapper).show();
+              Drupal.imageWidgetCrop.initializeCropperOnChildren($(this).parent());
+          } else {
+            // To support boostrap theme we need to add specifics, attributes required by them @see #2803407
+            $(this).attr('aria-expanded', 'true');
+            $(boostrapTable).addClass('in');
+            $(boostrapTable).css('height', '');
+            // Boostrap theme add two level in element, ATM that work but found better way...
+              $(this).parent().parent().find(detailsWrapper).show();
+              Drupal.imageWidgetCrop.initializeCropperOnChildren($(this).parent().parent());
+          }
           evt.stopImmediatePropagation();
         }
         // If detailsWrapper is visible hide it.
@@ -103,7 +115,7 @@
     $(window).resize(function () {
       $(detailsParentSelector).each(function () {
         // Find only opened widgets.
-        var cropperDetailsWrapper = $(this).children('details[open="open"]');
+        var cropperDetailsWrapper = $(this).children('details[open="open"], .image-data__crop-wrapper > div[aria-expanded="true"]');
         cropperDetailsWrapper.each(function () {
           // Find all croppers for opened widgets.
           var $croppers = $(this).find(cropperSelector);
@@ -415,7 +427,7 @@
     if (croppingApplied) {
       wrapperText = Drupal.t('Crop image (cropping applied)');
     }
-    $element.children('summary').text(wrapperText);
+    $element.find(cropWrapperSummarySelector).text(wrapperText);
   };
 
   /**
