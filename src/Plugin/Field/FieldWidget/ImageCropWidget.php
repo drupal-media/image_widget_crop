@@ -228,7 +228,7 @@ class ImageCropWidget extends ImageWidget {
 
     // Styles could be lost because of enabled/disabled modules that defines
     // their styles in code.
-    $image_style_setting = $image_styles[$this->getSetting('preview_image_style')];
+    $image_style_setting = $this->getSetting('preview_image_style');
     $crop_preview = $image_styles[$this->getSetting('crop_preview_image_style')];
     $crop_list = $this->getSetting('crop_list');
     $crop_show_button = $this->getSetting('show_crop_area');
@@ -239,7 +239,7 @@ class ImageCropWidget extends ImageWidget {
     $preview[] = $this->t('Show default crop area: @bool', ['@bool' => ($show_default_crop) ? 'Yes' : 'No']);
     $preview[] = $this->t('Warn the user if the crop is used more than once: @bool', ['@bool' => ($warn_multiple_usages) ? 'Yes' : 'No']);
 
-    if (isset($image_style_setting)) {
+    if (isset($image_styles[$image_style_setting])) {
       $preview[] = $this->t('Preview image style: @style', ['@style' => $image_style_setting]);
     }
     else {
