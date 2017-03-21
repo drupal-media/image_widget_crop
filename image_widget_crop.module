@@ -206,3 +206,11 @@ function image_widget_crop_form_submit(array &$form, FormStateInterface $form_st
 function image_widget_crop_filefield_sources_widgets() {
   return ['image_widget_crop'];
 }
+
+/**
+ * Implements hook_imce_supported_widgets_alter().
+ */
+function image_widget_crop_imce_supported_widgets_alter(array &$widgets) {
+  $widgets[] = 'image_widget_crop';
+  return $widgets;
+}
