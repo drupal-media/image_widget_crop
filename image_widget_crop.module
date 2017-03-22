@@ -124,12 +124,12 @@ function image_widget_crop_library_info_alter(&$libraries, $extension) {
   }
   else {
     // Fallback to CDN.
-    $js  = 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.1.0/cropper.min.js';
+    $js  = 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.js';
     $libraries['cropper']['js'][$js] = [
       'type' => 'external',
       'minified' => TRUE,
     ];
-    $css = 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.1.0/cropper.min.css';
+    $css = 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.css';
     $libraries['cropper']['css']['component'][$css] = [
       'type' => 'external',
       'minified' => TRUE,
