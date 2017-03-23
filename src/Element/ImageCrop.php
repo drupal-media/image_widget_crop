@@ -79,7 +79,7 @@ class ImageCrop extends FormElement {
       $crop_type_list = $element['#crop_type_list'];
       // Display all crop types if none is selected.
       if (empty($crop_type_list)) {
-        /** @var \Drupal\image_widget_crop\ImageWidgetCropManager $image_widget_crop_manager */
+        /** @var \Drupal\image_widget_crop\ImageWidgetCropInterface $image_widget_crop_manager */
         $image_widget_crop_manager = \Drupal::service('image_widget_crop.manager');
         $available_crop_types = $image_widget_crop_manager->getAvailableCropType(CropType::getCropTypeNames());
         $crop_type_list = array_keys($available_crop_types);
@@ -198,11 +198,11 @@ class ImageCrop extends FormElement {
             $properties = $form_state_properties;
           }
 
-          /** @var \Drupal\crop\Entity\Crop $crop */
+          /** @var \Drupal\crop\CropInterface $crop */
           $crop = Crop::findCrop($file->getFileUri(), $type);
           if ($crop) {
             $edit = TRUE;
-            /** @var \Drupal\image_widget_crop\ImageWidgetCropManager $image_widget_crop_manager */
+            /** @var \Drupal\image_widget_crop\ImageWidgetCropInterface $image_widget_crop_manager */
             $image_widget_crop_manager = \Drupal::service('image_widget_crop.manager');
             $original_properties = $image_widget_crop_manager->getCropProperties($crop);
 

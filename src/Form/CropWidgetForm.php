@@ -7,7 +7,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\crop\Entity\CropType;
-use Drupal\image_widget_crop\ImageWidgetCropManager;
+use Drupal\image_widget_crop\ImageWidgetCropInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -25,9 +25,9 @@ class CropWidgetForm extends ConfigFormBase {
   protected $settings;
 
   /**
-   * Instance of API ImageWidgetCropManager.
+   * Instance of ImageWidgetCropManager object.
    *
-   * @var \Drupal\image_widget_crop\ImageWidgetCropManager
+   * @var \Drupal\image_widget_crop\ImageWidgetCropInterface
    */
   protected $imageWidgetCropManager;
 
@@ -36,8 +36,10 @@ class CropWidgetForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
+   * @param \Drupal\image_widget_crop\ImageWidgetCropInterface $iwc_manager
+   *   The ImageWidgetCrop manager service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, ImageWidgetCropManager $iwc_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, ImageWidgetCropInterface $iwc_manager) {
     parent::__construct($config_factory);
     $this->settings = $this->config('image_widget_crop.settings');
     $this->imageWidgetCropManager = $iwc_manager;

@@ -239,7 +239,7 @@ class ImageWidgetCropTest extends WebTestBase {
    * @param array $widget_settings
    *   A list of widget settings that will be added to the widget defaults.
    */
-  protected function createImageField($name, $type_name, $widget_name, $storage_settings = [], $field_settings = [], $widget_settings = []) {
+  protected function createImageField($name, $type_name, $widget_name, array $storage_settings = [], array $field_settings = [], array $widget_settings = []) {
     \Drupal::entityTypeManager()->getStorage('field_storage_config')->create([
       'field_name' => $name,
       'entity_type' => 'node',
