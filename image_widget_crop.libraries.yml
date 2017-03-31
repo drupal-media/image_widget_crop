@@ -6,16 +6,14 @@ cropper:
     - core/jquery
 
 cropper.integration:
-  version: 2.0
+  version: 1.7
   js:
-    js/ImageWidgetCrop.js: {}
-    js/ImageWidgetCropType.js: {}
-    js/iwc.behaviors.js: {}
+    js/imageWidgetCrop.js: {}
   css:
     theme:
       css/image_widget_crop.css: {}
   dependencies:
     - core/jquery
     - core/drupal
-    - core/drupal.debounce
+    - core/drupalSettings
     - image_widget_crop/cropper
