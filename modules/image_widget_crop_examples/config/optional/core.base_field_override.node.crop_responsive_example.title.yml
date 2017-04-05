@@ -4,7 +4,7 @@ dependencies:
   config:
     - node.type.crop_responsive_example
 _core:
-  default_config_hash: xwpNn1QU2ApDX_USUR-REPeSOVfxFxIR4SeRITOPzV4
+  default_config_hash: s8OG5Bs7QOe9lIN5e0iQHH0_exP99yX7MZZUwkE6iGA
 id: node.crop_responsive_example.title
 field_name: title
 entity_type: node

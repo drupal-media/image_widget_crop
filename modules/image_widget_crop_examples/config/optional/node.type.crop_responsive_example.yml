@@ -9,10 +9,10 @@ third_party_settings:
       - main
     parent: 'main:'
 _core:
-  default_config_hash: v9zzQKxRa-QW1ip6AfJHmWM7gIRcynBo-JJ_sYVHJ5A
+  default_config_hash: Umqd2MOx5fWz6ntl0GmkDY0DM9QmI_K2-SQ9gSfE2T4
 name: 'Crop Responsive Example'
 type: crop_responsive_example
-description: 'Implementation of ImageWidgetCrop with Node type with Responsive_image integration.'
+description: 'Implementation of ImageWidgetCrop with Node integration using Responsive image style to render a specific crop type by breakpoint defined on Theme basis.'
 help: ''
 new_revision: false
 preview_mode: 0

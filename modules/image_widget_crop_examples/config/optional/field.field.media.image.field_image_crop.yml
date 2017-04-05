@@ -7,7 +7,7 @@ dependencies:
   module:
     - image
 _core:
-  default_config_hash: Kjn0MTCag1m4TM0NXH0MG9UwfpIq1AEa0rxMjALBtaU
+  default_config_hash: hKPu-bbhxvHrjboFX2E3tTQY_QIsatV8KRPnduyg_xs
 id: media.image.field_image_crop
 field_name: field_image_crop
 entity_type: media

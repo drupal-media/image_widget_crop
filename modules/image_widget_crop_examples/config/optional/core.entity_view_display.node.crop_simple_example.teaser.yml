@@ -10,7 +10,7 @@ dependencies:
     - text
     - user
 _core:
-  default_config_hash: c984WeTltPnz0jvgofpa_-H6-28Y66-aMENrFfH8Ugs
+  default_config_hash: '-Y7YxAFnUjAlkgBnfcwlHqzLKKRd8A8p8wYTuNd_ndA'
 id: node.crop_simple_example.teaser
 targetEntityType: node
 bundle: crop_simple_example
@@ -23,8 +23,10 @@ content:
     settings:
       trim_length: 600
     third_party_settings: {  }
+    region: content
   links:
     weight: 100
+    region: content
 hidden:
   field_image_crop_simple: true
   langcode: true

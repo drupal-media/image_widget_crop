@@ -8,7 +8,7 @@ dependencies:
   module:
     - image_widget_crop
 _core:
-  default_config_hash: sb1d6V1xSMBKhXkPviumYjfhy1PUCoQ094c8n1T1KBw
+  default_config_hash: e4mMZVN_1zfe81Ba9EaNv_IiEA47AkgZ7lh1XZUdqcY
 id: media.image.default
 targetEntityType: media
 bundle: image
@@ -16,11 +16,12 @@ mode: default
 content:
   created:
     type: datetime_timestamp
-    weight: 10
+    weight: 4
     settings: {  }
     third_party_settings: {  }
+    region: content
   field_image_crop:
-    weight: 11
+    weight: 1
     settings:
       show_default_crop: true
       preview_image_style: thumbnail
@@ -32,24 +33,29 @@ content:
       warn_multiple_usages: false
     third_party_settings: {  }
     type: image_widget_crop
+    region: content
   langcode:
     type: language_select
     weight: 2
-    settings: {  }
+    settings:
+      include_locked: true
     third_party_settings: {  }
+    region: content
   name:
     type: string_textfield
-    weight: -5
+    weight: 0
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+    region: content
   uid:
     type: entity_reference_autocomplete
-    weight: 5
+    weight: 3
     settings:
       match_operator: CONTAINS
       size: 60
       placeholder: ''
     third_party_settings: {  }
+    region: content
 hidden: {  }

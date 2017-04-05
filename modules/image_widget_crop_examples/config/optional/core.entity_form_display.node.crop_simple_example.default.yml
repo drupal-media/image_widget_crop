@@ -11,7 +11,7 @@ dependencies:
     - path
     - text
 _core:
-  default_config_hash: Tuo6EK7LpzkQAfDTo-kOe-itC3LtNM9Bo5vvXA9fhNg
+  default_config_hash: 5-na3wxyndnQyLzy1pepCFukjewbhJDoAozYO7XQXeg
 id: node.crop_simple_example.default
 targetEntityType: node
 bundle: crop_simple_example
@@ -25,11 +25,13 @@ content:
       summary_rows: 3
       placeholder: ''
     third_party_settings: {  }
+    region: content
   created:
     type: datetime_timestamp
     weight: 5
     settings: {  }
     third_party_settings: {  }
+    region: content
   field_image_crop_simple:
     weight: 1
     settings:
@@ -43,28 +45,34 @@ content:
       progress_indicator: throbber
     third_party_settings: {  }
     type: image_widget_crop
+    region: content
   langcode:
     type: language_select
     weight: 2
-    settings: {  }
+    settings:
+      include_locked: true
     third_party_settings: {  }
+    region: content
   path:
     type: path
     weight: 8
     settings: {  }
     third_party_settings: {  }
+    region: content
   promote:
     type: boolean_checkbox
     settings:
       display_label: true
     weight: 6
     third_party_settings: {  }
+    region: content
   sticky:
     type: boolean_checkbox
     settings:
       display_label: true
     weight: 7
     third_party_settings: {  }
+    region: content
   title:
     type: string_textfield
     weight: 0
@@ -72,6 +80,7 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+    region: content
   uid:
     type: entity_reference_autocomplete
     weight: 4
@@ -80,4 +89,5 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+    region: content
 hidden: {  }

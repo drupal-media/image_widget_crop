@@ -11,7 +11,7 @@ dependencies:
     - text
     - user
 _core:
-  default_config_hash: '-4e0AeDDh-LvCFEkXcJY5PwhOAMFRXb9Fy1i-5lYblE'
+  default_config_hash: rz-b-GuNRg3LJSAXWiCWPIQ7CE5_zw_3tlHfkKvSn-A
 id: node.crop_responsive_example.default
 targetEntityType: node
 bundle: crop_responsive_example
@@ -23,6 +23,7 @@ content:
     weight: 1
     settings: {  }
     third_party_settings: {  }
+    region: content
   field_image_crop_simple:
     weight: 0
     label: above
@@ -31,6 +32,7 @@ content:
       image_link: ''
     third_party_settings: {  }
     type: responsive_image
+    region: content
 hidden:
   langcode: true
   links: true

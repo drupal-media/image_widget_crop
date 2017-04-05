@@ -17,8 +17,10 @@ class FrontPage extends ControllerBase {
    */
   protected $iwcExampleNodeTypes = [
     'crop_file_entity_example',
+    'crop_file_imce_example',
     'crop_media_example',
     'crop_responsive_example',
+    'crop_entity_browser_example',
     'crop_simple_example',
   ];
 
@@ -26,16 +28,19 @@ class FrontPage extends ControllerBase {
    * Displays useful information for image_widget_crop on the front page.
    */
   public function content() {
-    $node_items = [];
+    $items = [];
     foreach ($this->iwcExampleNodeTypes as $node_type) {
       $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($node_type);
-      $node_items['#items'][] = $this->t('<a href="@url">@label',
+      $items['#items'][] = $this->t('<a href="@url">@label',
         [
           '@url' => Url::fromRoute('node.add', ['node_type' => $node_type->id()])->toString(),
           '@label' => $node_type->label(),
         ]
       );
     }
+
+    $this->addExample($items);
+
     return [
       'intro' => [
         '#markup' => '<p>' . $this->t('Welcome to Image Widget Crop example.') . '</p>',
@@ -49,11 +54,32 @@ class FrontPage extends ControllerBase {
         'list' => [
           '#theme' => 'item_list',
           '#items' => [
-            array_values($node_items),
+            array_values($items),
           ],
         ],
       ],
     ];
+  }
+
+  /**
+   * Add examples cases into list of examples.
+   *
+   * @param array $items
+   *   Array of all entity examples available to IWC.
+   *
+   *   return array
+   *   Array of each examples with all elements added.
+   */
+  public function addExample(array &$items) {
+    // Add Form API examples.
+    $items['#items'][] = $this->t('<a href="@url">@label',
+      [
+        '@url' => Url::fromRoute('image_widget_crop_examples.form')->toString(),
+        '@label' => $this->t('ImageWidgetCrop Form API examples'),
+      ]
+    );
+
+    return $items;
   }
 
 }

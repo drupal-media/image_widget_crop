@@ -2,7 +2,7 @@ langcode: en
 status: true
 dependencies: {  }
 _core:
-  default_config_hash: '-1HM9iVQHY6b_d1c6l3mlqgGGZSNHCmbLsOIL3IoyW0'
+  default_config_hash: We4ikTM-maDNX3IFQtY2u9bSEPl80nNCsNuyhuJJLMo
 label: 'Crop 4:3'
 id: crop_4_3
 description: ''

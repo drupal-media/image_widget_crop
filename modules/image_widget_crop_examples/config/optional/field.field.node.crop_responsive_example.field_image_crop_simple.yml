@@ -7,7 +7,7 @@ dependencies:
   module:
     - image
 _core:
-  default_config_hash: TzCzKn2kZNBNmZzOdTQ9xXfw6JFonGepNkcusuegdH8
+  default_config_hash: 3zky2UvAGhcUMnYrkYwgnFGB6TSgOb6UN04_Xi8jCA0
 id: node.crop_responsive_example.field_image_crop_simple
 field_name: field_image_crop_simple
 entity_type: node

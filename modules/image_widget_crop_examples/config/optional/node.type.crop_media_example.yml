@@ -9,10 +9,10 @@ third_party_settings:
       - main
     parent: 'main:'
 _core:
-  default_config_hash: eoxvMvunXr49gSTJYae6VzJl33Vh6mXRdu-vWpgx9gQ
+  default_config_hash: JloZNQPgp0NAk3i27fqWXZCxrwjXYUtjFHWnd5dDKwM
 name: 'Crop Media Example'
 type: crop_media_example
-description: 'Implementation of ImageWidgetCrop with Node type bundle with media_entity_image reference.'
+description: 'Implementation of ImageWidgetCrop with media_entity (image) integration.'
 help: ''
 new_revision: false
 preview_mode: 0
