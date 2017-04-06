@@ -490,9 +490,37 @@
    */
   Drupal.ImageWidgetCropType.prototype.pollVisibility = function (element) {
     var $element = $(element);
+
+    // Immediately return if there's no element.
+    if (!$element[0]) {
+      return;
+    }
+
+    var isElementVisible = function (el) {
+      var rect = el.getBoundingClientRect();
+      var vWidth = window.innerWidth || document.documentElement.clientWidth;
+      var vHeight = window.innerHeight || document.documentElement.clientHeight;
+
+      // Immediately Return false if it's not in the viewport.
+      if (rect.right < 0 || rect.bottom < 0 || rect.left > vWidth || rect.top > vHeight) {
+        return false;
+      }
+
+      // Return true if any of its four corners are visible.
+      var efp = function (x, y) {
+        return document.elementFromPoint(x, y);
+      };
+      return (
+        el.contains(efp(rect.left, rect.top))
+        || el.contains(efp(rect.right, rect.top))
+        || el.contains(efp(rect.right, rect.bottom))
+        || el.contains(efp(rect.left, rect.bottom))
+      );
+    };
+
     var value = null;
     var interval = setInterval(function () {
-      var visible = $element.is(':visible');
+      var visible = isElementVisible($element[0]);
       if (value !== visible) {
         $element.trigger((value = visible) ? 'visible.iwc' : 'hidden.iwc');
       }
