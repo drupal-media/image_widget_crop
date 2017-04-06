@@ -399,12 +399,6 @@ class ImageWidgetCropManager implements ImageWidgetCropInterface {
    * {@inheritdoc}
    */
   public function buildCropToForm(FormStateInterface $form_state) {
-    // Add check before if element has file form element.
-    if (!$form_state->hasFileElement()) {
-      drupal_set_message(t('No File element found.'), 'error');
-      return;
-    }
-
     /** @var \Drupal\file_entity\Entity\FileEntity $entity */
     if ($entity = $form_state->getFormObject()->getEntity()) {
       $form_state_values = $form_state->getValues();
@@ -448,6 +442,10 @@ class ImageWidgetCropManager implements ImageWidgetCropInterface {
           }
         }
       }
+    }
+    else {
+      drupal_set_message(t('No File element found.'), 'error');
+      return;
     }
   }
 
