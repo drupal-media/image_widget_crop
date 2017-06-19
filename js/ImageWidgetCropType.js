@@ -425,6 +425,13 @@
 
     // Trigger the initial summaryUpdate event.
     this.$wrapper.trigger('summaryUpdated');
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    if (isIE) {
+      var $image = this.$image;
+      $('.image-data__crop-wrapper > summary').on('click', function() {
+        setTimeout(function() {$image.trigger('visible.iwc')}, 100);
+      });
+    }
   };
 
   /**
