@@ -105,6 +105,7 @@ class ImageWidgetCropTest extends WebTestBase {
     $this->assertNoText('Alternative text');
     $this->assertNoFieldByName('field_image_crop_test_0_remove_button');
 
+    $image = [];
     // Upload an image in field_image_crop_test_0.
     $image['files[field_image_crop_test_0]'] = $this->container->get('file_system')->realpath('public://image-test.jpg');
     $this->drupalPostAjaxForm(NULL, $image, $this->getButtonName('//input[@type="submit" and @value="Upload" and @data-drupal-selector="edit-field-image-crop-test-0-upload-button"]'));
@@ -191,8 +192,8 @@ class ImageWidgetCropTest extends WebTestBase {
 
     // Assert that crop widget is displayed by default, even if there are no
     // crop types selected in the global image widget crop configuration.
-    $image_widget_crop_settings = \Drupal::config('image_widget_crop.settings')->get('crop_list');
-    $this->assertEqual($image_widget_crop_settings, []);
+    $iwc_settings = \Drupal::config('image_widget_crop.settings')->get('crop_list');
+    $this->assertEqual($iwc_settings, []);
     $this->drupalGet('file/' . $image->id() . '/edit');
     $this->assertRaw('edit-image-crop-crop-wrapper-16-9');
     $this->assertRaw('16_9');
@@ -211,6 +212,7 @@ class ImageWidgetCropTest extends WebTestBase {
    */
   protected function getButtonName($xpath) {
     $retval = '';
+
     /** @var \SimpleXMLElement[] $elements */
     if ($elements = $this->xpath($xpath)) {
       foreach ($elements[0]->attributes() as $name => $value) {
