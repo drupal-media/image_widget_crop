@@ -96,7 +96,7 @@ ImageWidgetCrop can be used in different contexts.
 
 ### FieldWidget:
 
-* Create a Crop Type (`admin/structure/crop`)
+* Create a Crop Type (`admin/config/media/crop`)
 * Create ImageStyles  
 * add Manual crop effect, using your Crop Type, (to apply your crop selection).
 * Create an Image field.
