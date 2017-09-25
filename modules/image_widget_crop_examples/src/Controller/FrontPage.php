@@ -44,12 +44,9 @@ class FrontPage extends ControllerBase {
    * @var array
    */
   protected $iwcExampleNodeTypes = [
-    'crop_file_entity_example',
-    'crop_file_imce_example',
-    'crop_media_example',
     'crop_responsive_example',
-    'crop_entity_browser_example',
     'crop_simple_example',
+    'crop_media_example',
   ];
 
   /**
