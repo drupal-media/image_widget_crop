@@ -282,24 +282,6 @@ class ImageWidgetCropManager implements ImageWidgetCropInterface {
   /**
    * {@inheritdoc}
    */
-  public function getAvailableCropImageStyle(array $styles) {
-    $available_styles = [];
-    foreach ($styles as $style_id => $style_label) {
-      $style_loaded = $this->imageStyleStorage->loadByProperties(['name' => $style_id]);
-      /** @var \Drupal\image\Entity\ImageStyle $image_style */
-      $image_style = $style_loaded[$style_id];
-      $effect_data = $this->getEffectData($image_style, 'width');
-      if (!empty($effect_data)) {
-        $available_styles[$style_id] = $style_label;
-      }
-    }
-
-    return $available_styles;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getAvailableCropType(array $crop_list) {
     $available_crop = [];
     foreach ($crop_list as $crop_machine_name => $crop_label) {

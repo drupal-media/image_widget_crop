@@ -174,7 +174,7 @@ class ImageCropWidget extends ImageWidget {
     $element['crop_preview_image_style'] = [
       '#title' => $this->t('Crop preview image style'),
       '#type' => 'select',
-      '#options' => $this->imageWidgetCropManager->getAvailableCropImageStyle(image_style_options(FALSE)),
+      '#options' => image_style_options(FALSE),
       '#default_value' => $this->getSetting('crop_preview_image_style'),
       '#description' => $this->t('The preview image will be shown while editing the content.'),
       '#weight' => 15,
