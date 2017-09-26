@@ -5,6 +5,9 @@
  * Contains image_widget_crop.module.
  */
 
+define('IMAGE_WIDGET_CROP_JS_CDN', 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.js');
+define('IMAGE_WIDGET_CROP_CSS_CDN', 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.css');
+
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -121,18 +124,17 @@ function image_widget_crop_library_info_alter(&$libraries, $extension) {
   }
   else {
     // Fallback to CDN.
-    $js = 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.js';
+    $js = IMAGE_WIDGET_CROP_JS_CDN;
     $libraries['cropper']['js'][$js] = [
       'type' => 'external',
       'minified' => TRUE,
     ];
-    $css = 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.css';
+    $css = IMAGE_WIDGET_CROP_CSS_CDN;
     $libraries['cropper']['css']['component'][$css] = [
       'type' => 'external',
       'minified' => TRUE,
     ];
     $libraries['cropper']['version'] = 'web-hosted';
-    $libraries['cropper.integration']['js'] = [];
   }
 }
 

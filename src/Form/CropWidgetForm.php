@@ -98,8 +98,8 @@ class CropWidgetForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $url = 'https://cdnjs.com/libraries/cropper';
-    $cdn_js = 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.js';
-    $cdn_css = 'https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.css';
+    $cdn_js = IMAGE_WIDGET_CROP_JS_CDN;
+    $cdn_css = IMAGE_WIDGET_CROP_CSS_CDN;
 
     $form['library'] = [
       '#type' => 'details',
