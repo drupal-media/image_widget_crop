@@ -173,17 +173,6 @@ interface ImageWidgetCropInterface {
   public function cropHasChanged(array $crop_properties, array $old_crop);
 
   /**
-   * Verify if ImageStyle is correctly configured.
-   *
-   * @param array $styles
-   *   The list of available ImageStyle.
-   *
-   * @return arrayinteger
-   *   The list of styles filtred.
-   */
-  public function getAvailableCropImageStyle(array $styles);
-
-  /**
    * Verify if the crop is used by a ImageStyle.
    *
    * @param string[] $crop_list
