@@ -390,7 +390,7 @@ class ImageCrop extends FormElement {
     $element_name = $element['#element_name'];
     if ($hard_limit[$element_name] !== 0 && !empty($hard_limit[$element_name])) {
       if ($hard_limit[$element_name] > (int) $crop_values[$element_name]) {
-        $form_state->setError($element, t('Crop @property is smaller then the allowed @hard_limitpx for @crop_name',
+        $form_state->setError($element, t('Crop @property is smaller than the allowed @hard_limitpx for @crop_name',
           [
             '@property' => $element_name,
             '@hard_limit' => $hard_limit[$element_name],
