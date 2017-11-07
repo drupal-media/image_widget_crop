@@ -649,7 +649,7 @@
     if (!this.values.hasOwnProperty(name) || !this.values[name][0]) {
       return;
     }
-    value = value ? parseInt(value, 10) : 0;
+    value = value ? parseFloat(value) : 0;
     if (delta && name !== 'applied') {
       value = Math.round(value * delta);
     }
