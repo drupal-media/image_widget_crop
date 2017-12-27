@@ -19,3 +19,9 @@ cropper.integration:
     - core/drupal
     - core/drupal.debounce
     - image_widget_crop/cropper
+
+modal:
+  js:
+    js/ImageWidgetModalCrop.js: {}
+  dependencies:
+    - core/drupal.dialog.ajax

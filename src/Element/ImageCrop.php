@@ -35,7 +35,7 @@ class ImageCrop extends FormElement {
       '#show_default_crop' => TRUE,
       '#show_crop_area' => FALSE,
       '#attached' => [
-        'library' => 'image_widget_crop/cropper.integration',
+        'library' => ['image_widget_crop/cropper.integration'],
       ],
       '#tree' => TRUE,
     ];
@@ -180,6 +180,7 @@ class ImageCrop extends FormElement {
               'data-drupal-iwc' => 'reset',
             ],
             '#weight' => -10,
+            //'#access' => FALSE,
           ];
 
           // Generation of html List with image & crop information.
@@ -241,6 +242,11 @@ class ImageCrop extends FormElement {
           '#value' => $file->id(),
         ];
       }
+
+     /* if (count($crop_types) == 1) {
+        $element['crop_wrapper'][$list_id]['#access'] = FALSE;
+      }*/
+
     }
     return $element;
   }
