@@ -66,7 +66,81 @@ class ImageCropModalWidget extends ImageCropWidget {
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    return parent::settingsForm($form, $form_state);
+    $element = parent::settingsForm($form, $form_state);
+
+    $element['modal'] = [
+      '#type' => 'details',
+      '#title' => t('Modal dialog settings'),
+      '#open' => TRUE,
+    ];
+
+    $element['modal']['modal_title'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Title'),
+      '#default_value' => $this->getSetting('modal_title'),
+    ];
+
+    $element['modal']['size'] = [
+      '#type' => 'fieldset',
+      '#title' => t('Width X Height'),
+      '#attributes' => [
+        'class' => ['container-inline'],
+      ],
+    ];
+
+    $element['modal']['size']['modal_width'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Width'),
+      '#title_display' => 'invisible',
+      '#size' => 4,
+      '#element_validate' => ['element_validate_integer_positive'],
+      '#default_value' => $this->getSetting('modal_width'),
+      '#suffix' => ' x ',
+    ];
+
+    $element['modal']['size']['modal_height'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Height'),
+      '#title_display' => 'invisible',
+      '#size' => 4,
+      '#element_validate' => ['element_validate_integer_positive'],
+      '#default_value' => $this->getSetting('modal_height'),
+      '#suffix' => 'px',
+    ];
+
+    $element['modal']['min_size'] = [
+      '#type' => 'fieldset',
+      '#title' => t('Min width X Min height'),
+      '#attributes' => [
+        'class' => ['container-inline'],
+      ],
+    ];
+
+    $element['modal']['min_size']['modal_min_width'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Min width'),
+      '#title_display' => 'invisible',
+      '#size' => 4,
+      '#element_validate' => ['element_validate_integer_positive'],
+      '#default_value' => $this->getSetting('modal_min_width'),
+      '#suffix' => ' x ',
+    ];
+
+    $element['modal']['min_size']['modal_min_height'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Min height'),
+      '#title_display' => 'invisible',
+      '#size' => 4,
+      '#element_validate' => ['element_validate_integer_positive'],
+      '#default_value' => $this->getSetting('modal_min_height'),
+      '#suffix' => 'px',
+    ];
+
+    $element['modal']['help'] = [
+      '#markup' => t('Leave 0 or blank to scale modal dialog automatically.'),
+    ];
+
+    return $element;
   }
 
   /**
@@ -74,6 +148,8 @@ class ImageCropModalWidget extends ImageCropWidget {
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $element = parent::formElement($items, $delta, $element, $form, $form_state);
+
+    $s = $this->getSettings();
 
     // Add modal specific settings.
     $options = ['title', 'width', 'height', 'min_width', 'min_height'];
