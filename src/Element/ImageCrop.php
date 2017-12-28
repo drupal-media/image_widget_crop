@@ -97,6 +97,7 @@ class ImageCrop extends FormElement {
         $crop_type_list = array_keys($available_crop_types);
       }
 
+      // In some cases we restrict crope list to be a single value.
       if (!is_array($crop_type_list)) {
         $crop_type_list = [$crop_type_list];
       }
