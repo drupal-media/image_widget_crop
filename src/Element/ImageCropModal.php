@@ -71,6 +71,9 @@ class ImageCropModal extends ImageCrop {
       '#type' => 'button',
       '#value' => t('Edit crop'),
       '#name' => strtr($id_prefix, '-', '_') . '_modal',
+      '#attributes' => [
+        'class' => ['edit-crop'],
+      ],
       '#ajax' => [
         'callback' => '\Drupal\image_widget_crop\Element\ImageCropModal::ajaxModal',
       ],
