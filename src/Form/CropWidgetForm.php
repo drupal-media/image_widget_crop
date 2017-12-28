@@ -181,6 +181,12 @@ class CropWidgetForm extends ConfigFormBase {
       '#default_value' => $this->settings->get('settings.show_default_crop'),
     ];
 
+    $form['image_crop']['show_reset_crop'] = [
+      '#title' => $this->t('Show "Reset crop" button'),
+      '#type' => 'checkbox',
+      '#default_value' => $this->settings->get('settings.show_reset_crop'),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -243,6 +249,7 @@ class CropWidgetForm extends ConfigFormBase {
       ->set("settings.css_url", $form_state->getValue('css_url'))
       ->set("settings.crop_preview_image_style", $form_state->getValue('crop_preview_image_style'))
       ->set("settings.show_default_crop", $form_state->getValue('show_default_crop'))
+      ->set("settings.show_reset_crop", $form_state->getValue('show_reset_crop'))
       ->set("settings.show_crop_area", $form_state->getValue('show_crop_area'))
       ->set("settings.warn_multiple_usages", $form_state->getValue('warn_multiple_usages'))
       ->set("settings.crop_list", $form_state->getValue('crop_list'));

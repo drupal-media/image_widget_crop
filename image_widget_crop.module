@@ -154,6 +154,7 @@ function image_widget_crop_form_file_form_alter(&$form, FormStateInterface $form
       '#crop_type_list' => $crop_config->get('settings.crop_list'),
       '#crop_preview_image_style' => $crop_config->get('settings.crop_preview_image_style'),
       '#show_default_crop' => $crop_config->get('settings.show_default_crop'),
+      '#show_reset_crop' => $crop_config->get('settings.show_reset_crop'),
       '#warn_mupltiple_usages' => $crop_config->get('settings.warn_mupltiple_usages'),
     ];
     $form['actions']['submit']['#submit'][] = 'image_widget_crop_form_submit';

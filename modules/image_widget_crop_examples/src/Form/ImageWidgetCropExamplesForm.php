@@ -122,6 +122,7 @@ class ImageWidgetCropExamplesForm extends ConfigFormBase {
         '#crop_type_list' => ['crop_16_9'],
         '#crop_preview_image_style' => 'crop_thumbnail',
         '#show_default_crop' => TRUE,
+        '#show_reset_crop' => TRUE,
         '#show_crop_area' => FALSE,
         '#warn_mupltiple_usages' => TRUE,
       ];

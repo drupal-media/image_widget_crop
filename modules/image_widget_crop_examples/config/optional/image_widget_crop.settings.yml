@@ -8,6 +8,7 @@ settings:
     crop_free_ratio: crop_free_ratio
   warn_multiple_usages: false
   show_default_crop: true
+  show_reset_crop: true
 _core:
   default_config_hash: QjLJUHJAzic-efSYtJnhoz7in-eT3A1PriLW3i11DFg
 langcode: en

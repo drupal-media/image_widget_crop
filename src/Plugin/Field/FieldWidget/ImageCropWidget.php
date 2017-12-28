@@ -101,6 +101,7 @@ class ImageCropWidget extends ImageWidget {
       'crop_list' => NULL,
       'show_crop_area' => FALSE,
       'show_default_crop' => TRUE,
+      'show_reset_crop' => TRUE,
       'warn_multiple_usages' => TRUE,
     ] + parent::defaultSettings();
   }
@@ -124,6 +125,7 @@ class ImageCropWidget extends ImageWidget {
           '#crop_type_list' => $element['#crop_list'],
           '#crop_preview_image_style' => $element['#crop_preview_image_style'],
           '#show_default_crop' => $element['#show_default_crop'],
+          '#show_reset_crop' => $element['#show_reset_crop'],
           '#show_crop_area' => $element['#show_crop_area'],
           '#warn_multiple_usages' => $element['#warn_multiple_usages'],
         ];
@@ -204,6 +206,12 @@ class ImageCropWidget extends ImageWidget {
       '#default_value' => $this->getSetting('show_default_crop'),
     ];
 
+    $element['show_reset_crop'] = [
+      '#title' => $this->t('Show "Reset crop" button'),
+      '#type' => 'checkbox',
+      '#default_value' => $this->getSetting('show_reset_crop'),
+    ];
+
     $element['warn_multiple_usages'] = [
       '#title' => $this->t('Warn the user if the crop is used more than once.'),
       '#type' => 'checkbox',
@@ -233,10 +241,12 @@ class ImageCropWidget extends ImageWidget {
     $crop_list = $this->getSetting('crop_list');
     $crop_show_button = $this->getSetting('show_crop_area');
     $show_default_crop = $this->getSetting('show_default_crop');
+    $show_reset_crop = $this->getSetting('show_reset_crop');
     $warn_multiple_usages = $this->getSetting('warn_multiple_usages');
 
     $preview[] = $this->t('Always expand crop area: @bool', ['@bool' => ($crop_show_button) ? 'Yes' : 'No']);
     $preview[] = $this->t('Show default crop area: @bool', ['@bool' => ($show_default_crop) ? 'Yes' : 'No']);
+    $preview[] = $this->t('Show crop reset button: @bool', ['@bool' => ($show_reset_crop) ? 'Yes' : 'No']);
     $preview[] = $this->t('Warn the user if the crop is used more than once: @bool', ['@bool' => ($warn_multiple_usages) ? 'Yes' : 'No']);
 
     if (isset($image_styles[$image_style_setting])) {
@@ -251,7 +261,7 @@ class ImageCropWidget extends ImageWidget {
     }
 
     if (!empty($crop_list)) {
-      $preview[] = $this->t('Crop Type used: @list', ['@list' => implode(", ", $crop_list)]);
+      $preview[] = $this->t('Crop Type used: @list', ['@list' => is_array($crop_list) ? implode(", ", $crop_list) : $crop_list]);
     }
 
     return $preview;
@@ -269,6 +279,7 @@ class ImageCropWidget extends ImageWidget {
     $element['#crop_preview_image_style'] = $this->getSetting('crop_preview_image_style');
     $element['#show_crop_area'] = $this->getSetting('show_crop_area');
     $element['#show_default_crop'] = $this->getSetting('show_default_crop');
+    $element['#show_reset_crop'] = $this->getSetting('show_reset_crop');
     $element['#warn_multiple_usages'] = $this->getSetting('warn_multiple_usages');
 
     return parent::formElement($items, $delta, $element, $form, $form_state);

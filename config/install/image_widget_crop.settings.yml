@@ -5,3 +5,4 @@ settings:
   crop_list: []
   warn_multiple_usages: FALSE
   show_default_crop: TRUE
+  show_reset_crop: TRUE

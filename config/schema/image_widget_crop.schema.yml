@@ -27,6 +27,9 @@ field.widget.settings.image_widget_crop:
     show_default_crop:
       type: boolean
       label: 'Show default crop area'
+    show_reset_crop:
+      type: boolean
+      label: 'Show "Reset crop" button'
 
 image_widget_crop.settings:
   type: config_object
@@ -55,6 +58,55 @@ image_widget_crop.settings:
         show_default_crop:
           type: boolean
           label: 'Show default crop area'
+        show_reset_crop:
+          type: boolean
+          label: 'Show "Reset crop" button'
         show_crop_area:
           type: boolean
           label: 'Always expand crop area'
+
+field.widget.settings.image_widget_modal_crop:
+  type: mapping
+  label: 'Image field display format settings'
+  mapping:
+    progress_indicator:
+      type: string
+      label: 'Progress indicator'
+    preview_image_style:
+      type: string
+      label: 'Preview image style'
+    crop_preview_image_style:
+      type: string
+      label: 'Preview crop image style'
+    crop_list:
+      type: sequence
+      label: 'The preview image will be cropped'
+      sequence:
+        type: string
+    warn_multiple_usages:
+      type: boolean
+      label: 'Warn user when a file have multiple usages'
+    show_crop_area:
+      type: boolean
+      label: 'Always expand crop area'
+    show_default_crop:
+      type: boolean
+      label: 'Show default crop area'
+    show_reset_crop:
+      type: boolean
+      label: 'Show "Reset crop" button'
+    modal_title:
+      type: string
+      label: 'Modal dialog title'
+    modal_width:
+      type: integer
+      label: 'Modal dialog width'
+    modal_height:
+      type: integer
+      label: 'Modal dialog height'
+    modal_min_width:
+      type: integer
+      label: 'Modal dialog min width'
+    modal_min_height:
+      type: integer
+      label: 'Modal dialog min height'
