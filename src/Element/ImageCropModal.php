@@ -66,10 +66,11 @@ class ImageCropModal extends ImageCrop {
     }
 
     // Add a simple button which opens a modal with image crop selection.
+    $id_prefix = implode('-', $element['#parents']);
     $element['modal_button'] = [
       '#type' => 'button',
-      '#name' => 'modal_crop',
       '#value' => t('Edit crop'),
+      '#name' => strtr($id_prefix, '-', '_') . '_modal',
       '#ajax' => [
         'callback' => '\Drupal\image_widget_crop\Element\ImageCropModal::ajaxModal',
       ],
