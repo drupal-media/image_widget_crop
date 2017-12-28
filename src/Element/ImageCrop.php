@@ -33,6 +33,7 @@ class ImageCrop extends FormElement {
       '#crop_type_list' => [],
       '#warn_multiple_usages' => FALSE,
       '#show_default_crop' => TRUE,
+      '#show_reset_crop' => TRUE,
       '#show_crop_area' => FALSE,
       '#attached' => [
         'library' => ['image_widget_crop/cropper.integration'],
@@ -95,6 +96,11 @@ class ImageCrop extends FormElement {
         $available_crop_types = $iwc_manager->getAvailableCropType(CropType::getCropTypeNames());
         $crop_type_list = array_keys($available_crop_types);
       }
+
+      if (!is_array($crop_type_list)) {
+        $crop_type_list = [$crop_type_list];
+      }
+
       $element['crop_wrapper'] = [
         '#type' => 'details',
         '#title' => t('Crop image'),
@@ -172,16 +178,17 @@ class ImageCrop extends FormElement {
             '#weight' => -10,
           ];
 
-          $element['crop_wrapper'][$type]['crop_container']['reset'] = [
-            '#type' => 'button',
-            '#value' => t('Reset crop'),
-            '#attributes' => [
-              'class' => ['crop-preview-wrapper__crop-reset'],
-              'data-drupal-iwc' => 'reset',
-            ],
-            '#weight' => -10,
-            //'#access' => FALSE,
-          ];
+          if ($element['#show_reset_crop']) {
+            $element['crop_wrapper'][$type]['crop_container']['reset'] = [
+              '#type' => 'button',
+              '#value' => t('Reset crop'),
+              '#attributes' => [
+                'class' => ['crop-preview-wrapper__crop-reset'],
+                'data-drupal-iwc' => 'reset',
+              ],
+              '#weight' => -10,
+            ];
+          }
 
           // Generation of html List with image & crop information.
           $element['crop_wrapper'][$type]['crop_container']['values'] = [
@@ -242,11 +249,6 @@ class ImageCrop extends FormElement {
           '#value' => $file->id(),
         ];
       }
-
-     /* if (count($crop_types) == 1) {
-        $element['crop_wrapper'][$list_id]['#access'] = FALSE;
-      }*/
-
     }
     return $element;
   }
@@ -402,7 +404,7 @@ class ImageCrop extends FormElement {
             '@hard_limit' => $hard_limit[$element_name],
             '@crop_name' => $crop_type->label(),
           ]
-          ));
+        ));
       }
     }
   }

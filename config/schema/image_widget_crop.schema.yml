@@ -27,6 +27,9 @@ field.widget.settings.image_widget_crop:
     show_default_crop:
       type: boolean
       label: 'Show default crop area'
+    show_reset_crop:
+      type: boolean
+      label: 'Show "Reset crop" button'
 
 image_widget_crop.settings:
   type: config_object
@@ -55,6 +58,9 @@ image_widget_crop.settings:
         show_default_crop:
           type: boolean
           label: 'Show default crop area'
+        show_reset_crop:
+          type: boolean
+          label: 'Show "Reset crop" button'
         show_crop_area:
           type: boolean
           label: 'Always expand crop area'
@@ -86,6 +92,9 @@ field.widget.settings.image_widget_modal_crop:
     show_default_crop:
       type: boolean
       label: 'Show default crop area'
+    show_reset_crop:
+      type: boolean
+      label: 'Show "Reset crop" button'
     modal_title:
       type: string
       label: 'Modal dialog title'

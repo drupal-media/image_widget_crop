@@ -80,6 +80,9 @@ class ImageCropModal extends ImageCrop {
     // submit form values. All other elements will be shown in the modal dialog.
     foreach (Element::children($element['crop_wrapper']) as $crop_type) {
       if (empty($element['crop_wrapper'][$crop_type]['crop_container'])) {
+        if ($element['crop_wrapper'][$crop_type]['#type'] == 'vertical_tabs') {
+          $element['crop_wrapper'][$crop_type]['#access'] = FALSE;
+        }
         continue;
       }
       $crop_item = &$element['crop_wrapper'][$crop_type];
@@ -87,6 +90,14 @@ class ImageCropModal extends ImageCrop {
       // Covert tab with every crop type into container to avoid visual
       // rendering of it in the main form.
       $crop_item['#type'] = 'container';
+
+
+      // That's a small trick to generate (if not exist) & preload image in
+      // crop image style ahead of display in popup. It prevents popup from
+      // jump on load and users from waiting for image to generate.
+      $crop_item['crop_container']['image_preload'] = $crop_item['crop_container']['image'];
+      unset($crop_item['crop_container']['image_preload']['#attributes']['data-drupal-iwc']);
+      $crop_item['crop_container']['image_preload']['#attributes']['style'] = 'display:none';
 
       // Hide image with crop selection & reset button from the main form.
       // We'll show those items in the modal dialog.
@@ -149,7 +160,8 @@ class ImageCropModal extends ImageCrop {
     $options = ['width', 'height', 'min_width', 'min_height'];
     foreach ($options as $option) {
       if (!empty($image_crop['#modal_' . $option])) {
-        $settings[$option] = $image_crop['#modal_' . $option];
+        $dialogOption = str_replace(['min_width', 'min_height'], ['minWidth', 'minHeight'], $option);
+        $settings[$dialogOption] = $image_crop['#modal_' . $option];
       }
     }
 

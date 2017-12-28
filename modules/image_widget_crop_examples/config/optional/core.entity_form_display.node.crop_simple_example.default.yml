@@ -37,6 +37,7 @@ content:
     settings:
       show_crop_area: true
       show_default_crop: true
+      show_reset_crop: true
       warn_multiple_usages: true
       preview_image_style: thumbnail
       crop_preview_image_style: crop_thumbnail

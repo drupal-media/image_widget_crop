@@ -147,6 +147,7 @@ $form['image_crop'] = [
   '#crop_preview_image_style' => $crop_config->get('settings.crop_preview_
    image_style'),
   '#show_default_crop' => $crop_config->get('settings.show_default_crop'),
+  '#show_reset_crop' => $crop_config->get('settings.show_reset_crop'),
   '#show_crop_area' => $crop_config->get('settings.show_crop_area'),
   '#warn_mupltiple_usages' => $crop_config->get('settings.warn_
    mupltiple_usages'),
@@ -160,6 +161,7 @@ $form['image_crop'] = [
   '#crop_type_list' => ['crop_16_9', 'crop_free'],
   '#crop_preview_image_style' => 'crop_thumbnail',
   '#show_default_crop' => FALSE,
+  '#show_reset_crop' => FALSE,
   '#show_crop_area' => FALSE,
   '#warn_mupltiple_usages' => FALSE,
 ];

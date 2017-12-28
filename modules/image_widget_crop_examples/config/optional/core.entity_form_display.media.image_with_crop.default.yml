@@ -23,6 +23,7 @@ content:
   field_media_image:
     settings:
       show_default_crop: true
+      show_reset_crop: true
       warn_multiple_usages: true
       preview_image_style: thumbnail
       crop_preview_image_style: crop_thumbnail
